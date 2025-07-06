@@ -1,6 +1,5 @@
 package com.genyo.addon.modules;
 
-import com.genyo.addon.GenyoAddon;
 import com.google.common.util.concurrent.AtomicDouble;
 import it.unimi.dsi.fastutil.ints.*;
 import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
@@ -16,8 +15,8 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
+import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.combat.BedAura;
 import meteordevelopment.meteorclient.utils.entity.DamageUtils;
 import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.meteorclient.utils.entity.Target;
@@ -62,8 +61,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class GenyoKristaj extends Module {
-
+public class TescoCrystal extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgSwitch = settings.createGroup("Switch");
     private final SettingGroup sgPlace = settings.createGroup("Place");
@@ -597,8 +595,8 @@ public class GenyoKristaj extends Module {
 
     private double renderDamage;
 
-    public GenyoKristaj() {
-        super(GenyoAddon.GENYO, "genyo-kristaj", "ez jobb mert a több az mindig jobb.");
+    public TescoCrystal() {
+        super(Categories.Combat, "crystal-aura", "Automatically places and attacks crystals.");
     }
 
     @Override
@@ -703,6 +701,14 @@ public class GenyoKristaj extends Module {
         if (!targets.isEmpty()) {
             if (!didRotateThisTick) doBreak();
             if (!didRotateThisTick) doPlace();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST - 666)
+    private void onPreTickLast(TickEvent.Pre event) {
+        // Rotate to last rotation
+        if (rotate.get() && lastRotationTimer < getLastRotationStopDelay() && !didRotateThisTick) {
+            Rotations.rotate(isLastRotationPos ? Rotations.getYaw(lastRotationPos) : lastYaw, isLastRotationPos ? Rotations.getPitch(lastRotationPos) : lastPitch, -100, null);
         }
     }
 
@@ -854,7 +860,7 @@ public class GenyoKristaj extends Module {
     }
 
     private boolean isValidWeaknessItem(ItemStack itemStack, Entity crystal) {
-        return DamageUtils.getAttackDamage(mc.player, (LivingEntity) crystal, itemStack) > 0;
+        return DamageUtils.getAttackDamage(mc.player, crystal, itemStack) > 0;
     }
 
     private void attackCrystal(Entity entity) {
@@ -1015,8 +1021,7 @@ public class GenyoKristaj extends Module {
         FindItemResult item = InvUtils.findInHotbar(targetItem);
         if (!item.found()) return;
 
-        // int prevSlot = mc.player.getInventory().getSelectedSlot();
-        int prevSlot = InvUtils.previousSlot;
+        int prevSlot = mc.player.getInventory().getSelectedSlot();
 
         if (autoSwitch.get() != AutoSwitchMode.None && !item.isOffhand()) InvUtils.swap(item.slot(), false);
 
@@ -1118,7 +1123,8 @@ public class GenyoKristaj extends Module {
 
                 if (itemStack == null || itemStack.isEmpty()) {
                     if (facePlaceArmor.get()) return true;
-                } else {
+                }
+                else {
                     if ((double) (itemStack.getMaxDamage() - itemStack.getDamage()) / itemStack.getMaxDamage() * 100 <= facePlaceDurability.get()) return true;
                 }
             }
@@ -1210,7 +1216,6 @@ public class GenyoKristaj extends Module {
             if (livingEntity instanceof PlayerEntity player) {
                 if (player.getAbilities().creativeMode || livingEntity == mc.player) continue;
                 if (!player.isAlive() || !Friends.get().shouldAttack(player)) continue;
-                //TODO: prioritize enemies
 
                 if (ignoreNakeds.get()) {
                     if (player.getOffHandStack().isEmpty()
@@ -1381,5 +1386,4 @@ public class GenyoKristaj extends Module {
         Gradient,
         None
     }
-
 }
