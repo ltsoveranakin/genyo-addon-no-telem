@@ -7,8 +7,6 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
-import meteordevelopment.meteorclient.utils.player.InvUtils;
-import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -43,13 +41,13 @@ public class PvPNeccessaryHud extends HudElement {
     // Scale
 
     public final Setting<Integer> margin = sgScale.add(new IntSetting.Builder()
-            .name("margin")
-            .description("Két dolog közötti hely")
-            .defaultValue(0)
-            .onChanged(aInt -> calculateSize())
-            .min(0)
-            .sliderRange(0, 10)
-            .build()
+        .name("margin")
+        .description("Két dolog közötti hely")
+        .defaultValue(0)
+        .onChanged(aInt -> calculateSize())
+        .min(0)
+        .sliderRange(0, 10)
+        .build()
     );
 
     public final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
@@ -71,7 +69,7 @@ public class PvPNeccessaryHud extends HudElement {
         .build()
     );
 
-    // Background
+    // Backgroundx
 
     public final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
