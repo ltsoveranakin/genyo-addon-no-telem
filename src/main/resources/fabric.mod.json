@@ -12,6 +12,7 @@
     "repo": "https://github.com/wuritz/genyo-addon"
   },
   "icon": "assets/genyo/icon.png",
+  "accessWidener": "genyo.accesswidener",
   "environment": "client",
   "entrypoints": {
     "meteor": [

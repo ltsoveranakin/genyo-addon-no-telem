@@ -41,13 +41,13 @@ public class PvPNeccessaryHud extends HudElement {
     // Scale
 
     public final Setting<Integer> margin = sgScale.add(new IntSetting.Builder()
-            .name("margin")
-            .description("Két dolog közötti hely")
-            .defaultValue(0)
-            .onChanged(aInt -> calculateSize())
-            .min(0)
-            .sliderRange(0, 10)
-            .build()
+        .name("margin")
+        .description("Két dolog közötti hely")
+        .defaultValue(0)
+        .onChanged(aInt -> calculateSize())
+        .min(0)
+        .sliderRange(0, 10)
+        .build()
     );
 
     public final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
@@ -69,7 +69,7 @@ public class PvPNeccessaryHud extends HudElement {
         .build()
     );
 
-    // Background
+    // Backgroundx
 
     public final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
