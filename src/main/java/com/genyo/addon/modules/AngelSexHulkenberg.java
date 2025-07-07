@@ -10,6 +10,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.Color;
@@ -22,6 +23,7 @@ import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.NotNull;
@@ -31,21 +33,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class AngelSexHulkenberg extends Module {
 
     public AngelSexHulkenberg() {
-        super(GenyoAddon.GENYO, "angel-sex-hulkenberg", "Geci fasz csumi");
+        super(GenyoAddon.GENYO, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
-        .description("Genyo")
+        .description("Ki a faszom az a Hulkenberg??????????")
         .defaultValue(Mode.Textured)
         .build()
     );
 
     private final Setting<Boolean> secondLayer = sgGeneral.add(new BoolSetting.Builder()
         .name("Second Layer")
-        .description("nemtom")
+        .description("kiyártam a kettedik osztájt")
         .defaultValue(true)
         .build()
     );
@@ -53,22 +55,22 @@ public final class AngelSexHulkenberg extends Module {
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
         .name("Color")
         .description("színcápa színcápa mondj egy színt")
-        .defaultValue(new Color(53, 46, 46, 37))
+        .defaultValue(new Color(53, 46, 46, 255))
         .build()
     );
 
     private final Setting<Integer> ySpeed = sgGeneral.add(new IntSetting.Builder()
         .name("Y Speed")
         .description("y show speed")
-        .defaultValue(0)
-        .min(-10)
-        .max(10)
+        .defaultValue(2)
+        .min(0)
+        .max(6)
         .build()
     );
 
     private final Setting<Integer> aSpeed = sgGeneral.add(new IntSetting.Builder()
         .name("Alpha Speed")
-        .description("alpha show speed")
+        .description("alpha-i show speed")
         .defaultValue(5)
         .min(1)
         .max(100)
@@ -78,9 +80,9 @@ public final class AngelSexHulkenberg extends Module {
     private final Setting<Double> rotSpeed = sgGeneral.add(new DoubleSetting.Builder()
         .name("Rotation Speed")
         .description("rotációs kapa")
-        .defaultValue(0.25)
-        .min(0)
-        .max(6)
+        .defaultValue(1d)
+        .min(0d)
+        .max(6d)
         .build()
     );
 
@@ -91,7 +93,7 @@ public final class AngelSexHulkenberg extends Module {
     }
 
     @EventHandler
-    public void onUpdate() {
+    public void onTick(TickEvent.Pre event) {
         popList.forEach(person -> person.update(popList));
     }
 
@@ -101,9 +103,12 @@ public final class AngelSexHulkenberg extends Module {
 
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
+
         if (mode.get().equals(Mode.Simple)) RenderSystem.defaultBlendFunc();
         else RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
-        popList.forEach(person -> renderEntity(stack, person.player, person.getTexture(), color.get().a));
+
+        popList.forEach(person -> renderEntity(stack, person.player, person.getTexture(), person.getAlpha()));
+
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
     }
@@ -112,7 +117,8 @@ public final class AngelSexHulkenberg extends Module {
     @SuppressWarnings("unused")
     private void onTotemPop(@NotNull TotemPopEvent e) {
         if (e.entity.equals(mc.player) || mc.world == null) return;
-        //if (mc.world == null) return; --------- for testing
+        //if (mc.world == null) return; -------- for testing
+        if (mc.getServer() == null) return;
 
         AbstractClientPlayerEntity entity = new AbstractClientPlayerEntity(mc.world, new GameProfile(e.entity.getUuid(), e.entity.getName().getString())) {
             @Override public boolean isSpectator() {return false;}
@@ -127,7 +133,9 @@ public final class AngelSexHulkenberg extends Module {
         entity.setSneaking(e.entity.isSneaking());
         entity.limbAnimator.setSpeed(e.entity.limbAnimator.getSpeed());
         entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
-        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture()));
+
+        ServerWorld sWorld = mc.getServer().getWorld(entity.getWorld().getRegistryKey());
+        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture(), sWorld));
     }
 
     private void renderEntity(@NotNull MatrixStack matrices, @NotNull LivingEntity entity, Identifier texture, int alpha) {
@@ -190,24 +198,30 @@ public final class AngelSexHulkenberg extends Module {
 
     private class Person {
         private final AbstractClientPlayerEntity player;
-        private Identifier texture;
+        private final Identifier texture;
         private int alpha;
+        private final ServerWorld world;
 
-        public Person(AbstractClientPlayerEntity player, Identifier texture) {
+        public Person(AbstractClientPlayerEntity player, Identifier texture, ServerWorld world) {
             this.player = player;
-            alpha = color.get().a;
+            this.world = world;
             this.texture = texture;
+            alpha = color.get().a;
         }
 
         public void update(CopyOnWriteArrayList<Person> arrayList) {
             if (alpha <= 0) {
                 arrayList.remove(this);
-                player.kill(player.getServer().getWorld(player.getWorld().getRegistryKey()));
+                player.kill(world);
                 player.remove(Entity.RemovalReason.KILLED);
                 player.onRemoved();
                 return;
             }
             alpha -= aSpeed.get();
+        }
+
+        public int getAlpha() {
+            return MathUtil.clamp(alpha, 0, 255);
         }
 
         public Identifier getTexture() {
