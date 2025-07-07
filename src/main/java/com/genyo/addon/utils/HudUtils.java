@@ -1,6 +1,5 @@
 package com.genyo.addon.utils;
 
-import com.genyo.addon.mixin.HudRendererAccessor;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.gui.DrawContext;

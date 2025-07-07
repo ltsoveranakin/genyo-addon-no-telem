@@ -5,6 +5,7 @@ import com.genyo.addon.events.TotemPopEvent;
 import com.genyo.addon.mixin.IEntity;
 import com.genyo.addon.render.Render2DEngine;
 import com.genyo.addon.render.Render3DEngine;
+import com.genyo.addon.systems.enemies.Enemies;
 import com.genyo.addon.utils.MathUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -37,6 +38,13 @@ public final class AngelSexHulkenberg extends Module {
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Boolean> focusEnemy = sgGeneral.add(new BoolSetting.Builder()
+        .name("Focus Enemies")
+        .description("enemyknél csinálja csak")
+        .defaultValue(false)
+        .build()
+    );
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
@@ -117,8 +125,10 @@ public final class AngelSexHulkenberg extends Module {
     @SuppressWarnings("unused")
     private void onTotemPop(@NotNull TotemPopEvent e) {
         if (e.entity.equals(mc.player) || mc.world == null) return;
-        //if (mc.world == null) return; -------- for testing
+        //if (mc.world == null) return; //-------- for testing
         if (mc.getServer() == null) return;
+
+        if (focusEnemy.get()) if (!(Enemies.get().isEnemy(e.entity))) return;
 
         AbstractClientPlayerEntity entity = new AbstractClientPlayerEntity(mc.world, new GameProfile(e.entity.getUuid(), e.entity.getName().getString())) {
             @Override public boolean isSpectator() {return false;}
