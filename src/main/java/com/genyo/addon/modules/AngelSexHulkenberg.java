@@ -38,6 +38,8 @@ public final class AngelSexHulkenberg extends Module {
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgRender = settings.createGroup("Render");
+    private final SettingGroup sgSpeed = settings.createGroup("Speed");
 
     private final Setting<Boolean> focusEnemy = sgGeneral.add(new BoolSetting.Builder()
         .name("Focus Enemies")
@@ -46,28 +48,39 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
+    // Render
+
+    private final Setting<Mode> mode = sgRender.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
         .description("Ki a faszom az a Hulkenberg??????????")
         .defaultValue(Mode.Textured)
         .build()
     );
 
-    private final Setting<Boolean> secondLayer = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> rotate180 = sgRender.add(new BoolSetting.Builder()
+        .name("Rotate Y 180")
+        .description("fejjel lefelé mert igen")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> secondLayer = sgRender.add(new BoolSetting.Builder()
         .name("Second Layer")
         .description("kiyártam a kettedik osztájt")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
         .name("Color")
         .description("színcápa színcápa mondj egy színt")
         .defaultValue(new Color(53, 46, 46, 255))
         .build()
     );
 
-    private final Setting<Integer> ySpeed = sgGeneral.add(new IntSetting.Builder()
+    // Speed
+
+    private final Setting<Integer> ySpeed = sgSpeed.add(new IntSetting.Builder()
         .name("Y Speed")
         .description("y show speed")
         .defaultValue(2)
@@ -76,7 +89,7 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Integer> aSpeed = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> aSpeed = sgSpeed.add(new IntSetting.Builder()
         .name("Alpha Speed")
         .description("alpha-i show speed")
         .defaultValue(5)
@@ -85,7 +98,7 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Double> rotSpeed = sgGeneral.add(new DoubleSetting.Builder()
+    private final Setting<Double> rotSpeed = sgSpeed.add(new DoubleSetting.Builder()
         .name("Rotation Speed")
         .description("rotációs kapa")
         .defaultValue(1d)
@@ -144,8 +157,7 @@ public final class AngelSexHulkenberg extends Module {
         entity.limbAnimator.setSpeed(e.entity.limbAnimator.getSpeed());
         entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
 
-        ServerWorld sWorld = mc.getServer().getWorld(entity.getWorld().getRegistryKey());
-        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture(), sWorld));
+        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture(), mc.getServer().getWorld(entity.getWorld().getRegistryKey())));
     }
 
     private void renderEntity(@NotNull MatrixStack matrices, @NotNull LivingEntity entity, Identifier texture, int alpha) {
@@ -171,7 +183,7 @@ public final class AngelSexHulkenberg extends Module {
         yRotYaw = yRotYaw == 0 ? 0 : Render2DEngine.interpolateFloat(yRotYaw, yRotYaw - (((aSpeed.get() / 255f) * 360f * rotSpeed.get().floatValue())), Render3DEngine.getTickDelta());
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotation(MathUtil.rad(180 - entity.bodyYaw + yRotYaw)));
-        prepareScale(matrices);
+        prepareScale(matrices, rotate180.get());
 
         float limbSpeed = Math.min(entity.limbAnimator.getSpeed(), 1f);
 
@@ -200,8 +212,10 @@ public final class AngelSexHulkenberg extends Module {
             BufferRenderer.drawWithGlobalProgram(builtBuffer);
     }
 
-    private static void prepareScale(@NotNull MatrixStack matrixStack) {
-        matrixStack.scale(-1.0F, -1.0F, 1.0F);
+    private static void prepareScale(@NotNull MatrixStack matrixStack, boolean rotate) {
+        if (rotate) matrixStack.scale(-1.0F, -1.0F, 1.0F);
+        else matrixStack.scale(-1.0F, 1.0F, 1.0F);
+
         matrixStack.scale(1.6f, 1.8f, 1.6f);
         matrixStack.translate(0.0F, -1.501F, 0.0F);
     }
