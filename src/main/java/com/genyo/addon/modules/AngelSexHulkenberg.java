@@ -10,17 +10,24 @@ import com.genyo.addon.utils.MathUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.renderer.*;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.gl.ShaderLoader;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gl.ShaderProgramKey;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -38,6 +45,8 @@ public final class AngelSexHulkenberg extends Module {
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgRender = settings.createGroup("Render");
+    private final SettingGroup sgSpeed = settings.createGroup("Speed");
 
     private final Setting<Boolean> focusEnemy = sgGeneral.add(new BoolSetting.Builder()
         .name("Focus Enemies")
@@ -46,28 +55,39 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
+    // Render
+
+    private final Setting<Mode> mode = sgRender.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
         .description("Ki a faszom az a Hulkenberg??????????")
         .defaultValue(Mode.Textured)
         .build()
     );
 
-    private final Setting<Boolean> secondLayer = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> rotate180 = sgRender.add(new BoolSetting.Builder()
+        .name("Rotate Y 180")
+        .description("fejjel lefelé mert igen")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> secondLayer = sgRender.add(new BoolSetting.Builder()
         .name("Second Layer")
         .description("kiyártam a kettedik osztájt")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
         .name("Color")
         .description("színcápa színcápa mondj egy színt")
         .defaultValue(new Color(53, 46, 46, 255))
         .build()
     );
 
-    private final Setting<Integer> ySpeed = sgGeneral.add(new IntSetting.Builder()
+    // Speed
+
+    private final Setting<Integer> ySpeed = sgSpeed.add(new IntSetting.Builder()
         .name("Y Speed")
         .description("y show speed")
         .defaultValue(2)
@@ -76,7 +96,7 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Integer> aSpeed = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> aSpeed = sgSpeed.add(new IntSetting.Builder()
         .name("Alpha Speed")
         .description("alpha-i show speed")
         .defaultValue(5)
@@ -85,7 +105,7 @@ public final class AngelSexHulkenberg extends Module {
         .build()
     );
 
-    private final Setting<Double> rotSpeed = sgGeneral.add(new DoubleSetting.Builder()
+    private final Setting<Double> rotSpeed = sgSpeed.add(new DoubleSetting.Builder()
         .name("Rotation Speed")
         .description("rotációs kapa")
         .defaultValue(1d)
@@ -124,8 +144,8 @@ public final class AngelSexHulkenberg extends Module {
     @EventHandler
     @SuppressWarnings("unused")
     private void onTotemPop(@NotNull TotemPopEvent e) {
-        if (e.entity.equals(mc.player) || mc.world == null) return;
-        //if (mc.world == null) return; //-------- for testing
+        //if (e.entity.equals(mc.player) || mc.world == null) return;
+        if (mc.world == null) return; //-------- for testing
         if (mc.getServer() == null) return;
 
         if (focusEnemy.get()) if (!(Enemies.get().isEnemy(e.entity))) return;
@@ -144,13 +164,17 @@ public final class AngelSexHulkenberg extends Module {
         entity.limbAnimator.setSpeed(e.entity.limbAnimator.getSpeed());
         entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
 
-        ServerWorld sWorld = mc.getServer().getWorld(entity.getWorld().getRegistryKey());
-        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture(), sWorld));
+        Identifier skin = ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture();
+        //Identifier skin = Identifier.of("genyo", "epic_skin.png");
+
+        popList.add(new Person(entity, skin, mc.getServer().getWorld(entity.getWorld().getRegistryKey())));
     }
 
     private void renderEntity(@NotNull MatrixStack matrices, @NotNull LivingEntity entity, Identifier texture, int alpha) {
         PlayerEntityRenderer entityRenderer = (PlayerEntityRenderer) mc.getEntityRenderDispatcher().getRenderer((AbstractClientPlayerEntity) entity);
         PlayerEntityRenderState renderState = entityRenderer.createRenderState();
+
+        MeteorClient.LOG.info("asd");
 
         renderState.leftPantsLegVisible = secondLayer.get();
         renderState.rightPantsLegVisible = secondLayer.get();
@@ -171,37 +195,39 @@ public final class AngelSexHulkenberg extends Module {
         yRotYaw = yRotYaw == 0 ? 0 : Render2DEngine.interpolateFloat(yRotYaw, yRotYaw - (((aSpeed.get() / 255f) * 360f * rotSpeed.get().floatValue())), Render3DEngine.getTickDelta());
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotation(MathUtil.rad(180 - entity.bodyYaw + yRotYaw)));
-        prepareScale(matrices);
+        prepareScale(matrices, rotate180.get());
 
         float limbSpeed = Math.min(entity.limbAnimator.getSpeed(), 1f);
 
         entityRenderer.updateRenderState((AbstractClientPlayerEntity) entity, renderState, limbSpeed);
+        renderState.limbFrequency = limbSpeed;
+        renderState.age = entity.age;
+        renderState.yawDegrees = entity.headYaw - entity.bodyYaw;
+        renderState.pitch = entity.getPitch();
 
         BufferBuilder buffer;
         if (mode.get().equals(Mode.Textured)) {
             RenderSystem.setShaderTexture(0, texture);
+            RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
         } else {
+            RenderSystem.setShader(ShaderProgramKeys.POSITION);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
         }
 
         RenderSystem.setShaderColor(color.get().r, color.get().g, color.get().b, alpha / 255f);
 
         entityRenderer.render(renderState, matrices, mc.getBufferBuilders().getEntityVertexConsumers(), 1);
-        //modelBase.render(matrices, buffer, 10, 0);
-        endBuilding(buffer);
+
+        Render2DEngine.endBuilding(buffer);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         matrices.pop();
     }
 
-    public static void endBuilding(BufferBuilder bb) {
-        BuiltBuffer builtBuffer = bb.endNullable();
-        if (builtBuffer != null)
-            BufferRenderer.drawWithGlobalProgram(builtBuffer);
-    }
+    private static void prepareScale(@NotNull MatrixStack matrixStack, boolean rotate) {
+        if (rotate) matrixStack.scale(-1.0F, -1.0F, 1.0F);
+        else matrixStack.scale(-1.0F, 1.0F, 1.0F);
 
-    private static void prepareScale(@NotNull MatrixStack matrixStack) {
-        matrixStack.scale(-1.0F, -1.0F, 1.0F);
         matrixStack.scale(1.6f, 1.8f, 1.6f);
         matrixStack.translate(0.0F, -1.501F, 0.0F);
     }

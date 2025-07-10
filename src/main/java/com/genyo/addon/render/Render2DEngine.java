@@ -1,5 +1,11 @@
 package com.genyo.addon.render;
 
+import meteordevelopment.meteorclient.utils.render.color.Color;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
+import net.minecraft.util.math.MathHelper;
+
 public class Render2DEngine {
 
     public static double interpolate(double oldValue, double newValue, double interpolationValue) {
@@ -8,6 +14,12 @@ public class Render2DEngine {
 
     public static float interpolateFloat(float oldValue, float newValue, double interpolationValue) {
         return (float) interpolate(oldValue, newValue, (float) interpolationValue);
+    }
+
+    public static void endBuilding(BufferBuilder bb) {
+        BuiltBuffer builtBuffer = bb.endNullable();
+        if (builtBuffer != null)
+            BufferRenderer.drawWithGlobalProgram(builtBuffer);
     }
 
 }
