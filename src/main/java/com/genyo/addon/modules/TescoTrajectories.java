@@ -209,6 +209,7 @@ public class TescoTrajectories extends Module {
                 }
             }
 
+            Color white = new Color(255, 255, 255, 255);
             BlockHitResult bhr = mc.world.raycast(new RaycastContext(lastPos, pos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, mc.player));
             if (bhr != null && bhr.getType() == HitResult.Type.BLOCK) {
                 Render3DEngine.OUTLINE_SIDE_QUEUE.add(new Render3DEngine.OutlineSideAction(
@@ -217,19 +218,13 @@ public class TescoTrajectories extends Module {
                 Render3DEngine.FILLED_SIDE_QUEUE.add(new Render3DEngine.FillSideAction(
                     new Box(bhr.getBlockPos()), getLandedColor(), bhr.getSide()
                 ));
-
-                //renderer.boxLines(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, getLandedColor(), 0);
-                //renderer.sideVertical(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, getLandedColor(), getLandedColor(), ShapeMode.Lines);
-                //renderer.line(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, getLandedColor());
-
+                renderer.box(new Box(bhr.getBlockPos()), white, white, ShapeMode.Lines, 0);
                 break;
             }
 
             if (y <= -65) break;
             if (motionX == 0 && motionY == 0 && motionZ == 0) continue;
 
-            //Render3DEngine.drawLine(lastPos, pos, renderColor.get());
-            float lineW = RenderSystem.getShaderLineWidth();
             renderer.line(lastPos.x, lastPos.y, lastPos.z, pos.x, pos.y, pos.z, renderColor.get());
         }
 
