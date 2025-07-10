@@ -3,6 +3,7 @@ package com.genyo.addon;
 import com.genyo.addon.gui.EnemiesTab;
 import com.genyo.addon.hud.PvPNeccessaryHud;
 import com.genyo.addon.managers.Managers;
+import com.genyo.addon.managers.ModulesManager;
 import com.genyo.addon.modules.AngelSexHulkenberg;
 import com.genyo.addon.modules.GenyoAutoEZ;
 import com.genyo.addon.modules.TescoCrystal;
@@ -27,14 +28,12 @@ public class GenyoAddon extends MeteorAddon {
     public void onInitialize() {
         LOG.info("Genyo fasz indul genyo");
 
+        Tabs.add(new EnemiesTab());
         Systems.add(new Enemies());
 
-        Modules.get().add(new GenyoAutoEZ());
-        Modules.get().add(new TescoCrystal());
-        Modules.get().add(new AngelSexHulkenberg());
+        // Managers mert ez menőn néz ki
 
-        Tabs.add(new EnemiesTab());
-
+        ModulesManager.initModules();
         Managers.subscribe();
 
         // HUD

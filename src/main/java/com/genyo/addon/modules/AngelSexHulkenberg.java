@@ -10,17 +10,24 @@ import com.genyo.addon.utils.MathUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.renderer.*;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.gl.ShaderLoader;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gl.ShaderProgramKey;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -137,8 +144,8 @@ public final class AngelSexHulkenberg extends Module {
     @EventHandler
     @SuppressWarnings("unused")
     private void onTotemPop(@NotNull TotemPopEvent e) {
-        if (e.entity.equals(mc.player) || mc.world == null) return;
-        //if (mc.world == null) return; //-------- for testing
+        //if (e.entity.equals(mc.player) || mc.world == null) return;
+        if (mc.world == null) return; //-------- for testing
         if (mc.getServer() == null) return;
 
         if (focusEnemy.get()) if (!(Enemies.get().isEnemy(e.entity))) return;
@@ -157,12 +164,17 @@ public final class AngelSexHulkenberg extends Module {
         entity.limbAnimator.setSpeed(e.entity.limbAnimator.getSpeed());
         entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
 
-        popList.add(new Person(entity, ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture(), mc.getServer().getWorld(entity.getWorld().getRegistryKey())));
+        Identifier skin = ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture();
+        //Identifier skin = Identifier.of("genyo", "epic_skin.png");
+
+        popList.add(new Person(entity, skin, mc.getServer().getWorld(entity.getWorld().getRegistryKey())));
     }
 
     private void renderEntity(@NotNull MatrixStack matrices, @NotNull LivingEntity entity, Identifier texture, int alpha) {
         PlayerEntityRenderer entityRenderer = (PlayerEntityRenderer) mc.getEntityRenderDispatcher().getRenderer((AbstractClientPlayerEntity) entity);
         PlayerEntityRenderState renderState = entityRenderer.createRenderState();
+
+        MeteorClient.LOG.info("asd");
 
         renderState.leftPantsLegVisible = secondLayer.get();
         renderState.rightPantsLegVisible = secondLayer.get();
@@ -188,28 +200,28 @@ public final class AngelSexHulkenberg extends Module {
         float limbSpeed = Math.min(entity.limbAnimator.getSpeed(), 1f);
 
         entityRenderer.updateRenderState((AbstractClientPlayerEntity) entity, renderState, limbSpeed);
+        renderState.limbFrequency = limbSpeed;
+        renderState.age = entity.age;
+        renderState.yawDegrees = entity.headYaw - entity.bodyYaw;
+        renderState.pitch = entity.getPitch();
 
         BufferBuilder buffer;
         if (mode.get().equals(Mode.Textured)) {
             RenderSystem.setShaderTexture(0, texture);
+            RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
         } else {
+            RenderSystem.setShader(ShaderProgramKeys.POSITION);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
         }
 
         RenderSystem.setShaderColor(color.get().r, color.get().g, color.get().b, alpha / 255f);
 
         entityRenderer.render(renderState, matrices, mc.getBufferBuilders().getEntityVertexConsumers(), 1);
-        //modelBase.render(matrices, buffer, 10, 0);
-        endBuilding(buffer);
+
+        Render2DEngine.endBuilding(buffer);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         matrices.pop();
-    }
-
-    public static void endBuilding(BufferBuilder bb) {
-        BuiltBuffer builtBuffer = bb.endNullable();
-        if (builtBuffer != null)
-            BufferRenderer.drawWithGlobalProgram(builtBuffer);
     }
 
     private static void prepareScale(@NotNull MatrixStack matrixStack, boolean rotate) {
