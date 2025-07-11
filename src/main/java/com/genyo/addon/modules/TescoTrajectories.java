@@ -4,8 +4,10 @@ import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.render.Render2DEngine;
 import com.genyo.addon.render.Render3DEngine;
 import com.mojang.blaze3d.systems.RenderSystem;
+import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.renderer.GL;
+import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
@@ -15,6 +17,8 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.render.entity.model.ParrotEntityModel;
+import net.minecraft.client.render.entity.state.ParrotEntityRenderState;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ArrowEntity;
@@ -22,10 +26,7 @@ import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
 
 import java.util.ArrayList;
@@ -44,6 +45,13 @@ public class TescoTrajectories extends Module {
         .description("miknek írja a cuccli mucclikat wao wao wao")
         .defaultValue(getDefaultItems())
         .filter(this::itemFilter)
+        .build()
+    );
+
+    private final Setting<Boolean> landingBox = sgGeneral.add(new BoolSetting.Builder()
+        .name("Landing Box")
+        .description("yui")
+        .defaultValue(true)
         .build()
     );
 
@@ -107,6 +115,8 @@ public class TescoTrajectories extends Module {
         if (mc.options.hudHidden) return; // mi afasz
         if (mc.player == null || mc.world == null || !mc.options.getPerspective().isFirstPerson()) return;
 
+        float tickDelta = mc.world.getTickManager().isFrozen() ? 1 : event.tickDelta;
+
         // ez kurva jó cucc
 
         ItemStack itemStack = mc.player.getMainHandStack();
@@ -120,20 +130,20 @@ public class TescoTrajectories extends Module {
 
         final float playerYaw = mc.player.getYaw();
         if (itemStack.getItem() instanceof CrossbowItem && Utils.hasEnchantment(itemStack, Enchantments.MULTISHOT)) {
-            calcTrajectory(itemStack.getItem(), playerYaw - 10, event.renderer);
-            calcTrajectory(itemStack.getItem(), playerYaw, event.renderer);
-            calcTrajectory(itemStack.getItem(), playerYaw + 10, event.renderer);
+            calcTrajectory(itemStack.getItem(), playerYaw - 10, event.renderer, tickDelta);
+            calcTrajectory(itemStack.getItem(), playerYaw, event.renderer, tickDelta);
+            calcTrajectory(itemStack.getItem(), playerYaw + 10, event.renderer, tickDelta);
         } else {
-            calcTrajectory(itemStack.getItem(), playerYaw, event.renderer);
+            calcTrajectory(itemStack.getItem(), playerYaw, event.renderer, tickDelta);
         }
 
         mc.options.getBobView().setValue(prev_bob);
     }
 
-    private void calcTrajectory(Item item, float yaw, Renderer3D renderer) {
-        double x = Render2DEngine.interpolate(mc.player.prevX, mc.player.getX(), Render3DEngine.getTickDelta());
-        double y = Render2DEngine.interpolate(mc.player.prevY, mc.player.getY(), Render3DEngine.getTickDelta());
-        double z = Render2DEngine.interpolate(mc.player.prevZ, mc.player.getZ(), Render3DEngine.getTickDelta());
+    private void calcTrajectory(Item item, float yaw, Renderer3D renderer, float tickDelta) {
+        double x = MathHelper.lerp(tickDelta, mc.player.prevX, mc.player.getX());
+        double y = MathHelper.lerp(tickDelta, mc.player.prevY, mc.player.getY());
+        double z = MathHelper.lerp(tickDelta, mc.player.prevZ, mc.player.getZ());
 
         // Offset business
         final float pi_genyo = 3.1415927f;
@@ -212,13 +222,25 @@ public class TescoTrajectories extends Module {
             Color white = new Color(255, 255, 255, 255);
             BlockHitResult bhr = mc.world.raycast(new RaycastContext(lastPos, pos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, mc.player));
             if (bhr != null && bhr.getType() == HitResult.Type.BLOCK) {
+                Box landingBox = Box.from(bhr.getPos());
+                Box bhrBox = new Box(bhr.getBlockPos());
+
                 Render3DEngine.OUTLINE_SIDE_QUEUE.add(new Render3DEngine.OutlineSideAction(
-                    new Box(bhr.getBlockPos()), getLandedColor(), 2f, bhr.getSide()
+                    bhrBox, getLandedColor(), 2f, bhr.getSide()
                 ));
                 Render3DEngine.FILLED_SIDE_QUEUE.add(new Render3DEngine.FillSideAction(
-                    new Box(bhr.getBlockPos()), getLandedColor(), bhr.getSide()
+                    bhrBox, getLandedColor(), bhr.getSide()
                 ));
-                renderer.box(new Box(bhr.getBlockPos()), white, white, ShapeMode.Lines, 0);
+
+                if (this.landingBox.get()) {
+                    Box yayBox = createLandingBox(bhrBox, landingBox, bhr.getSide());
+
+                    //TODO: hitbox
+
+                    Render3DEngine.OUTLINE_SIDE_QUEUE.add(new Render3DEngine.OutlineSideAction(
+                        yayBox, white, 2f, bhr.getSide()
+                    ));
+                }
                 break;
             }
 
@@ -227,7 +249,54 @@ public class TescoTrajectories extends Module {
 
             renderer.line(lastPos.x, lastPos.y, lastPos.z, pos.x, pos.y, pos.z, renderColor.get());
         }
+    }
 
+    private static Box createLandingBox(Box bhrBox, Box landingBox, Direction direction) {
+        double minX = landingBox.minX;
+        double minY = landingBox.minY;
+        double minZ = landingBox.minZ;
+        double maxX = landingBox.maxX;
+        double maxY = landingBox.maxY;
+        double maxZ = landingBox.maxZ;
+
+        double distX = maxX - minX;
+        double distY = maxY - minY;
+        double distZ = maxZ - minZ;
+
+        minX = minX - (distX/2);
+        maxX = maxX - (distX/2);
+        minY = minY - (distY/2);
+        maxY = maxY - (distY/2);
+        minZ = minZ - (distZ/2);
+        maxZ = maxZ - (distZ/2);
+
+        distX = maxX - minX;
+        distY = maxY - minY;
+        distZ = maxZ - minZ;
+
+        double offset = 0.25d;
+        minX = minX + (distX * offset);
+        maxX = maxX - (distX * offset);
+        minY = minY + (distY * offset);
+        maxY = maxY - (distY * offset);
+        minZ = minZ + (distZ * offset);
+        maxZ = maxZ - (distZ * offset);
+
+        switch (direction) {
+            case UP, DOWN:
+                minY = bhrBox.minY;
+                maxY = bhrBox.maxY;
+                break;
+            case NORTH, SOUTH:
+                minZ = bhrBox.minZ;
+                maxZ = bhrBox.maxZ;
+                break;
+            case EAST, WEST:
+                minX = bhrBox.minX;
+                maxX = bhrBox.maxX;
+                break;
+        }
+        return new Box(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     private Color getLandedColor() {
