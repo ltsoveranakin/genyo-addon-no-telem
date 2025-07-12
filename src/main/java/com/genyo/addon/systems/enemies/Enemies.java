@@ -155,15 +155,13 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
     public NbtCompound toTag() {
         NbtCompound tag = new NbtCompound();
 
-        tag.put("friends", NbtUtils.listToTag(enemies));
+        tag.put("enemies", NbtUtils.listToTag(enemies));
         tag.put("settings", settings.toTag());
 
         return tag;
     }
 
     private void genyo() {
-        GenyoAddon.LOG.info("fa");
-
         if (mc.targetedEntity == null) return;
         if (!(mc.targetedEntity instanceof PlayerEntity player)) return;
 

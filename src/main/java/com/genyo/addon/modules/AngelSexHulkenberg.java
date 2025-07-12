@@ -144,8 +144,8 @@ public final class AngelSexHulkenberg extends Module {
     @EventHandler
     @SuppressWarnings("unused")
     private void onTotemPop(@NotNull TotemPopEvent e) {
-        //if (e.entity.equals(mc.player) || mc.world == null) return;
-        if (mc.world == null) return; //-------- for testing
+        if (e.entity.equals(mc.player) || mc.world == null) return;
+        //if (mc.world == null) return; //-------- for testing
         if (mc.getServer() == null) return;
 
         if (focusEnemy.get()) if (!(Enemies.get().isEnemy(e.entity))) return;
@@ -165,7 +165,6 @@ public final class AngelSexHulkenberg extends Module {
         entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
 
         Identifier skin = ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture();
-        //Identifier skin = Identifier.of("genyo", "epic_skin.png");
 
         popList.add(new Person(entity, skin, mc.getServer().getWorld(entity.getWorld().getRegistryKey())));
     }
@@ -173,8 +172,6 @@ public final class AngelSexHulkenberg extends Module {
     private void renderEntity(@NotNull MatrixStack matrices, @NotNull LivingEntity entity, Identifier texture, int alpha) {
         PlayerEntityRenderer entityRenderer = (PlayerEntityRenderer) mc.getEntityRenderDispatcher().getRenderer((AbstractClientPlayerEntity) entity);
         PlayerEntityRenderState renderState = entityRenderer.createRenderState();
-
-        MeteorClient.LOG.info("asd");
 
         renderState.leftPantsLegVisible = secondLayer.get();
         renderState.rightPantsLegVisible = secondLayer.get();

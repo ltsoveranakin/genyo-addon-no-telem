@@ -1,6 +1,10 @@
 package com.genyo.addon.modules;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.systems.incombat.CombatPerson;
+import com.genyo.addon.systems.incombat.InCombatSystem;
+import meteordevelopment.meteorclient.events.entity.player.AttackEntityEvent;
+import meteordevelopment.meteorclient.events.entity.player.InteractEntityEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
@@ -31,19 +35,13 @@ public class GenyoAutoEZ extends Module {
         .sliderRange(0, 50)
         .build()
     );
+
     private final Setting<Integer> tickDelay = sgGeneral.add(new IntSetting.Builder()
         .name("Delay")
         .description("How many ticks to wait between sending messages.")
         .defaultValue(50)
         .min(0)
         .sliderRange(0, 100)
-        .build()
-    );
-
-    private final Setting<Boolean> pop = sgGeneral.add(new BoolSetting.Builder()
-        .name("Pop")
-        .description("nyugi ez nem csinál semmit, csak dísznek van XD")
-        .defaultValue(true)
         .build()
     );
 
@@ -54,9 +52,16 @@ public class GenyoAutoEZ extends Module {
         .build()
     );
 
+    private final Setting<Boolean> combatFocus = sgGeneral.add(new BoolSetting.Builder()
+        .name("Combat Focus")
+        .description("csak akivel combatban vagy (elvileg)")
+        .defaultValue(false)
+        .build()
+    );
+
     private final Setting<List<String>> popMessages = sgGeneral.add(new StringListSetting.Builder()
         .name("Pop Messages")
-        .description("Messages to send when popping an enemy")
+        .description("van egy ped0fil a szobában")
         .defaultValue(List.of("ez pop <NAME> <COUNT>", "pop <NAME> <COUNT>", "i love kiwi pop <NAME> <COUNT>"))
         .build()
     );
@@ -69,42 +74,50 @@ public class GenyoAutoEZ extends Module {
 
     @Override
     public void onActivate() {
-        super.onActivate();
         taggedPlayers.clear();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
+        if (mc.player == null && mc.world == null) return;
         timer++;
-        if (mc.player != null && mc.world != null) {
-            if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
-                Message msg = messageQueue.get(0);
-                ChatUtils.sendPlayerMsg(msg.message);
-                timer = 0;
 
-                if (msg.kill) messageQueue.clear();
-                else messageQueue.removeFirst();
-            }
+        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
+            Message msg = messageQueue.get(0);
+            ChatUtils.sendPlayerMsg(msg.message);
+            timer = 0;
+
+            if (msg.kill) messageQueue.clear();
+            else messageQueue.removeFirst();
         }
     }
 
     @EventHandler
     private void onReceive(PacketEvent.Receive event) {
         if (event.packet instanceof EntityStatusS2CPacket packet) {
+
             // Pop
             if (packet.getStatus() == 35) {
                 Entity entity = packet.getEntity(mc.world);
                 if (mc.player != null && mc.world != null && entity instanceof PlayerEntity playerEntity) {
                     if (entity != mc.player && mc.player.getPos().distanceTo(entity.getPos()) <= range.get()) {
 
-                        if (trackPlayers.get() && taggedPlayers.containsKey(playerEntity)) {
-                            int count =  taggedPlayers.get(playerEntity) + 1;
+                        // Combat Focus
+                        if (combatFocus.get()) {
+                            if (!InCombatSystem.get().contains(new CombatPerson(playerEntity))) return;
+                        }
 
-                            taggedPlayers.replace(playerEntity, count);
-                            sendPopMessage(playerEntity.getName().getString(), count);
+                        if (trackPlayers.get()) {
+                            if (taggedPlayers.containsKey(playerEntity)) {
+                                int count = taggedPlayers.get(playerEntity) + 1;
+
+                                taggedPlayers.replace(playerEntity, count);
+                                sendPopMessage(playerEntity.getName().getString(), count);
+                            } else {
+                                taggedPlayers.put(playerEntity, 1);
+                            }
                         } else {
                             sendPopMessage(playerEntity.getName().getString(), 0);
-                            taggedPlayers.put(playerEntity, 1);
                         }
                     }
                 }
@@ -119,6 +132,7 @@ public class GenyoAutoEZ extends Module {
                 num = num < popMessages.get().size() - 1 ? num + 1 : 0;
             }
             lastPop = num;
+
             String messageString = popMessages.get().get(num).replace("<NAME>", name);
             String countString = String.valueOf(count);
 

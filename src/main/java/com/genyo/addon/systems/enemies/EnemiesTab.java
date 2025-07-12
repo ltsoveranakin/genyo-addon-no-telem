@@ -1,7 +1,5 @@
-package com.genyo.addon.gui;
+package com.genyo.addon.systems.enemies;
 
-import com.genyo.addon.systems.enemies.Enemies;
-import com.genyo.addon.systems.enemies.Enemy;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.tabs.Tab;
 import meteordevelopment.meteorclient.gui.tabs.TabScreen;

@@ -25,6 +25,7 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
@@ -91,6 +92,8 @@ public class TescoTrajectories extends Module {
         return items;
     }
 
+    private Entity collidingEntity;
+
     // genyók
 
     private float getDistance(Item item) {
@@ -141,6 +144,8 @@ public class TescoTrajectories extends Module {
     }
 
     private void calcTrajectory(Item item, float yaw, Renderer3D renderer, float tickDelta) {
+        collidingEntity = null;
+
         double x = MathHelper.lerp(tickDelta, mc.player.prevX, mc.player.getX());
         double y = MathHelper.lerp(tickDelta, mc.player.prevY, mc.player.getY());
         double z = MathHelper.lerp(tickDelta, mc.player.prevZ, mc.player.getZ());
@@ -220,8 +225,10 @@ public class TescoTrajectories extends Module {
             }
 
             Color white = new Color(255, 255, 255, 255);
-            BlockHitResult bhr = mc.world.raycast(new RaycastContext(lastPos, pos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, mc.player));
-            if (bhr != null && bhr.getType() == HitResult.Type.BLOCK) {
+            HitResult hitResult = mc.world.raycast(new RaycastContext(lastPos, pos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, mc.player));
+            if (hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
+                BlockHitResult bhr = (BlockHitResult) hitResult;
+
                 Box landingBox = Box.from(bhr.getPos());
                 Box bhrBox = new Box(bhr.getBlockPos());
 
@@ -241,6 +248,18 @@ public class TescoTrajectories extends Module {
                         yayBox, white, 2f, bhr.getSide()
                     ));
                 }
+                break;
+            } else if (hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) {
+                collidingEntity = ((EntityHitResult) hitResult).getEntity();
+
+                double entityX = (collidingEntity.getX() - collidingEntity.prevX) * tickDelta;
+                double entityY = (collidingEntity.getY() - collidingEntity.prevY) * tickDelta;
+                double entityZ = (collidingEntity.getZ() - collidingEntity.prevZ) * tickDelta;
+
+                Box box = collidingEntity.getBoundingBox();
+                Render3DEngine.OUTLINE_SIDE_QUEUE.add(new Render3DEngine.OutlineSideAction(
+                    new Box(entityX + box.minX, entityY + box.minY, entityZ + box.minZ, entityX + box.maxX, entityY + box.maxY, entityZ + box.maxZ), white, 2f, ((BlockHitResult) hitResult).getSide()
+                ));
                 break;
             }
 
