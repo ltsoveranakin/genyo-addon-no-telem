@@ -1,10 +1,8 @@
 package com.genyo.addon.render;
 
-import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.BuiltBuffer;
-import net.minecraft.util.math.MathHelper;
 
 public class Render2DEngine {
 

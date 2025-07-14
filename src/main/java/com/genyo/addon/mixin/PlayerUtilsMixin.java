@@ -18,5 +18,5 @@ public class PlayerUtilsMixin {
             cir.setReturnValue(Enemies.get().getEnemyColor());
         }
     }
-
+    
 }

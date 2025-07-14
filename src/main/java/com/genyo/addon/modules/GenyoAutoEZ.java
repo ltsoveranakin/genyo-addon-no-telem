@@ -1,6 +1,9 @@
 package com.genyo.addon.modules;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.systems.incombat.CombatPerson;
+import com.genyo.addon.systems.incombat.InCombatSystem;
+import com.genyo.addon.utils.MathUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
@@ -14,13 +17,14 @@ import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 
 import java.util.*;
 
-public class GenyoAutoEZ extends Module {
+public class GenyoAutoEZ extends GenyoModule {
 
     public GenyoAutoEZ() {
-        super(GenyoAddon.GENYO, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.");
+        super(GenyoAddon.GENYO, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.-----------------------------------------------------------------");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgDeath = settings.createGroup("Death");
 
     //--------------------General--------------------//
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
@@ -31,19 +35,13 @@ public class GenyoAutoEZ extends Module {
         .sliderRange(0, 50)
         .build()
     );
+
     private final Setting<Integer> tickDelay = sgGeneral.add(new IntSetting.Builder()
         .name("Delay")
         .description("How many ticks to wait between sending messages.")
-        .defaultValue(50)
+        .defaultValue(10)
         .min(0)
         .sliderRange(0, 100)
-        .build()
-    );
-
-    private final Setting<Boolean> pop = sgGeneral.add(new BoolSetting.Builder()
-        .name("Pop")
-        .description("nyugi ez nem csinál semmit, csak dísznek van XD")
-        .defaultValue(true)
         .build()
     );
 
@@ -54,10 +52,40 @@ public class GenyoAutoEZ extends Module {
         .build()
     );
 
+    private final Setting<Boolean> combatFocus = sgGeneral.add(new BoolSetting.Builder()
+        .name("Combat Focus")
+        .description("csak akivel combatban vagy (elvileg)")
+        .defaultValue(false)
+        .build()
+    );
+
     private final Setting<List<String>> popMessages = sgGeneral.add(new StringListSetting.Builder()
         .name("Pop Messages")
-        .description("Messages to send when popping an enemy")
+        .description("van egy ped0fil a szobában")
         .defaultValue(List.of("ez pop <NAME> <COUNT>", "pop <NAME> <COUNT>", "i love kiwi pop <NAME> <COUNT>"))
+        .build()
+    );
+
+    private final Setting<Boolean> enableDeath = sgDeath.add(new BoolSetting.Builder()
+        .name("Message on Death")
+        .description("hihihi hahaha huhuhu")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> keepPops = sgDeath.add(new BoolSetting.Builder()
+        .name("Keep Pops")
+        .description("rlkjg krehg kjhre gjk hrej ghjkreh gjkh rekjg hre ")
+        .defaultValue(true)
+        .visible(enableDeath::get)
+        .build()
+    );
+
+    private final Setting<List<String>> deathMessages = sgDeath.add(new StringListSetting.Builder()
+        .name("Death Messages")
+        .description("itt is <NAME> <COUNT> van")
+        .visible(enableDeath::get)
+        .defaultValue(List.of("<NAME> needed Hulkenberg's nut only <COUNT> times to get Hulkenberg'd", "nemtom <NAME> <COUNT>"))
         .build()
     );
 
@@ -69,42 +97,60 @@ public class GenyoAutoEZ extends Module {
 
     @Override
     public void onActivate() {
-        super.onActivate();
         taggedPlayers.clear();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
+        if (mc.player == null && mc.world == null) return;
         timer++;
-        if (mc.player != null && mc.world != null) {
-            if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
-                Message msg = messageQueue.get(0);
-                ChatUtils.sendPlayerMsg(msg.message);
-                timer = 0;
 
-                if (msg.kill) messageQueue.clear();
-                else messageQueue.removeFirst();
-            }
+        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
+            Message msg = messageQueue.get(0);
+            ChatUtils.sendPlayerMsg(msg.message);
+            timer = 0;
+
+            if (msg.kill) messageQueue.clear();
+            else messageQueue.removeFirst();
         }
     }
 
     @EventHandler
     private void onReceive(PacketEvent.Receive event) {
         if (event.packet instanceof EntityStatusS2CPacket packet) {
-            // Pop
-            if (packet.getStatus() == 35) {
+            if (packet.getStatus() == 35) {                                             //----Pop----//
                 Entity entity = packet.getEntity(mc.world);
                 if (mc.player != null && mc.world != null && entity instanceof PlayerEntity playerEntity) {
                     if (entity != mc.player && mc.player.getPos().distanceTo(entity.getPos()) <= range.get()) {
 
-                        if (trackPlayers.get() && taggedPlayers.containsKey(playerEntity)) {
-                            int count =  taggedPlayers.get(playerEntity) + 1;
+                        // Combat Focus
+                        if (combatFocus.get()) {
+                            if (!InCombatSystem.get().contains(new CombatPerson(playerEntity))) return;
+                        }
 
-                            taggedPlayers.replace(playerEntity, count);
-                            sendPopMessage(playerEntity.getName().getString(), count);
+                        if (trackPlayers.get()) {
+                            if (taggedPlayers.containsKey(playerEntity)) {
+                                int count = taggedPlayers.get(playerEntity) + 1;
+
+                                taggedPlayers.replace(playerEntity, count);
+                                sendPopMessage(playerEntity.getName().getString(), count);
+                            } else {
+                                taggedPlayers.put(playerEntity, 1);
+                                sendPopMessage(playerEntity.getName().getString(), 1);
+                            }
                         } else {
                             sendPopMessage(playerEntity.getName().getString(), 0);
-                            taggedPlayers.put(playerEntity, 1);
+                        }
+                    }
+                }
+            } else if (packet.getStatus() == 3 && enableDeath.get()) {                   //----Death----//
+                Entity entity = packet.getEntity(mc.world);
+                if (mc.player != null && mc.world != null && entity instanceof PlayerEntity playerEntity) {
+                    if (entity != mc.player && checkPersonValidity(playerEntity)) {
+                        if (taggedPlayers.containsKey(playerEntity)) {
+                            if (!keepPops.get()) taggedPlayers.replace(playerEntity, 0);
+
+                            sendDeathMessage(playerEntity.getName().getString(), taggedPlayers.get(playerEntity));
                         }
                     }
                 }
@@ -112,26 +158,47 @@ public class GenyoAutoEZ extends Module {
         }
     }
 
-    private void sendPopMessage(String name, int count) {
-        if (!popMessages.get().isEmpty()) {
-            int num = r.nextInt(0, popMessages.get().size());
-            if (num == lastPop) {
-                num = num < popMessages.get().size() - 1 ? num + 1 : 0;
-            }
-            lastPop = num;
-            String messageString = popMessages.get().get(num).replace("<NAME>", name);
-            String countString = String.valueOf(count);
+    private boolean checkPersonValidity(PlayerEntity player) {
+        if (InCombatSystem.get().isEnabled() && combatFocus.get())
+            if (!InCombatSystem.get().contains(player)) return false; // kell?
 
-            if (count > 0) {
-                messageString = messageString.replace("<COUNT>", "+" + countString);
-            } else {
-                messageString = messageString.replace("<COUNT>", "+1");
-            }
-
-            Message message = new Message(messageString, false);
-            messageQueue.add(message);
+        if (taggedPlayers.containsKey(player)) {
+            return true;
         }
+
+        //TODO: if we want to display this for everyone, then implement something here
+
+        return false;
     }
+
+
+    private void sendPopMessage(String name, int count) {
+        if (popMessages.get().isEmpty()) return;
+
+        String messageString = popMessages.get().get(MathUtil.pickRandom(popMessages.get())).replace("<NAME>", name);
+        String countString = String.valueOf(count);
+
+        if (count > 0) {
+            messageString = messageString.replace("<COUNT>", "+" + countString);
+        } else {
+            messageString = messageString.replace("<COUNT>", "+1");
+        }
+
+        Message message = new Message(messageString, false);
+        messageQueue.add(message);
+    }
+
+    private void sendDeathMessage(String name, int pops) {
+        if (deathMessages.get().isEmpty()) return;
+
+        String msgString = deathMessages.get().get(MathUtil.pickRandom(deathMessages.get())); // pont leszarom hogyha ugyan azt az üzenetet húzza
+        msgString = msgString.replace("<COUNT>", String.valueOf(pops));
+        msgString = msgString.replace("<NAME>", name);
+
+        Message message = new Message(msgString, false);
+        messageQueue.add(message);
+    }
+
 
     private record Message(String message, boolean kill) {
     }
