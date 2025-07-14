@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class AngelSexHulkenberg extends Module {
+public final class AngelSexHulkenberg extends GenyoModule {
 
     public AngelSexHulkenberg() {
         super(GenyoAddon.GENYO, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");

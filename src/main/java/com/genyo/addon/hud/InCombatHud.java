@@ -7,12 +7,19 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.*;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import net.minecraft.entity.player.PlayerEntity;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class InCombatHud extends HudElement {
 
     public static final HudElementInfo<InCombatHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "combat-stats", "Fasz fasz fasz fasz fasz fasz.", InCombatHud::new);
+
+    private static final InCombatSystem inCombatSystem = InCombatSystem.get();
+
+    Color white = new Color(255, 255, 255, 255);
+    String outOfCombat = "Out of combat!";
+    String combatDisabled = "Combat is disabled";
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgBackground = settings.createGroup("Background");
@@ -84,12 +91,11 @@ public class InCombatHud extends HudElement {
 
     private InCombatHud() {
         super(INFO);
-
-        calculateSize();
     }
 
-    private void calculateSize() {
-        setSize(40, 20);
+    @Override
+    public void setSize(double width, double height) {
+        super.setSize(width + border.get() * 2, height + border.get() * 2);
     }
 
     @Override
@@ -99,12 +105,18 @@ public class InCombatHud extends HudElement {
 
     @Override
     public void tick(HudRenderer renderer) {
-        if (InCombatSystem.get().empty()) {
-            setSize(renderer.textWidth("Out of Combat", textShadow.get(), getScale()), renderer.textHeight(textShadow.get(), getScale()));
+        if (!inCombatSystem.isEnabled()) {
+            setSize(renderer.textWidth(combatDisabled, textShadow.get(), getScale()), renderer.textHeight(textShadow.get(), getScale()));
             return;
         }
 
-        double width = renderer.textWidth("In Combat:", textShadow.get(), getScale());
+        if (inCombatSystem.empty()) {
+            setSize(renderer.textWidth(outOfCombat, textShadow.get(), getScale()), renderer.textHeight(textShadow.get(), getScale()));
+            return;
+        }
+
+        String remaining = String.format("(%ss)", inCombatSystem.getRemainingCooldown());
+        double width = renderer.textWidth("In Combat: " + remaining, textShadow.get(), getScale());
         double height = renderer.textHeight(textShadow.get(), getScale());
 
         if (mc.world == null) {
@@ -112,9 +124,8 @@ public class InCombatHud extends HudElement {
             return;
         }
 
-        for (CombatPerson person : InCombatSystem.get().getInCombat()) {
+        for (CombatPerson person : inCombatSystem.getInCombat()) {
             String text = person.getName();
-            text += String.format("(%ss)", InCombatSystem.get().getRemainingCooldown());
 
             width = Math.max(width, renderer.textWidth(text, textShadow.get(), getScale()));
             height += renderer.textHeight(textShadow.get(), getScale()) + 2;
@@ -125,35 +136,37 @@ public class InCombatHud extends HudElement {
 
     @Override
     public void render(HudRenderer renderer) {
+        if (mc.world == null) return;
         double y = this.y + border.get();
 
-        if (InCombatSystem.get().empty()) {
-            renderer.text("Out of Combat", x, y, personColor.get(), textShadow.get(), getScale());
+        if (!inCombatSystem.isEnabled()) {
+            renderer.text(combatDisabled, x, y, white, textShadow.get(), getScale());
             return;
         }
 
-        if (background.get()) renderer.quad(this.x, this.y, getWidth(), getHeight(), backgroundColor.get());
+        if (inCombatSystem.empty()) {
+            renderer.text(outOfCombat, x, y, white, textShadow.get(), getScale());
+            return;
+        }
 
-        renderer.text("In Combat:", x + border.get() + alignX(renderer.textWidth("In Combat: ", textShadow.get(), getScale()), alignment.get()), y, new Color(255, 255, 255, 255), textShadow.get(), getScale());
+        String cooldownText = String.format("(%ss)", inCombatSystem.getRemainingCooldown());
+        double alap = renderer.textWidth("In Combat: " + cooldownText, textShadow.get(), getScale());
+        double permX = x + border.get() + alignX(alap, alignment.get());
+        renderer.text("In Combat: ", permX, y, white, textShadow.get(), getScale());
 
-        if (mc.world == null) return;
-        double spaceWidth = renderer.textWidth(" ", textShadow.get(), getScale());
+        renderer.text(cooldownText, permX + renderer.textWidth("In Combat: ", textShadow.get(), getScale()), y, personColor.get(), textShadow.get(), getScale());
 
-        for (CombatPerson person :  InCombatSystem.get().getInCombat()) {
+        for (CombatPerson person :  inCombatSystem.getInCombat()) {
             String text = person.getName();
 
             double width = renderer.textWidth(text, textShadow.get(), getScale());
-            width += spaceWidth;
-
-            String cooldownText = String.format("(%ss)", InCombatSystem.get().getRemainingCooldown());
-            width += renderer.textWidth(cooldownText, textShadow.get(), getScale());
-
             double x = this.x + border.get() + alignX(width, alignment.get());
-            y += renderer.textHeight(textShadow.get(), getScale()) + 2;
 
-            x = renderer.text(text, x, y, personColor.get(), textShadow.get(), getScale());
-            renderer.text(cooldownText, x + spaceWidth, y, personColor.get(), textShadow.get(), getScale());
+            y += renderer.textHeight(textShadow.get(), getScale()) + 2;
+            renderer.text(text, x, y, personColor.get(), textShadow.get(), getScale());
         }
+
+        if (background.get()) renderer.quad(this.x, this.y, getWidth(), getHeight(), backgroundColor.get());
     }
 
     private double getScale() {
