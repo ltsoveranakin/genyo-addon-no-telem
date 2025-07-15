@@ -7,7 +7,6 @@ import com.genyo.addon.utils.MathUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
@@ -166,7 +165,7 @@ public class GenyoAutoEZ extends GenyoModule {
             return true;
         }
 
-        //TODO: if we want to display this for everyone, then implement something here
+        //TODO: if we want to display this for everyone
 
         return false;
     }

@@ -61,7 +61,7 @@ public class GenyoModule extends Module {
         sendMessage(Text.of(msg), hashCode());
     }
 
-    public void sendBOInfo(String text) {
+    public void sendInfo(String text) {
         if (mc.world == null) return;
 
         ChatUtils.forceNextPrefixClass(getClass());
