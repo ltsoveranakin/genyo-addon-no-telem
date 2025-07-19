@@ -3,6 +3,7 @@ package com.genyo.addon;
 import com.genyo.addon.modules.AngelSexHulkenberg;
 import com.genyo.addon.modules.GenyoAutoEZ;
 import com.genyo.addon.modules.GenyoSurround;
+import com.genyo.addon.modules.GenyoWelcome;
 import com.genyo.addon.systems.enemies.EnemiesTab;
 import com.genyo.addon.hud.InCombatHud;
 import com.genyo.addon.hud.PvPNeccessaryHud;
@@ -61,6 +62,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoAutoEZ());
         modules.add(new AngelSexHulkenberg());
         modules.add(new GenyoSurround());
+        modules.add(new GenyoWelcome());
     }
 
     private void initHUD(Hud hud) {

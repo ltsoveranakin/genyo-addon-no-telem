@@ -5,7 +5,8 @@
   "client": [
     "PlayerUtilsMixin",
     "FriendsInjector",
-    "IEntity"
+    "IEntity",
+    "DefaultSettingsWidgetFactoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

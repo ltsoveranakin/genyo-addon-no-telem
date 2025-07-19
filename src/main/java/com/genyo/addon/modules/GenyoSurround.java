@@ -138,7 +138,7 @@ public class GenyoSurround extends GenyoModule {
         if (delayTicks >= placeDelay.get()) {
             delayTicks = 0;
             if (disableOnJump.get() && mc.options.jumpKey.isPressed() && mc.player.isOnGround()) {
-                sendBOInfo("Player jumped, disabling.");
+                sendInfo("Player jumped, disabling.");
                 toggle();
             } else {
                 FindItemResult obsidian = InvUtils.findInHotbar(Items.OBSIDIAN);
