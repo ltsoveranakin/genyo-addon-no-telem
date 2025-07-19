@@ -191,7 +191,7 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
 
         enemies.clear();
 
-        for (NbtElement itemTag : tag.getList("enemies", 0)) {
+        for (NbtElement itemTag : tag.getList("enemies", 8)) {
             NbtCompound enemyTag = (NbtCompound) itemTag;
             if (!enemyTag.contains("name")) continue;
 
