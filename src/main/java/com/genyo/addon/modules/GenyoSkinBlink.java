@@ -15,7 +15,6 @@ import java.util.Set;
 public class GenyoSkinBlink extends GenyoModule{
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
         .name("Delay (mp)")
         .description("hulkenberg????")
@@ -45,6 +44,7 @@ public class GenyoSkinBlink extends GenyoModule{
 
         timer = 0;
         for (PlayerModelPart part : PlayerModelPart.values()) mc.options.setPlayerModelPart(part, enabledParts.contains(part));
+        mc.options.sendClientSettings();
     }
 
     @EventHandler
@@ -53,12 +53,12 @@ public class GenyoSkinBlink extends GenyoModule{
         if (mc.player == null && mc.world == null) return;
 
         if (!(timer >= (delay.get() * 20))) return;
-        GenyoAddon.LOG.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         Set<PlayerModelPart> currentParts = ((AccessorGameOptions) mc.options).getPlayerModelParts();
         for (PlayerModelPart part : PlayerModelPart.values()) {
             mc.options.setPlayerModelPart(part, !currentParts.contains(part));
         }
+
         mc.options.sendClientSettings();
 
         timer = 0;
