@@ -1,6 +1,8 @@
 package com.genyo.addon.systems.enemies;
 
 import com.mojang.util.UndashedUuid;
+import meteordevelopment.meteorclient.systems.friends.Friend;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.misc.ISerializable;
 import meteordevelopment.meteorclient.utils.network.Http;
 import meteordevelopment.meteorclient.utils.render.PlayerHeadTexture;
@@ -81,8 +83,8 @@ public class Enemy implements ISerializable<Enemy>, Comparable<Enemy> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Enemy friend = (Enemy) o;
-        return Objects.equals(name, friend.name);
+        Enemy enemy = (Enemy) o;
+        return Objects.equals(name, enemy.name);
     }
 
     @Override

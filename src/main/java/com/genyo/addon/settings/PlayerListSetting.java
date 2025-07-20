@@ -1,6 +1,5 @@
 package com.genyo.addon.settings;
 
-import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.modules.GenyoWelcome;
 import meteordevelopment.meteorclient.settings.IVisible;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -8,7 +7,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;

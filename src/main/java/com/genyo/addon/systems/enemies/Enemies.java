@@ -161,6 +161,33 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
         return tag;
     }
 
+    @Override
+    public Enemies fromTag(NbtCompound tag) {
+        enemies.clear();
+        if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
+
+        for (NbtElement itemTag : tag.getList("enemies", 10)) {
+            NbtCompound enemyTag = (NbtCompound) itemTag;
+            if (!enemyTag.contains("name")) continue;
+
+            String name = enemyTag.getString("name");
+            if (get(name) != null) continue;
+
+            String uuid = enemyTag.getString("id");
+            Enemy enemy = !uuid.isBlank()
+                ? new Enemy(name, UndashedUuid.fromStringLenient(uuid))
+                : new Enemy(name);
+
+            enemies.add(enemy);
+        }
+
+        Collections.sort(enemies);
+
+        MeteorExecutor.execute(() -> enemies.forEach(Enemy::updateInfo));
+
+        return this;
+    }
+
     private void genyo() {
         if (mc.targetedEntity == null) return;
         if (!(mc.targetedEntity instanceof PlayerEntity player)) return;
@@ -183,34 +210,6 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
             remove(get(player));
             info("Removed %s from opps.", player.getName().getString());
         }
-    }
-
-    @Override
-    public Enemies fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
-
-        enemies.clear();
-
-        for (NbtElement itemTag : tag.getList("enemies", 8)) {
-            NbtCompound enemyTag = (NbtCompound) itemTag;
-            if (!enemyTag.contains("name")) continue;
-
-            String name = enemyTag.getString("name");
-            if (get(name) != null) continue;
-
-            String uuid = enemyTag.getString("id");
-            Enemy enemy = !uuid.isBlank()
-                ? new Enemy(name, UndashedUuid.fromStringLenient(uuid))
-                : new Enemy(name);
-
-            enemies.add(enemy);
-        }
-
-        Collections.sort(enemies);
-
-        MeteorExecutor.execute(() -> enemies.forEach(Enemy::updateInfo));
-
-        return this;
     }
 
     public Color getEnemyColor() {

@@ -1,6 +1,5 @@
 package com.genyo.addon.screens;
 
-import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.modules.GenyoWelcome;
 import com.genyo.addon.settings.PlayerListSetting;
 import meteordevelopment.meteorclient.gui.GuiTheme;
@@ -40,8 +39,7 @@ public class PlayerListScreen extends WindowScreen {
         add.action = () -> {
             String name = nameW.get().trim();
             if (name.equalsIgnoreCase("")) return;
-
-            if (setting.get(name) != null) {
+            if (setting.get(name) != null) { // it already exists
                 nameW.set("");
                 return;
             }
@@ -50,10 +48,8 @@ public class PlayerListScreen extends WindowScreen {
             nameW.set("");
             setting.get().add(player);
 
-            MeteorExecutor.execute(() -> {
-                player.updateInfo();
-                reload();
-            });
+            //player.updateInfo();
+            MeteorExecutor.execute(this::reload);
 
             setting.onChanged();
             //table.clear();
