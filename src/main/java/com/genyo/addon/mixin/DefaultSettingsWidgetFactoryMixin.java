@@ -1,7 +1,6 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.screens.PlayerListScreen;
-import com.genyo.addon.settings.PlayerListSetting;
+import com.genyo.addon.settings.playerlist.ListGroupSetting;
 import meteordevelopment.meteorclient.gui.DefaultSettingsWidgetFactory;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.utils.SettingsWidgetFactory;
@@ -13,8 +12,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(DefaultSettingsWidgetFactory.class)
 public abstract class DefaultSettingsWidgetFactoryMixin extends SettingsWidgetFactory {
@@ -28,10 +25,11 @@ public abstract class DefaultSettingsWidgetFactoryMixin extends SettingsWidgetFa
 
     @Inject(method = "<init>", at = @At("TAIL"))
     protected void genyo(CallbackInfo info) {
-        factories.put(PlayerListSetting.class, (table, setting) -> playerListW(table, (PlayerListSetting) setting));
+        factories.put(ListGroupSetting.class, (table, setting) -> listGroupW(table, (ListGroupSetting) setting));
     }
 
-    private void playerListW(WTable table, PlayerListSetting setting) {
-        selectW(table, setting, () -> mc.setScreen(new PlayerListScreen(theme, "Add Players", setting)));
+    private void listGroupW(WTable table, ListGroupSetting setting) {
+        WTable wtable = table.add(theme.table()).expandX().widget();
+        ListGroupSetting.fillTable(theme, wtable, setting);
     }
 }
