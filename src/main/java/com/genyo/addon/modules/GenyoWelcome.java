@@ -1,7 +1,8 @@
 package com.genyo.addon.modules;
 
 import com.genyo.addon.GenyoAddon;
-import com.genyo.addon.settings.PlayerListSetting;
+import com.genyo.addon.settings.playerlist.ListGroupSetting;
+import com.genyo.addon.settings.playerlist.PLGroup;
 import com.mojang.authlib.GameProfile;
 import com.mojang.util.UndashedUuid;
 import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
@@ -11,7 +12,6 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.misc.ISerializable;
 import meteordevelopment.meteorclient.utils.network.Http;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
@@ -23,32 +23,28 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GenyoWelcome extends GenyoModule {
-
-    public static List<ListPlayer> genyo = new ArrayList<>();
 
     private Set<UUID> onlinePlayers = new HashSet<>();
     private final List<Message> messageQueue = new LinkedList<>();
     private int timer = 0;
 
+    private ArrayList<PLGroup> groupsList = new ArrayList<>();
+    private ArrayList<String> namesList = new ArrayList<>();
+
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<List<ListPlayer>> players = sgGeneral.add(new PlayerListSetting.Builder()
-        .name("Players")
+    private final Setting<List<PLGroup>> groups = sgGeneral.add(new ListGroupSetting.Builder()
+        .name("Groups:")
         .description("sdasdjgewqjhgfjhgewjhfg ew gfjhewgfhjgwehjf gjhwe few")
         .onChanged(this::refreshList)
-        .build()
-    );
-
-    private final Setting<String> message = sgGeneral.add(new StringSetting.Builder()
-        .name("Message")
-        .description("<NAME> ewhfhewjkfhejwkhfhewkjfhewjkfhkjewhfkhewfke")
-        .defaultValue("genyo <NAME>")
         .build()
     );
 
@@ -67,7 +63,7 @@ public class GenyoWelcome extends GenyoModule {
     }
 
     public GenyoWelcome() {
-        super(GenyoAddon.GENYO, "Genyo Welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
+        super(GenyoAddon.GENYO, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
     }
 
     @EventHandler
@@ -107,8 +103,10 @@ public class GenyoWelcome extends GenyoModule {
                 if (profile == null) return;
 
                 String name = profile.getName();
-                if (!contains(name)) return;
+                if (!namesList.contains(name)) return;
                 UUID playerUuid = profile.getId();
+
+                GenyoAddon.LOG.info(pac.getActions().toString());
 
                 if (!pac.getActions().contains(PlayerListS2CPacket.Action.ADD_PLAYER)
                     && playerUuid != null && !onlinePlayers.contains(playerUuid)) return;
@@ -116,45 +114,39 @@ public class GenyoWelcome extends GenyoModule {
                 handleMessage(name);
                 onlinePlayers.add(playerUuid);
             });
-        }
+        }/* else if (event.packet instanceof PlayerRemoveS2CPacket pac) {
+            GenyoAddon.LOG.info(pac.toString());
+        }*/
     }
 
     private void handleMessage(String name) {
         if (mc.world == null) return;
 
-        String toSend = message.get();
+        AtomicReference<String> atomicMSG = new AtomicReference<>("");
+        groupsList.forEach(group -> {
+            if (group.containsPlayer(name)) {
+                atomicMSG.set(group.getMessage());
+            }
+        });
+        String toSend = atomicMSG.get();
         toSend = toSend.contains("<NAME>") ? toSend.replace("<NAME>", name) : toSend;
 
         Message msg = new Message(toSend, false);
         messageQueue.add(msg);
     }
 
-    private boolean contains(String name) {
-        for (ListPlayer listPlayer : players.get()) {
-            if (listPlayer.name.equalsIgnoreCase(name)) return true;
-        }
+    private void refreshList(List<PLGroup> newGroups) {
+        groupsList.clear();
+        groupsList.addAll(newGroups);
 
-        return false;
-    }
+        namesList.clear();
+        newGroups.forEach(group -> {
+            if (group.getPlayers().isEmpty()) return;
 
-    private void refreshList(List<ListPlayer> a) {
-        genyo = a;
-    }
-
-    public static ListPlayer get(String name) {
-        for (ListPlayer player : genyo) {
-            if (player == null) return null;
-
-            if (player.name.equalsIgnoreCase(name)) {
-                return player;
-            }
-        }
-
-        return null;
-    }
-
-    public boolean isInList(String name) {
-        return get(name) != null;
+            group.getPlayers().forEach(player -> {
+                namesList.add(player.getName());
+            });
+        });
     }
 
     public static ListPlayer createListPlayer(String name) {
