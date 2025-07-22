@@ -21,6 +21,14 @@ public class GenyoChatUtils {
         sendMessage(Text.of(msg), Objects.hash("genyo-info"));
     }
 
+    public static void sendError(String text) {
+        if (mc.world == null) return;
+
+        ChatUtils.forceNextPrefixClass(GenyoChatUtils.class);
+        String msg = prefix + " " + Formatting.RED + text;
+        sendMessage(Text.of(msg), Objects.hash("genyo-error"));
+    }
+
     public static void sendMessage(Text text, int id) {
         ((IChatHud) mc.inGameHud.getChatHud()).meteor$add(text, id);
     }

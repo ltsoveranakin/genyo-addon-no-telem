@@ -3,8 +3,6 @@ package com.genyo.addon.modules;
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.settings.playerlist.ListGroupSetting;
 import com.genyo.addon.settings.playerlist.PLGroup;
-import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
-import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
@@ -24,7 +22,6 @@ public class GenyoGoodbye extends GenyoModule {
     private final List<Message> messageQueue = new LinkedList<>();
     private int timer;
 
-    private Set<UUID> onlinePlayers = new HashSet<>();
     private ArrayList<PLGroup> groupsList = new ArrayList<>();
     private ArrayList<String> namesList = new ArrayList<>();
 
@@ -66,11 +63,6 @@ public class GenyoGoodbye extends GenyoModule {
         }
     }
 
-    @Override
-    public void onActivate() {
-        onlinePlayers.clear();
-    }
-
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive event) {
         if (event.packet instanceof PlayerRemoveS2CPacket pac) {
@@ -82,20 +74,6 @@ public class GenyoGoodbye extends GenyoModule {
 
             handleMessage(name);
         }
-    }
-
-    @EventHandler
-    private void onGameJoined(GameJoinedEvent event) {
-        if (mc.player == null && mc.world == null) return;
-        onlinePlayers.clear();
-        mc.getNetworkHandler().getPlayerList().iterator().forEachRemaining(p -> {
-            if (p.getProfile() != null) onlinePlayers.add(p.getProfile().getId());
-        });
-    }
-
-    @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
-        onlinePlayers.clear();
     }
 
     public void refreshList(List<PLGroup> newGroups) {
