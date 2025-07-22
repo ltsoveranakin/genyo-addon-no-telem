@@ -3,7 +3,6 @@ package com.genyo.addon.modules;
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.settings.playerlist.ListGroupSetting;
 import com.genyo.addon.settings.playerlist.PLGroup;
-import com.mojang.authlib.GameProfile;
 import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
@@ -14,19 +13,24 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class GenyoWelcome extends GenyoModule {
+public class GenyoGoodbye extends GenyoModule {
+
+    private final List<Message> messageQueue = new LinkedList<>();
+    private int timer;
 
     private Set<UUID> onlinePlayers = new HashSet<>();
-    private final List<Message> messageQueue = new LinkedList<>();
-    private int timer = 0;
-
     private ArrayList<PLGroup> groupsList = new ArrayList<>();
     private ArrayList<String> namesList = new ArrayList<>();
+
+    public GenyoGoodbye() {
+        super(GenyoAddon.GENYO, "genyo-goodbye", "i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. ");
+    }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -46,13 +50,37 @@ public class GenyoWelcome extends GenyoModule {
         .build()
     );
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onTick(TickEvent.Pre event) {
+        if (mc.player == null && mc.world == null) return;
+        timer++;
+
+        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
+            Message msg = messageQueue.get(0);
+            ChatUtils.sendPlayerMsg(msg.message);
+            timer = 0;
+
+            if (msg.kill) messageQueue.clear();
+            else messageQueue.removeFirst();
+        }
+    }
+
     @Override
     public void onActivate() {
         onlinePlayers.clear();
     }
 
-    public GenyoWelcome() {
-        super(GenyoAddon.GENYO, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
+    @EventHandler
+    private void onReceivePacket(PacketEvent.Receive event) {
+        if (event.packet instanceof PlayerRemoveS2CPacket pac) {
+            PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(pac.profileIds().getFirst());
+            if (entry == null) return;
+
+            String name = entry.getProfile().getName();
+            if (!namesList.contains(name)) return;
+
+            handleMessage(name);
+        }
     }
 
     @EventHandler
@@ -69,39 +97,18 @@ public class GenyoWelcome extends GenyoModule {
         onlinePlayers.clear();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    private void onTick(TickEvent.Pre event) {
-        if (mc.player == null && mc.world == null) return;
-        timer++;
+    public void refreshList(List<PLGroup> newGroups) {
+        groupsList.clear();
+        groupsList.addAll(newGroups);
 
-        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
-            Message msg = messageQueue.get(0);
-            ChatUtils.sendPlayerMsg(msg.message);
-            timer = 0;
+        namesList.clear();
+        newGroups.forEach(group -> {
+            if (group.getPlayers().isEmpty()) return;
 
-            if (msg.kill) messageQueue.clear();
-            else messageQueue.removeFirst();
-        }
-    }
-
-    @EventHandler
-    private void onReceivePacket(PacketEvent.Receive event) {
-        if (event.packet instanceof PlayerListS2CPacket pac) {
-            pac.getEntries().forEach(entry -> {
-                GameProfile profile = entry.profile();
-                if (profile == null) return;
-
-                String name = profile.getName();
-                if (!namesList.contains(name)) return;
-                UUID playerUuid = profile.getId();
-
-                if (!pac.getActions().contains(PlayerListS2CPacket.Action.ADD_PLAYER)
-                    && playerUuid != null && !onlinePlayers.contains(playerUuid)) return;
-
-                handleMessage(name);
-                onlinePlayers.add(playerUuid);
+            group.getPlayers().forEach(player -> {
+                namesList.add(player.getName());
             });
-        }
+        });
     }
 
     private void handleMessage(String name) {
@@ -123,22 +130,7 @@ public class GenyoWelcome extends GenyoModule {
         messageQueue.add(msg);
     }
 
-    public void refreshList(List<PLGroup> newGroups) {
-        groupsList.clear();
-        groupsList.addAll(newGroups);
-
-        namesList.clear();
-        newGroups.forEach(group -> {
-            if (group.getPlayers().isEmpty()) return;
-
-            group.getPlayers().forEach(player -> {
-                namesList.add(player.getName());
-            });
-        });
-    }
-
     private record Message(String message, boolean kill) {
     }
-
 
 }

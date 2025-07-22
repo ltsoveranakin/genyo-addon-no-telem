@@ -20,7 +20,7 @@ public class MathUtil {
     public static int pickRandom(List list) {
         if (list.size() == 1) return 0;
 
-        int num = r.nextInt(0, list.size());
+        int num = r.nextInt(1, list.size());
         return num-1;
     }
 

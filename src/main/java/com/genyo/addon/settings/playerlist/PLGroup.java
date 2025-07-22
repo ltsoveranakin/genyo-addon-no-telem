@@ -7,27 +7,24 @@ import java.util.List;
 public class PLGroup {
 
     private volatile String message;
-    private volatile List<GenyoWelcome.ListPlayer> players;
+    private volatile List<ListPlayer> players;
     private volatile String name;
+    private volatile boolean enabled;
 
-    public PLGroup(String name, String message, List<GenyoWelcome.ListPlayer> players) {
+    public PLGroup(String name, String message, List<ListPlayer> players) {
         this.name = name;
         this.message = message;
         this.players = players;
+        this.enabled = true;
     }
 
-    public boolean containsPlayer(GenyoWelcome.ListPlayer player) {
-        for (GenyoWelcome.ListPlayer listPlayer : players) {
-            if (listPlayer.getName().equals(player.getName())) {
-                return true;
-            }
-        }
-
+    public boolean containsPlayer(ListPlayer player) {
+        if (containsPlayer(player.getName())) return true;
         return false;
     }
 
     public boolean containsPlayer(String name) {
-        for (GenyoWelcome.ListPlayer listPlayer : players) {
+        for (ListPlayer listPlayer : players) {
             if (listPlayer.getName().equals(name)) {
                 return true;
             }
@@ -48,7 +45,7 @@ public class PLGroup {
         this.message = message;
     }
 
-    public List<GenyoWelcome.ListPlayer> getPlayers() {
+    public List<ListPlayer> getPlayers() {
         return players;
     }
 
@@ -56,16 +53,28 @@ public class PLGroup {
         this.name = newName;
     }
 
-    public void setPlayers(List<GenyoWelcome.ListPlayer> players) {
+    public void setPlayers(List<ListPlayer> players) {
         this.players = players;
     }
 
-    public void addPlayer(GenyoWelcome.ListPlayer player) {
+    public void addPlayer(ListPlayer player) {
         players.add(player);
     }
 
-    public void removePlayer(GenyoWelcome.ListPlayer player) {
+    public void removePlayer(ListPlayer player) {
         players.remove(player);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void toggle() {
+        enabled = !enabled;
     }
 
 }

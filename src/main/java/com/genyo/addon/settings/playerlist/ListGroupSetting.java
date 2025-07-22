@@ -1,12 +1,13 @@
 package com.genyo.addon.settings.playerlist;
 
 import com.genyo.addon.GenyoAddon;
-import com.genyo.addon.modules.GenyoWelcome;
 import com.genyo.addon.screens.ListGroupScreen;
+import com.genyo.addon.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
+import meteordevelopment.meteorclient.gui.widgets.pressable.WCheckbox;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 import meteordevelopment.meteorclient.settings.IVisible;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -32,9 +33,14 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
 
         for (int i = 0; i < setting.get().size(); i++) {
             int currentIndex = i;
-            table.add(theme.label(groups.get(i).getGroupName())).widget();
-            WButton button = table.add(theme.button("Edit Group")).expandX().widget();
-            //WCheckbox toggle = table.add(theme.checkbox(true)).widget();
+            PLGroup currentGroup = groups.get(currentIndex);
+            WCheckbox toggle = table.add(theme.checkbox(currentGroup.isEnabled())).widget();
+            toggle.action = () -> {
+                currentGroup.setEnabled(toggle.checked);
+                GenyoChatUtils.sendInfo("Set group '" + currentGroup.getGroupName() + "' to " + (toggle.checked ? "enabled" : "disabled."));
+            };
+            table.add(theme.label(groups.get(i).getGroupName()));
+            WButton button = table.add(theme.button("Edit")).expandX().widget();
             button.action = () -> {
                 mc.setScreen(new ListGroupScreen(theme, setting, currentIndex, mc.currentScreen));
             };
@@ -59,7 +65,7 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
         add.action = () -> {
             int currentNew = groups.size() + 1;
             String newName = "Group " + currentNew;
-            groups.add(new PLGroup(newName, "asd", new ArrayList<GenyoWelcome.ListPlayer>()));
+            groups.add(new PLGroup(newName, "asd <NAME>", new ArrayList<ListPlayer>()));
             setting.set(groups);
 
             fillTable(theme, table, setting);
@@ -76,7 +82,6 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
     @Override
     protected List<PLGroup> parseImpl(String s) {
         String[] values = s.split(",");
-        GenyoAddon.LOG.info(Arrays.toString(values));
         return List.of();
     }
 
@@ -93,9 +98,6 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
             tag.put("indexes", indexes);
             tag.put("message", null);
             tag.put("players", null);
-
-            GenyoAddon.LOG.info("saved with empty");
-            GenyoAddon.LOG.info(tag.toString());
             return tag;
         } else {
             for (int i = 0; i < get().size(); i++) {
@@ -122,23 +124,17 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
         tag.put("group_names", groupNames);
         tag.put("messages", messages);
         tag.put("players", players);
-
-        GenyoAddon.LOG.info("saveee");
-        GenyoAddon.LOG.info(tag.toString());
         return tag;
     }
 
     @Override
     protected List<PLGroup> load(NbtCompound tag) {
         get().clear();
-        GenyoAddon.LOG.info(tag.toString());
         NbtList nbtIndexes = (NbtList) tag.get("indexes");
-        if (nbtIndexes.isEmpty()) {
+        if (nbtIndexes != null && nbtIndexes.isEmpty()) {
             GenyoAddon.LOG.info("nem jo");
             return get();
         }
-
-        GenyoAddon.LOG.info("loadddddd");
 
         ArrayList<Integer> indexes = new ArrayList<>();
         for (NbtElement tagIndex : (NbtList) tag.get("indexes")) {
@@ -152,19 +148,18 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
             String msg = messages.get(i).asString();
             String groupName = groupNames.get(i).asString();
 
-            List<GenyoWelcome.ListPlayer> players = new ArrayList<>();
+            List<ListPlayer> players = new ArrayList<>();
             NbtList playersList = (NbtList) tag.get("players");
 
             for (NbtElement val : playersList) {
                 NbtList currentPlayers = (NbtList) playersList.get(i);
                 currentPlayers.forEach(player -> {
-                    GenyoWelcome.ListPlayer listPlayer = GenyoWelcome.createListPlayer(player.asString());
+                    ListPlayer listPlayer = new ListPlayer(player.asString());
                     players.add(listPlayer);
                 });
             }
 
             PLGroup newGroup = new PLGroup(groupName, msg, players);
-            GenyoAddon.LOG.info(newGroup.toString());
             get().add(newGroup);
         }
 
