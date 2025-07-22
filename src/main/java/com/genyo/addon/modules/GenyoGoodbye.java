@@ -53,7 +53,8 @@ public class GenyoGoodbye extends GenyoModule {
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
-        timer++;
+
+        if (!messageQueue.isEmpty()) timer++;
 
         if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
             Message msg = messageQueue.get(0);

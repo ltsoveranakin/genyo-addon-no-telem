@@ -40,7 +40,7 @@ public class GenyoAutoEZ extends GenyoModule {
         .description("How many ticks to wait between sending messages.")
         .defaultValue(10)
         .min(0)
-        .sliderRange(0, 100)
+        .max(100)
         .build()
     );
 
@@ -102,7 +102,8 @@ public class GenyoAutoEZ extends GenyoModule {
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
-        timer++;
+
+        if (!messageQueue.isEmpty()) timer++;
 
         if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
             Message msg = messageQueue.get(0);
