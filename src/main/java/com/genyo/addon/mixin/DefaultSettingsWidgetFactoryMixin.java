@@ -9,6 +9,7 @@ import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.settings.Setting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,6 +29,7 @@ public abstract class DefaultSettingsWidgetFactoryMixin extends SettingsWidgetFa
         factories.put(ListGroupSetting.class, (table, setting) -> listGroupW(table, (ListGroupSetting) setting));
     }
 
+    @Unique
     private void listGroupW(WTable table, ListGroupSetting setting) {
         WTable wtable = table.add(theme.table()).expandX().widget();
         ListGroupSetting.fillTable(theme, wtable, setting);

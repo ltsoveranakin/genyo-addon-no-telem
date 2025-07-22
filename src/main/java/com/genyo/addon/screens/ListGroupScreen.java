@@ -1,7 +1,7 @@
 package com.genyo.addon.screens;
 
-import com.genyo.addon.modules.GenyoWelcome;
 import com.genyo.addon.settings.playerlist.ListGroupSetting;
+import com.genyo.addon.settings.playerlist.ListPlayer;
 import com.genyo.addon.settings.playerlist.PLGroup;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -69,7 +69,7 @@ public class ListGroupScreen extends WindowScreen {
 
             //PLGroup currentGroup = setting.get().get(index);
 
-            GenyoWelcome.ListPlayer player = GenyoWelcome.createListPlayer(name);
+            ListPlayer player = new ListPlayer(name);
             if (currentGroup.containsPlayer(player)) { // it already exists
                 nameW.set("");
                 return;
@@ -104,13 +104,13 @@ public class ListGroupScreen extends WindowScreen {
                     return;
                 }
                 if (player.headTextureNeedsUpdate()) {
-                    player.updateInfo();
+                    player.updateInfo(false);
                     reload();
                 }
             })
         );
 
-        for (GenyoWelcome.ListPlayer player : currentGroup.getPlayers()) {
+        for (ListPlayer player : currentGroup.getPlayers()) {
             if (player == null) {
                 currentGroup.removePlayer(player);
                 confirmChanges();
@@ -137,11 +137,11 @@ public class ListGroupScreen extends WindowScreen {
         setting.onChanged();
     }
 
-    protected WWidget getValueWidget(GenyoWelcome.ListPlayer value) {
+    protected WWidget getValueWidget(ListPlayer value) {
         return theme.label(getValueName(value));
     }
 
-    protected String getValueName(GenyoWelcome.ListPlayer value) {
+    protected String getValueName(ListPlayer value) {
         return value.getName();
     }
 
