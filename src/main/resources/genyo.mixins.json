@@ -7,7 +7,8 @@
     "FriendsInjector",
     "IEntity",
     "DefaultSettingsWidgetFactoryMixin",
-    "AccessorGameOptions"
+    "AccessorGameOptions",
+    "ClientPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

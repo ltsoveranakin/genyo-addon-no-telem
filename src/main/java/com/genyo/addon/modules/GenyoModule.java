@@ -5,28 +5,21 @@ import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.config.Config;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.player.Rotation;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.network.SequencedPacketCreator;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
+import java.util.Comparator;
 import java.util.Objects;
-
-import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class GenyoModule extends Module {
 
@@ -157,5 +150,24 @@ public class GenyoModule extends Module {
             .defaultValue(false)
             .build()
         );
+    }
+
+    public PlayerEntity getClosestPlayer(double range) {
+        return mc.world.getPlayers().stream().filter(e -> !(e instanceof ClientPlayerEntity) && !e.isSpectator())
+            .filter(e -> mc.player.squaredDistanceTo(e) <= range * range)
+            //.filter(e -> !Managers.SOCIAL.isFriend(e.getName().getString()))
+            .filter(e -> !Friends.get().isFriend(e))
+            .min(Comparator.comparingDouble(e -> mc.player.squaredDistanceTo(e))).orElse(null);
+    }
+
+    public boolean checkMultitask() {
+        return checkMultitask(false);
+    }
+
+    public boolean checkMultitask(boolean checkOffhand) {
+        if (checkOffhand && mc.player.getActiveHand() != Hand.MAIN_HAND) {
+            return false;
+        }
+        return mc.player.isUsingItem();
     }
 }

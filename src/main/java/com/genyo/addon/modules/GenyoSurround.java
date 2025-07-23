@@ -1,6 +1,7 @@
 package com.genyo.addon.modules;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.utils.math.GPositionUtils;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
@@ -13,8 +14,10 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -200,6 +203,45 @@ public class GenyoSurround extends GenyoModule {
         for (BlockPos pos : toRemove) {
             espBlocks.remove(pos);
         }
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range) {
+        List<BlockPos> surroundBlocks = new ArrayList<>();
+        List<BlockPos> playerBlocks = getPlayerBlocks(player);
+        for (BlockPos pos : playerBlocks)
+        {
+            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range)
+            {
+                continue;
+            }
+            for (Direction dir : Direction.values())
+            {
+                if (!dir.getAxis().isHorizontal())
+                {
+                    continue;
+                }
+                BlockPos pos1 = pos.offset(dir);
+                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1))
+                {
+                    continue;
+                }
+                surroundBlocks.add(pos1);
+            }
+        }
+        return surroundBlocks;
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player)
+    {
+        return getSurroundNoDown(player, 0.0f);
+    }
+
+    public List<BlockPos> getPlayerBlocks(PlayerEntity entity) {
+        BlockPos playerPos = GPositionUtils.getRoundedBlockPos(entity.getX(), entity.getY(), entity.getZ());
+        final List<BlockPos> playerBlocks = new ArrayList<>();
+        playerBlocks.add(playerPos);
+
+        return playerBlocks;
     }
 
     private boolean canPlaceAt(BlockPos pos) {

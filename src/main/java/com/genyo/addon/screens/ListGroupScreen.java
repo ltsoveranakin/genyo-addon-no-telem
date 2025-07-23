@@ -60,6 +60,9 @@ public class ListGroupScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
         table.row();
 
+        table.add(theme.label("Players"));
+        table.row();
+
         // New
         WHorizontalList list = table.add(theme.horizontalList()).expandX().widget();
 

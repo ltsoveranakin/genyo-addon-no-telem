@@ -1,8 +1,8 @@
 package com.genyo.addon.hud;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.utils.GInvUtils;
 import com.genyo.addon.utils.HudUtils;
-import com.genyo.addon.utils.InventoryUtils;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
@@ -105,7 +105,7 @@ public class PvPNeccessaryHud extends HudElement {
         for  (int i = 0; i < itemsLength; i++) {
             Item item = items.get().get(i);
 
-            ItemStack itemStack = new ItemStack(item, InventoryUtils.find(item).count());
+            ItemStack itemStack = new ItemStack(item, GInvUtils.find(item).count());
 
             int scaleOffset = (int) (getScale() * 10);
             int intScale = (int) (getScale());

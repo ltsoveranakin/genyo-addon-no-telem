@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class InventoryUtils {
+public class GInvUtils {
 
     public static FindItemResult find(Item... items) {
         return find(itemStack -> {

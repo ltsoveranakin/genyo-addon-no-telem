@@ -62,6 +62,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoWelcome());
         modules.add(new GenyoSkinBlink());
         modules.add(new GenyoGoodbye());
+        modules.add(new GenyoAutoMine());
     }
 
     private void initHUD(Hud hud) {
