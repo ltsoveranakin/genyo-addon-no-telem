@@ -15,6 +15,7 @@ import meteordevelopment.meteorclient.mixininterface.IClientPlayerInteractionMan
 import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
@@ -448,6 +449,11 @@ public class GenyoAutoMine extends GenyoModule{
                 if (nextMine != null) {
                     startMining(nextMine);
                     autoMineTickDelay = 5;
+
+                    nextMine = autoMineQueue.poll();
+                    if (nextMine == null) return;
+                    startMining(nextMine);
+                    autoMineTickDelay = 5;
                 }
             }
 
@@ -478,15 +484,11 @@ public class GenyoAutoMine extends GenyoModule{
                     BlockPos targetPos = GEntityUtils.getRoundedBlockPos(playerTarget);
                     boolean bedrockPhased = GPositionUtils.isBedrock(playerTarget.getBoundingBox(), targetPos) && !playerTarget.isCrawling();
 
-                    if (!isInstantMineComplete() && checkDataY(instantMine, targetPos, bedrockPhased))
-                    {
+                    if (!isInstantMineComplete() && checkDataY(instantMine, targetPos, bedrockPhased)) {
                         abortMining(instantMine);
                         instantMineAnim.animation.setState(false);
                         instantMine = null;
-                    }
-
-                    else if (packetMine != null && checkDataY(packetMine, targetPos, bedrockPhased))
-                    {
+                    } else if (packetMine != null && checkDataY(packetMine, targetPos, bedrockPhased)) {
                         packetMineAnim.animation.setState(false);
                         if (packetSwapBack)
                         {
@@ -495,16 +497,14 @@ public class GenyoAutoMine extends GenyoModule{
                         }
                         packetMine = null;
                         waitForPacketMine = false;
-                    }
-
-                    else
-                    {
+                    } else {
                         List<BlockPos> phasedBlocks = getPhaseBlocks(playerTarget, targetPos, bedrockPhased);
 
                         MineData bestMine;
                         if (!phasedBlocks.isEmpty())
                         {
                             BlockPos pos1 = phasedBlocks.removeFirst();
+                            GenyoAddon.LOG.info(phasedBlocks.toString());
                             bestMine = new MineData(pos1, strictDirection.get() ? mc.player.getHorizontalFacing() : Direction.UP);
 
                             if (packetMine == null && doubleBreak.get() || isInstantMineComplete()) {
@@ -524,10 +524,7 @@ public class GenyoAutoMine extends GenyoModule{
                             }
                         }
                     }
-                }
-
-                else
-                {
+                } else {
                     if (!isInstantMineComplete() && instantMine.getGoal() == MiningGoal.MINING_ENEMY) {
                         abortMining(instantMine);
                         instantMineAnim.animation.setState(false);
@@ -552,6 +549,8 @@ public class GenyoAutoMine extends GenyoModule{
     public void onAttackBlock(AttackBlockEvent event) {
         if (mc.player == null && mc.world == null) return;
         if (mc.player.isCreative() || mc.player.isSpectator()) return;
+
+        if (event.state.getBlock() == null) return;
 
         event.cancel();
 

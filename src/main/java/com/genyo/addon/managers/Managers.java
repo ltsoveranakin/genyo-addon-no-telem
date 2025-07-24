@@ -7,10 +7,12 @@ public class Managers {
 
     public static final CombatManager COMBAT = new CombatManager();
     public static final Render3DEngine ENGINE3D = new Render3DEngine();
+    public static final BlockManager BLOCK = new BlockManager();
 
     public static void subscribe() {
         MeteorClient.EVENT_BUS.subscribe(COMBAT);
         MeteorClient.EVENT_BUS.subscribe(ENGINE3D);
+        MeteorClient.EVENT_BUS.subscribe(BLOCK);
     }
 
 }
