@@ -1,4 +1,4 @@
-package com.genyo.addon.events;
+package com.genyo.addon.events.network;
 
 import meteordevelopment.meteorclient.events.Cancellable;
 import net.minecraft.item.ItemStack;

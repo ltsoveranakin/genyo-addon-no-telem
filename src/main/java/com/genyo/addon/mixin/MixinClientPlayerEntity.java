@@ -1,6 +1,6 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.events.PlayerTickEvent;
+import com.genyo.addon.events.network.PlayerTickEvent;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;

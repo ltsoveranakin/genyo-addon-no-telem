@@ -1,4 +1,4 @@
-package com.genyo.addon.events;
+package com.genyo.addon.events.network;
 
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;

@@ -1,6 +1,6 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.events.DisconnectEvent;
+import com.genyo.addon.events.network.DisconnectEvent;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.text.Text;

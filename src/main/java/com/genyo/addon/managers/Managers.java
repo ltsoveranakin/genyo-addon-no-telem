@@ -1,7 +1,11 @@
 package com.genyo.addon.managers;
 
+import com.genyo.addon.managers.combat.TotemManager;
+import com.genyo.addon.managers.network.NetworkManager;
 import com.genyo.addon.managers.player.InteractionManager;
+import com.genyo.addon.managers.player.InventoryManager;
 import com.genyo.addon.managers.player.MovementManager;
+import com.genyo.addon.managers.world.BlockManager;
 import com.genyo.addon.render.Render3DEngine;
 import meteordevelopment.meteorclient.MeteorClient;
 

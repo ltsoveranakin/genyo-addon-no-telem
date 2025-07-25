@@ -1,7 +1,7 @@
-package com.genyo.addon.managers;
+package com.genyo.addon.managers.combat;
 
-import com.genyo.addon.events.DisconnectEvent;
-import com.genyo.addon.events.EntityDeathEvent;
+import com.genyo.addon.events.network.DisconnectEvent;
+import com.genyo.addon.events.entity.EntityDeathEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;

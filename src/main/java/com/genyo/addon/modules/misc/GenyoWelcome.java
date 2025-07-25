@@ -73,10 +73,11 @@ public class GenyoWelcome extends GenyoModule {
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
+        if (messageQueue.isEmpty()) return;
 
-        if (!messageQueue.isEmpty()) timer++;
+        timer++;
 
-        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
+        if (timer >= tickDelay.get()) {
             Message msg = messageQueue.get(0);
             ChatUtils.sendPlayerMsg(msg.message);
             timer = 0;

@@ -1,7 +1,8 @@
-package com.genyo.addon.managers;
+package com.genyo.addon.managers.player;
 
-import com.genyo.addon.events.EntityDeathEvent;
-import com.genyo.addon.events.ItemDesyncEvent;
+import com.genyo.addon.events.entity.EntityDeathEvent;
+import com.genyo.addon.events.network.ItemDesyncEvent;
+import com.genyo.addon.managers.Managers;
 import com.genyo.addon.mixin.AccessorBundlePacket;
 import com.genyo.addon.utils.math.timer.CacheTimer;
 import com.genyo.addon.utils.math.timer.Timer;

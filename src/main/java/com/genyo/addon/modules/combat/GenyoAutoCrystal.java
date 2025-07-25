@@ -1,7 +1,7 @@
 package com.genyo.addon.modules.combat;
 
 import com.genyo.addon.GenyoAddon;
-import com.genyo.addon.events.PlayerTickEvent;
+import com.genyo.addon.events.network.PlayerTickEvent;
 import com.genyo.addon.events.RunTickEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;

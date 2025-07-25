@@ -1,6 +1,6 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.events.ConnectScreenEvent;
+import com.genyo.addon.events.network.ConnectScreenEvent;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;

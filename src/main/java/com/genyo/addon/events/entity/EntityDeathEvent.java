@@ -1,4 +1,4 @@
-package com.genyo.addon.events;
+package com.genyo.addon.events.entity;
 
 import net.minecraft.entity.LivingEntity;
 

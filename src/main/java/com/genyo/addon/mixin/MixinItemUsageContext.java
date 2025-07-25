@@ -1,8 +1,7 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.events.ItemDesyncEvent;
+import com.genyo.addon.events.network.ItemDesyncEvent;
 import meteordevelopment.meteorclient.MeteorClient;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import org.spongepowered.asm.mixin.Mixin;

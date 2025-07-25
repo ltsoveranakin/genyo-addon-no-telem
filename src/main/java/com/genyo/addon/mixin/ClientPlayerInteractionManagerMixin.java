@@ -1,7 +1,7 @@
 package com.genyo.addon.mixin;
 
 import com.genyo.addon.events.AttackBlockEvent;
-import com.genyo.addon.events.ItemDesyncEvent;
+import com.genyo.addon.events.network.ItemDesyncEvent;
 import com.genyo.addon.events.network.PacketSneakingEvent;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.block.BlockState;
