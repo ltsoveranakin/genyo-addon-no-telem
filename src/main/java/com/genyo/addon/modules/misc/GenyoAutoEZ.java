@@ -1,6 +1,7 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.misc;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.systems.incombat.CombatPerson;
 import com.genyo.addon.systems.incombat.InCombatSystem;
 import com.genyo.addon.utils.MathUtil;
@@ -159,16 +160,9 @@ public class GenyoAutoEZ extends GenyoModule {
     }
 
     private boolean checkPersonValidity(PlayerEntity player) {
-        if (InCombatSystem.get().isEnabled() && combatFocus.get())
-            if (!InCombatSystem.get().contains(player)) return false; // kell?
-
-        if (taggedPlayers.containsKey(player)) {
-            return true;
-        }
+        return taggedPlayers.containsKey(player);
 
         //TODO: if we want to display this for everyone
-
-        return false;
     }
 
 

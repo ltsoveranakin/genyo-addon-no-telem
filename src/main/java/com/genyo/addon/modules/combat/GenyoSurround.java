@@ -1,12 +1,12 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.combat;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.utils.math.GPositionUtils;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;

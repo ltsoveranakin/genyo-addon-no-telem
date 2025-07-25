@@ -1,7 +1,8 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.misc;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.mixin.AccessorGameOptions;
+import com.genyo.addon.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -12,7 +13,7 @@ import net.minecraft.entity.player.PlayerModelPart;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GenyoSkinBlink extends GenyoModule{
+public class GenyoSkinBlink extends GenyoModule {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()

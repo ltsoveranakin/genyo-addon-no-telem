@@ -1,6 +1,7 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.misc;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.settings.playerlist.ListGroupSetting;
 import com.genyo.addon.settings.playerlist.PLGroup;
 import com.mojang.authlib.GameProfile;

@@ -1,6 +1,14 @@
 package com.genyo.addon;
 
-import com.genyo.addon.modules.*;
+import com.genyo.addon.modules.combat.GenyoAutoCrystal;
+import com.genyo.addon.modules.combat.GenyoAutoMine;
+import com.genyo.addon.modules.combat.GenyoSurround;
+import com.genyo.addon.modules.combat.GenyoSurroundV2;
+import com.genyo.addon.modules.misc.GenyoAutoEZ;
+import com.genyo.addon.modules.misc.GenyoGoodbye;
+import com.genyo.addon.modules.misc.GenyoWelcome;
+import com.genyo.addon.modules.visual.AngelSexHulkenberg;
+import com.genyo.addon.modules.misc.GenyoSkinBlink;
 import com.genyo.addon.systems.enemies.EnemiesTab;
 import com.genyo.addon.hud.InCombatHud;
 import com.genyo.addon.hud.PvPNeccessaryHud;
@@ -64,6 +72,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoGoodbye());
         modules.add(new GenyoAutoMine());
         modules.add(new GenyoSurroundV2());
+        modules.add(new GenyoAutoCrystal());
     }
 
     private void initHUD(Hud hud) {

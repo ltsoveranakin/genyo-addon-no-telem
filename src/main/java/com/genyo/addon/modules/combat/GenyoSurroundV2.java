@@ -1,7 +1,8 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.combat;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.managers.Managers;
+import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.math.GPositionUtils;
@@ -13,11 +14,8 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.utils.player.FindItemResult;
-import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
-import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -29,7 +27,6 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
@@ -45,7 +42,7 @@ import net.minecraft.util.math.Vec3i;
 
 import java.util.*;
 
-public class GenyoSurroundV2 extends GenyoModule{
+public class GenyoSurroundV2 extends GenyoModule {
 
     public GenyoSurroundV2() {
         super(GenyoAddon.GENYO, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
@@ -104,6 +101,13 @@ public class GenyoSurroundV2 extends GenyoModule{
         .defaultValue(4.0f)
         .min(0.0f)
         .max(6.0f)
+        .build()
+    );
+
+    private final Setting<Boolean> strictDirection = sgGeneral.add(new BoolSetting.Builder()
+        .name("Strict Direction")
+        .description("Places on visible sides only")
+        .defaultValue(false)
         .build()
     );
 
@@ -265,7 +269,7 @@ public class GenyoSurroundV2 extends GenyoModule{
             BlockPos targetPos = placements.get(blocksPlaced);
             // All rotations for shift ticks must send extra packet
             // This may not work on all servers
-            placeBlock(targetPos);
+            placeBlock(targetPos, slot);
         }
 
         if (rotate.get())
@@ -302,7 +306,7 @@ public class GenyoSurroundV2 extends GenyoModule{
                     {
                         return;
                     }
-                    placeBlock(targetPos);
+                    placeBlock(targetPos, slot);
                 }
                 else if (BlastResistantBlocks.isBlastResistant(blockState))
                 {
@@ -326,7 +330,7 @@ public class GenyoSurroundV2 extends GenyoModule{
                 {
                     return;
                 }
-                placeBlock(pos);
+                placeBlock(pos, slot);
             }
         }
 
@@ -345,24 +349,26 @@ public class GenyoSurroundV2 extends GenyoModule{
                 {
                     return;
                 }
-                placeBlock(pos);
+                placeBlock(pos, slot);
                 break;
             }
         }
     }
 
-    private void placeBlock(BlockPos pos)
+    private void placeBlock(BlockPos pos, int slot)
     {
-        /*Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
+        Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
         {
-            if (rotate.get() && state)
+            /*if (rotate.get() && state)
             {
                 Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
-            }
-        });*/
+            }*/
+        });
+
+        /*if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
 
         FindItemResult obsidian = InvUtils.findInHotbar(Items.OBSIDIAN);
-        BlockUtils.place(pos, obsidian, rotate.get(), 0, true);
+        BlockUtils.place(pos, obsidian, rotate.get(), 0, true);*/
         packets.put(pos, System.currentTimeMillis());
         blocksPlaced++;
     }

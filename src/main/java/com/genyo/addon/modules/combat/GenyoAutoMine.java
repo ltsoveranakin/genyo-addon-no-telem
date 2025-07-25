@@ -1,7 +1,9 @@
-package com.genyo.addon.modules;
+package com.genyo.addon.modules.combat;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.AttackBlockEvent;
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.GEntityUtils;
@@ -11,11 +13,9 @@ import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.mixininterface.IClientPlayerInteractionManager;
 import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
@@ -40,7 +40,7 @@ import net.minecraft.util.shape.VoxelShapes;
 
 import java.util.*;
 
-public class GenyoAutoMine extends GenyoModule{
+public class GenyoAutoMine extends GenyoModule {
 
     public GenyoAutoMine() {
         super(GenyoAddon.GENYO, "genyo-auto-mine", "dábül");
@@ -307,7 +307,7 @@ public class GenyoAutoMine extends GenyoModule{
         waitForPacketMine = false;
         packetMineStuck = false;
         if (packetSwapBack) {
-            ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+            Managers.INVENTORY.syncToClient();
             packetSwapBack = false;
         }
     }
@@ -336,7 +336,7 @@ public class GenyoAutoMine extends GenyoModule{
             packetMineStuck = true;
             packetMineAnim.animation.setState(false);
             if (packetSwapBack) {
-                ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+                Managers.INVENTORY.syncToClient();
                 packetSwapBack = false;
             }
             packetMine = null;
@@ -373,7 +373,7 @@ public class GenyoAutoMine extends GenyoModule{
             }
             else
             {
-                ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+                Managers.INVENTORY.syncToClient();
                 packetSwapBack = false;
                 packetMineAnim.animation.setState(false);
                 packetMine = null;
@@ -423,7 +423,8 @@ public class GenyoAutoMine extends GenyoModule{
 
                 if (instantMine != null && (remine.get() == RemineMode.INSTANT
                     && packetInstant.get() && packetMine == null && canPlace || canMine && passedRemine)
-                    && (!checkMultitask() || multitask.get() || swap.get() == Swap.OFF)) {
+                    && (!checkMultitask() || multitask.get() || swap.get() == Swap.OFF))
+                {
                     stopMining(instantMine);
                     remineTimer = 0;
 
@@ -492,7 +493,7 @@ public class GenyoAutoMine extends GenyoModule{
                         packetMineAnim.animation.setState(false);
                         if (packetSwapBack)
                         {
-                            ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+                            Managers.INVENTORY.syncToClient();
                             packetSwapBack = false;
                         }
                         packetMine = null;
@@ -534,7 +535,7 @@ public class GenyoAutoMine extends GenyoModule{
                     if (packetMine != null && packetMine.getGoal() == MiningGoal.MINING_ENEMY) {
                         packetMineAnim.animation.setState(false);
                         if (packetSwapBack) {
-                            ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+                            Managers.INVENTORY.syncToClient();
                             packetSwapBack = false;
                         }
                         packetMine = null;
@@ -943,10 +944,9 @@ public class GenyoAutoMine extends GenyoModule{
     {
         switch (swap.get())
         {
-            //case NORMAL -> Managers.INVENTORY.setClientSlot(slot);
-            case NORMAL -> InvUtils.swap(slot, false);
-            //case SILENT -> Managers.INVENTORY.setSlot(slot);
-            case SILENT -> InvUtils.swap(slot, true);
+            case NORMAL -> Managers.INVENTORY.setClientSlot(slot);
+            case SILENT -> Managers.INVENTORY.setSlot(slot);
+            case SILENT_ALT -> Managers.INVENTORY.setSlotAlt(slot);
         }
     }
 
@@ -954,7 +954,8 @@ public class GenyoAutoMine extends GenyoModule{
     {
         switch (swap.get())
         {
-            case SILENT -> ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
+            case SILENT -> Managers.INVENTORY.syncToClient();
+            case SILENT_ALT -> Managers.INVENTORY.setSlotAlt(slot);
         }
     }
 
@@ -1133,6 +1134,7 @@ public class GenyoAutoMine extends GenyoModule{
     public enum Swap {
         NORMAL,
         SILENT,
+        SILENT_ALT,
         OFF
     }
 }
