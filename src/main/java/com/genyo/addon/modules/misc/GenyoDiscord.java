@@ -148,6 +148,7 @@ public class GenyoDiscord extends GenyoModule {
         rpc.setStart(System.currentTimeMillis() / 1000L);
 
         GenyoAddon.LOG.info("Discord IPC started");
+        GenyoAddon.LOG.info(String.valueOf(DiscordIPC.isConnected()));
 
         String largeText = "%s %s".formatted(GenyoAddon.NAME, GenyoAddon.VERSION);
         rpc.setLargeImage("genyo", largeText);
