@@ -1,4 +1,4 @@
-package com.genyo.addon.managers;
+package com.genyo.addon.managers.combat;
 
 import com.genyo.addon.events.TotemPopEvent;
 import com.genyo.addon.events.UnderCombatEvent;
@@ -8,7 +8,6 @@ import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 

@@ -1,6 +1,8 @@
 package com.genyo.addon.managers;
 
+import com.genyo.addon.managers.combat.CombatManager;
 import com.genyo.addon.managers.combat.TotemManager;
+import com.genyo.addon.managers.network.GDTogglerManager;
 import com.genyo.addon.managers.network.NetworkManager;
 import com.genyo.addon.managers.player.InteractionManager;
 import com.genyo.addon.managers.player.InventoryManager;
@@ -29,6 +31,7 @@ public class Managers {
         MeteorClient.EVENT_BUS.subscribe(TOTEM);
         MeteorClient.EVENT_BUS.subscribe(MOVEMENT);
         MeteorClient.EVENT_BUS.subscribe(INTERACT);
+        MeteorClient.EVENT_BUS.subscribe(new GDTogglerManager());
     }
 
 }

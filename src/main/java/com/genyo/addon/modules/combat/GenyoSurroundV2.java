@@ -14,8 +14,11 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -27,6 +30,7 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
@@ -223,6 +227,7 @@ public class GenyoSurroundV2 extends GenyoModule {
         //if (SelfTrapModule.getInstance().isEnabled()) return;
 
         if (jumpDisable.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f)) {
+            sendInfo("Player jumped, disabling.");
             toggle();
             return;
         }
@@ -240,7 +245,7 @@ public class GenyoSurroundV2 extends GenyoModule {
             return;
         }
 
-        surround = getSurround((PlayerEntity) mc.player);
+        surround = getSurround(mc.player);
         if (surround.isEmpty()) return;
 
         if (attack.get()) attackBlockingCrystals(surround);
@@ -357,18 +362,18 @@ public class GenyoSurroundV2 extends GenyoModule {
 
     private void placeBlock(BlockPos pos, int slot)
     {
-        Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
+        /*Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
         {
-            /*if (rotate.get() && state)
+            if (rotate.get() && state)
             {
                 Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
-            }*/
-        });
+            }
+        });*/
 
-        /*if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
+        if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
 
         FindItemResult obsidian = InvUtils.findInHotbar(Items.OBSIDIAN);
-        BlockUtils.place(pos, obsidian, rotate.get(), 0, true);*/
+        BlockUtils.place(pos, obsidian, rotate.get(), 0, true);
         packets.put(pos, System.currentTimeMillis());
         blocksPlaced++;
     }
@@ -504,44 +509,6 @@ public class GenyoSurroundV2 extends GenyoModule {
         return playerBlocks;
     }
 
-    /*@EventListener
-    public void onRenderWorld(RenderWorldEvent event)
-    {
-        if (SelfTrapModule.getInstance().isEnabled())
-        {
-            return;
-        }
-        if (render.get())
-        {
-            RenderBuffers.preRender();
-            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
-            {
-                set.getValue().setState(false);
-                int boxAlpha = (int) (40 * set.getValue().getFactor());
-                int lineAlpha = (int) (100 * set.getValue().getFactor());
-                Color boxColor = ColorsModule.getInstance().getColor(boxAlpha);
-                Color lineColor = ColorsModule.getInstance().getColor(lineAlpha);
-                RenderManager.renderBox(event.getMatrices(), set.getKey(), boxColor.getRGB());
-                RenderManager.renderBoundingBox(event.getMatrices(), set.getKey(), 1.5f, lineColor.getRGB());
-            }
-            RenderBuffers.postRender();
-
-            if (placements.isEmpty())
-            {
-                return;
-            }
-
-            for (BlockPos pos : placements)
-            {
-                Animation animation = new Animation(true, fadeTime.get());
-                fadeList.put(pos, animation);
-            }
-        }
-
-        fadeList.entrySet().removeIf(e ->
-            e.getValue().getFactor() == 0.0);
-    }*/
-
     @EventHandler
     public void onRender3D(Render3DEvent event) {
         if (mc.world == null && mc.player == null) return;
@@ -562,8 +529,6 @@ public class GenyoSurroundV2 extends GenyoModule {
                 Color lineColor = color.get().a(lineAlpha);
 
                 event.renderer.box(BlockPos.ofFloored(set.getKey().toCenterPos()), boxColor, lineColor, ShapeMode.Both, 1);
-                /*RenderManager.renderBox(event.getMatrices(), set.getKey(), boxColor.getRGB());
-                RenderManager.renderBoundingBox(event.getMatrices(), set.getKey(), 1.5f, lineColor.getRGB());*/
             }
 
             if (placements.isEmpty())

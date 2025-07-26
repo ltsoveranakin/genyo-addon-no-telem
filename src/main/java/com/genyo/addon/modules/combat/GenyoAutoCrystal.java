@@ -868,10 +868,10 @@ public class GenyoAutoCrystal extends GenyoModule {
                 int boxAlpha = (int) (40 * set.getValue().getFactor());
                 int lineAlpha = (int) (100 * set.getValue().getFactor());
 
-                Color boxColor = color.get();
-                Color lineColor = color.get();
+                Color boxColor = color.get().a(boxAlpha);
+                Color lineColor = color.get().a(lineAlpha);
 
-                event.renderer.box(set.getKey(), boxColor, lineColor, ShapeMode.Both, 0);
+                event.renderer.box(BlockPos.ofFloored(set.getKey().toCenterPos()), boxColor, lineColor, ShapeMode.Both, 0);
             }
 
             /*if (debugDamage.get() && renderPos1 != null)
