@@ -5,6 +5,7 @@ import com.genyo.addon.events.network.PlayerTickEvent;
 import com.genyo.addon.events.RunTickEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
+import com.genyo.addon.modules.world.GenyoAutoMine;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.collection.EvictingQueue;

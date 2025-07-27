@@ -1,13 +1,15 @@
-package com.genyo.addon.modules.combat;
+package com.genyo.addon.modules.world;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.AttackBlockEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
+import com.genyo.addon.modules.combat.GenyoSurround;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.GEntityUtils;
 import com.genyo.addon.utils.math.GPositionUtils;
+import com.genyo.addon.utils.math.MathUtil;
 import com.genyo.addon.utils.render.ColorUtil;
 import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
@@ -199,13 +201,6 @@ public class GenyoAutoMine extends GenyoModule {
         .build()
     );
 
-    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-        .name("Rotate")
-        .description("Rotates when mining the block")
-        .defaultValue(true)
-        .build()
-    );
-
     private final Setting<Boolean> switchReset = sgGeneral.add(new BoolSetting.Builder()
         .name("Switch Reset")
         .description("Resets mining after switching items")
@@ -246,6 +241,13 @@ public class GenyoAutoMine extends GenyoModule {
         .name("Done Color")
         .description("The done render color")
         .defaultValue(new SettingColor(0, 255, 0, 45))
+        .build()
+    );
+
+    private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
+        .name("Render")
+        .description("wa")
+        .defaultValue(true)
         .build()
     );
 
@@ -387,7 +389,7 @@ public class GenyoAutoMine extends GenyoModule {
         if (instantMine != null)
         {
             final double distance = mc.player.getEyePos().squaredDistanceTo(instantMine.getPos().toCenterPos());
-            if (distance > square(range.get()) || instantMine.getTicksMining() > mineTicks.get()) {
+            if (distance > MathUtil.squared(range.get()) || instantMine.getTicksMining() > mineTicks.get()) {
                 abortMining(instantMine);
                 instantMineAnim.animation.setState(false);
                 instantMine = null;
@@ -646,7 +648,7 @@ public class GenyoAutoMine extends GenyoModule {
             }
 
             double dist = mc.player.getEyePos().squaredDistanceTo(blockPos.toCenterPos());
-            if (dist > square(range.get())) continue;
+            if (dist > MathUtil.squared(range.get())) continue;
 
             BlockState state2 = mc.world.getBlockState(blockPos.down());
             if (bedrockPhased || state2.isOf(Blocks.OBSIDIAN) || state2.isOf(Blocks.BEDROCK)) {
@@ -671,7 +673,7 @@ public class GenyoAutoMine extends GenyoModule {
             if (!isAutoMineBlock(state.getBlock()) || !canMine(state) || isMining(p)) return true;
 
             double dist = mc.player.getEyePos().squaredDistanceTo(p.toCenterPos());
-            if (dist > square(range.get())) return true;
+            if (dist > MathUtil.squared(range.get())) return true;
 
             return avoidSelf.get() && intersectsPlayer(p);
         });
@@ -1105,10 +1107,6 @@ public class GenyoAutoMine extends GenyoModule {
         {
             return InvUtils.findFastestTool(getState()).slot();
         }
-    }
-
-    private float square(float value) {
-        return value*value;
     }
 
     public record MineAnimation(MineData data, Animation animation) {}

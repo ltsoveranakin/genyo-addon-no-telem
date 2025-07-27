@@ -3,9 +3,12 @@ package com.genyo.addon.modules.combat;
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
+import com.genyo.addon.modules.PlacerModule;
+import com.genyo.addon.modules.world.GenyoAutoMine;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.math.GPositionUtils;
+import com.genyo.addon.utils.math.MathUtil;
 import com.genyo.addon.utils.player.Rotation;
 import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
@@ -14,7 +17,6 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -46,19 +48,11 @@ import net.minecraft.util.math.Vec3i;
 
 import java.util.*;
 
-public class GenyoSurroundV2 extends GenyoModule {
+public class GenyoSurroundV2 extends PlacerModule {
 
     public GenyoSurroundV2() {
         super(GenyoAddon.GENYO, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
     }
-
-    private static final List<Block> RESISTANT_BLOCKS = new LinkedList<>()
-    {{
-        add(Blocks.OBSIDIAN);
-        add(Blocks.CRYING_OBSIDIAN);
-        add(Blocks.ENDER_CHEST);
-    }};
-    protected static final BlockState DEFAULT_OBSIDIAN_STATE = Blocks.OBSIDIAN.getDefaultState();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -80,6 +74,14 @@ public class GenyoSurroundV2 extends GenyoModule {
         .name("Timing")
         .description("Timing for replacing blocks")
         .defaultValue(Timing.VANILLA)
+        .build()
+    );
+
+    private final Setting<Boolean> buggy = sgGeneral.add(new BoolSetting.Builder()
+        .name("Buggy Placing")
+        .description("not a bug, its a genyo feature")
+        .defaultValue(timing.get() == Timing.SEQUENTIAL)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
 
@@ -304,7 +306,7 @@ public class GenyoSurroundV2 extends GenyoModule {
             final BlockPos targetPos = packet.getPos();
             if (surround.contains(targetPos))
             {
-                if (blockState.isReplaceable() && mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
+                if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
                 {
                     final int slot = getResistantBlockItem();
                     if (slot == -1)
@@ -362,18 +364,18 @@ public class GenyoSurroundV2 extends GenyoModule {
 
     private void placeBlock(BlockPos pos, int slot)
     {
-        /*Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
-        {
-            if (rotate.get() && state)
+        if (!buggy.get()) {
+            Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
             {
-                Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
-            }
-        });*/
+                if (rotate.get() && state) {
+                    Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
+                }
+            });
+        } else {
+            if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
 
-        if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
-
-        FindItemResult obsidian = InvUtils.findInHotbar(Items.OBSIDIAN);
-        BlockUtils.place(pos, obsidian, rotate.get(), 0, true);
+            BlockUtils.place(pos, InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 0, true);
+        }
         packets.put(pos, System.currentTimeMillis());
         blocksPlaced++;
     }
@@ -409,7 +411,7 @@ public class GenyoSurroundV2 extends GenyoModule {
                 continue;
             }
             double dist = mc.player.squaredDistanceTo(surroundPos.toCenterPos());
-            if (dist > square(placeRange.get()))
+            if (dist > MathUtil.squared(placeRange.get()))
             {
                 continue;
             }
@@ -556,52 +558,6 @@ public class GenyoSurroundV2 extends GenyoModule {
     {
         VANILLA,
         SEQUENTIAL
-    }
-
-    /**
-     * @return
-     */
-    protected int getResistantBlockItem()
-    {
-        final Set<BlockSlot> blockSlots = new HashSet<>();
-        for (final Block type : RESISTANT_BLOCKS)
-        {
-            final int slot = getBlockItemSlot(type);
-            if (slot != -1)
-            {
-                blockSlots.add(new BlockSlot(type, slot));
-            }
-        }
-
-        // Prioritize
-        BlockSlot slot = blockSlots.stream().filter(b -> b.block() == Blocks.OBSIDIAN).findFirst().orElse(null);
-        if (slot != null)
-        {
-            return slot.slot();
-        }
-        BlockSlot slot1 = blockSlots.stream().filter(b -> b.block() == Blocks.CRYING_OBSIDIAN).findFirst().orElse(null);
-        if (slot1 != null)
-        {
-            return slot1.slot();
-        }
-        BlockSlot slot2 = blockSlots.stream().filter(b -> b.block() == Blocks.ENDER_CHEST).findFirst().orElse(null);
-        if (slot2 != null)
-        {
-            return slot2.slot();
-        }
-        return -1;
-    }
-
-    protected int getBlockItemSlot(final Block block) {
-        for (int i = 0; i < 9; i++) {
-            final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() == block)
-            {
-                return i;
-            }
-        }
-        return -1;
     }
 
     public record BlockSlot(Block block, int slot)

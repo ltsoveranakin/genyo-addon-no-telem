@@ -1,4 +1,4 @@
-package com.genyo.addon.mixin;
+package com.genyo.addon.mixin.accessor;
 
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.entity.player.PlayerModelPart;

@@ -3,23 +3,27 @@
   "package": "com.genyo.addon.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "AccessorBundlePacket",
-    "AccessorClientWorld",
-    "AccessorGameOptions",
     "ClientPlayerInteractionManagerMixin",
     "DefaultSettingsWidgetFactoryMixin",
     "FriendsInjector",
-    "IEntity",
-    "MixinClientPlayerEntity",
     "MixinConnectScreen",
     "MixinItemUsageContext",
+    "MixinKeyboardInput",
     "MixinMinecraftClient",
-    "PlayerUtilsMixin"
+    "PlayerUtilsMixin",
+    "accessor.AccessorBundlePacket",
+    "accessor.AccessorClientPlayerInteractionManager",
+    "accessor.AccessorClientWorld",
+    "accessor.AccessorGameOptions",
+    "imixins.IClientPlayerEntity",
+    "imixins.IEntity",
+    "network.MixinClientPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
-    "MixinClientConnection"
+    "MixinClientConnection",
+    "meteor.MixinSetting"
   ]
 }

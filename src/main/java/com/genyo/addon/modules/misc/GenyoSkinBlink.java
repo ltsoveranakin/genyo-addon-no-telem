@@ -1,7 +1,7 @@
 package com.genyo.addon.modules.misc;
 
 import com.genyo.addon.GenyoAddon;
-import com.genyo.addon.mixin.AccessorGameOptions;
+import com.genyo.addon.mixin.accessor.AccessorGameOptions;
 import com.genyo.addon.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;

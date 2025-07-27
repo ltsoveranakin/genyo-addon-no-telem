@@ -2,7 +2,7 @@ package com.genyo.addon.managers.network;
 
 import com.genyo.addon.events.network.ConnectScreenEvent;
 import com.genyo.addon.events.network.DisconnectEvent;
-import com.genyo.addon.mixin.AccessorClientWorld;
+import com.genyo.addon.mixin.accessor.AccessorClientWorld;
 import com.genyo.addon.utils.math.PerSecondCounter;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;

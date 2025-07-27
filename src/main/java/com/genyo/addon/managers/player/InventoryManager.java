@@ -3,7 +3,7 @@ package com.genyo.addon.managers.player;
 import com.genyo.addon.events.entity.EntityDeathEvent;
 import com.genyo.addon.events.network.ItemDesyncEvent;
 import com.genyo.addon.managers.Managers;
-import com.genyo.addon.mixin.AccessorBundlePacket;
+import com.genyo.addon.mixin.accessor.AccessorBundlePacket;
 import com.genyo.addon.utils.math.timer.CacheTimer;
 import com.genyo.addon.utils.math.timer.Timer;
 import com.google.common.collect.Lists;

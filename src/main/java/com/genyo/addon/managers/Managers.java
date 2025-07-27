@@ -7,6 +7,7 @@ import com.genyo.addon.managers.network.NetworkManager;
 import com.genyo.addon.managers.player.InteractionManager;
 import com.genyo.addon.managers.player.InventoryManager;
 import com.genyo.addon.managers.player.MovementManager;
+import com.genyo.addon.managers.player.rotation.RotationManager;
 import com.genyo.addon.managers.world.BlockManager;
 import com.genyo.addon.render.Render3DEngine;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -21,6 +22,7 @@ public class Managers {
     public static final TotemManager TOTEM = new TotemManager();
     public static final InteractionManager INTERACT = new InteractionManager();
     public static final MovementManager MOVEMENT = new MovementManager();
+    public static final RotationManager ROTATION = new RotationManager();
 
     public static void subscribe() {
         MeteorClient.EVENT_BUS.subscribe(COMBAT);
@@ -32,6 +34,7 @@ public class Managers {
         MeteorClient.EVENT_BUS.subscribe(MOVEMENT);
         MeteorClient.EVENT_BUS.subscribe(INTERACT);
         MeteorClient.EVENT_BUS.subscribe(new GDTogglerManager());
+        MeteorClient.EVENT_BUS.subscribe(ROTATION);
     }
 
 }

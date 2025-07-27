@@ -1,11 +1,11 @@
 package com.genyo.addon;
 
-import com.genyo.addon.modules.combat.GenyoAutoCrystal;
-import com.genyo.addon.modules.combat.GenyoAutoMine;
-import com.genyo.addon.modules.combat.GenyoSurround;
-import com.genyo.addon.modules.combat.GenyoSurroundV2;
+import com.genyo.addon.modules.combat.*;
 import com.genyo.addon.modules.misc.*;
 import com.genyo.addon.modules.visual.AngelSexHulkenberg;
+import com.genyo.addon.modules.world.GenyoAutoMine;
+import com.genyo.addon.modules.world.GenyoAutoTool;
+import com.genyo.addon.modules.world.GenyoSpeedmine;
 import com.genyo.addon.systems.enemies.EnemiesTab;
 import com.genyo.addon.hud.InCombatHud;
 import com.genyo.addon.hud.PvPNeccessaryHud;
@@ -14,18 +14,16 @@ import com.genyo.addon.systems.enemies.Enemies;
 import com.genyo.addon.systems.incombat.InCombatSystem;
 import com.genyo.addon.systems.incombat.InCombatTab;
 import com.mojang.logging.LogUtils;
-import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
 import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.hud.Hud;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.misc.DiscordPresence;
 import meteordevelopment.meteorclient.utils.misc.Version;
-import meteordevelopment.orbit.EventHandler;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
@@ -60,7 +58,10 @@ public class GenyoAddon extends MeteorAddon {
     public void onInitialize() {
         LOG.info("Genyo fasz indul genyo");
 
-        //Systems.addPreLoadTask(() -> Modules.get().get(GenyoDiscord.class).toggle());
+        if (Modules.get().isActive(DiscordPresence.class)) {
+            Modules.get().get(DiscordPresence.class).toggle();
+            LOG.info("oh no la policia");
+        }
 
         // Tabs
         initTabs();
@@ -98,6 +99,10 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoSurroundV2());
         modules.add(new GenyoAutoCrystal());
         modules.add(new GenyoDiscord());
+        modules.add(new GenyoSpeedmine());
+        modules.add(new GenyoAutoTool());
+        modules.add(new GenyoReplenish());
+        modules.add(new GenyoSelfTrap());
     }
 
     private void initHUD(Hud hud) {

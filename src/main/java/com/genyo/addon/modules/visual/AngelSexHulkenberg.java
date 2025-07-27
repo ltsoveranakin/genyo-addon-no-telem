@@ -2,12 +2,12 @@ package com.genyo.addon.modules.visual;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.TotemPopEvent;
-import com.genyo.addon.mixin.IEntity;
+import com.genyo.addon.mixin.imixins.IEntity;
 import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.render.Render2DEngine;
 import com.genyo.addon.render.Render3DEngine;
 import com.genyo.addon.systems.enemies.Enemies;
-import com.genyo.addon.utils.MathUtil;
+import com.genyo.addon.utils.math.MathUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;

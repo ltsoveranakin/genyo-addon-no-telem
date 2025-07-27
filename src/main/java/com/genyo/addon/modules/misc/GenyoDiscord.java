@@ -49,7 +49,7 @@ public class GenyoDiscord extends GenyoModule {
     private final Setting<List<String>> line1Strings = sgLine1.add(new StringListSetting.Builder()
         .name("line-1-messages")
         .description("Messages used for the first line.")
-        .defaultValue("{player}", "{server}")
+        .defaultValue("{player}", "{server}", "asdasdsadasdsadasdsa", "I have brain damge")
         .onChanged(strings -> recompileLine1())
         .renderer(StarscriptTextBoxRenderer.class)
         .build()
@@ -112,8 +112,8 @@ public class GenyoDiscord extends GenyoModule {
     public static final List<Pair<String, String>> customStates = new ArrayList<>();
 
     static {
-        registerCustomState("com.terraformersmc.modmenu.gui", "Browsing mods");
-        registerCustomState("me.jellysquid.mods.sodium.client", "Changing options");
+        //registerCustomState("com.terraformersmc.modmenu.gui", "Browsing mods");
+        //registerCustomState("me.jellysquid.mods.sodium.client", "Changing options");
     }
 
     public GenyoDiscord() {
@@ -143,14 +143,17 @@ public class GenyoDiscord extends GenyoModule {
     public void onActivate() {
         if (Modules.get().isActive(DiscordPresence.class)) Modules.get().get(DiscordPresence.class).toggle();
 
-        DiscordIPC.start(1398651352933994607L, null);
+        DiscordIPC.start(1398651352933994607L, () -> {
+            GenyoAddon.LOG.info("DRPC redy");
+            GenyoAddon.LOG.info(DiscordIPC.getUser().username);
+        });
 
         rpc.setStart(System.currentTimeMillis() / 1000L);
 
         GenyoAddon.LOG.info("Discord IPC started");
         GenyoAddon.LOG.info(String.valueOf(DiscordIPC.isConnected()));
 
-        String largeText = "%s %s".formatted(GenyoAddon.NAME, GenyoAddon.VERSION);
+        String largeText = "%s".formatted(GenyoAddon.NAME);
         rpc.setLargeImage("genyo", largeText);
 
         currentSmallImage = SmallImage.Hulkenberg;
@@ -296,7 +299,7 @@ public class GenyoDiscord extends GenyoModule {
 
     private enum SmallImage {
         Hulkenberg("hulkenberg", "Hulkenberg"),
-        Mario("mario", "Random Gypsy");
+        Mario("mario", "Random person");
 
         private final String key, text;
 

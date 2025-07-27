@@ -4,7 +4,7 @@ import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.systems.incombat.CombatPerson;
 import com.genyo.addon.systems.incombat.InCombatSystem;
-import com.genyo.addon.utils.MathUtil;
+import com.genyo.addon.utils.math.MathUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;

@@ -1,4 +1,4 @@
-package com.genyo.addon.mixin;
+package com.genyo.addon.mixin.imixins;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;

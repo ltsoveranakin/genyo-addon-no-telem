@@ -15,4 +15,15 @@ public class MovementUtil {
         mc.player.input.movementSideways *= modifier;
     }
 
+    /**
+     * @return
+     */
+    public static boolean isMoving()
+    {
+        double d = mc.player.getX() - mc.player.lastRenderX;
+        double e = mc.player.getY() - mc.player.lastRenderY;
+        double f = mc.player.getZ() - mc.player.lastRenderZ;
+        return MathHelper.squaredMagnitude(d, e, f) > MathHelper.square(2.0e-4);
+    }
+
 }

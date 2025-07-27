@@ -1,6 +1,4 @@
-package com.genyo.addon.utils;
-
-import com.genyo.addon.GenyoAddon;
+package com.genyo.addon.utils.math;
 
 import java.util.List;
 import java.util.Random;
@@ -22,6 +20,10 @@ public class MathUtil {
 
         int num = r.nextInt(1, list.size());
         return num-1;
+    }
+
+    public static float squared(float value) {
+        return value*value;
     }
 
 }

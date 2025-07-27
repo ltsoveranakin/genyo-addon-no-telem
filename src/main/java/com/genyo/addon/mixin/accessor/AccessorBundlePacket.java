@@ -1,4 +1,4 @@
-package com.genyo.addon.mixin;
+package com.genyo.addon.mixin.accessor;
 
 import net.minecraft.network.packet.BundlePacket;
 import net.minecraft.network.packet.Packet;
