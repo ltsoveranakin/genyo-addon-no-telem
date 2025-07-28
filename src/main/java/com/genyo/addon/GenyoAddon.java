@@ -3,8 +3,10 @@ package com.genyo.addon;
 import com.genyo.addon.modules.combat.*;
 import com.genyo.addon.modules.misc.*;
 import com.genyo.addon.modules.visual.AngelSexHulkenberg;
+import com.genyo.addon.modules.visual.GenyoPenisESP;
 import com.genyo.addon.modules.world.GenyoAutoMine;
 import com.genyo.addon.modules.world.GenyoAutoTool;
+import com.genyo.addon.modules.world.GenyoScaffold;
 import com.genyo.addon.modules.world.GenyoSpeedmine;
 import com.genyo.addon.systems.enemies.EnemiesTab;
 import com.genyo.addon.hud.InCombatHud;
@@ -103,6 +105,8 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoAutoTool());
         modules.add(new GenyoReplenish());
         modules.add(new GenyoSelfTrap());
+        modules.add(new GenyoScaffold());
+        modules.add(new GenyoPenisESP());
     }
 
     private void initHUD(Hud hud) {

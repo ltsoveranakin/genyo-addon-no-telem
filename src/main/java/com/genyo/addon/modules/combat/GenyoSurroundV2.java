@@ -56,13 +56,6 @@ public class GenyoSurroundV2 extends PlacerModule {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<Boolean> multitask = sgGeneral.add(new BoolSetting.Builder()
-        .name("Allow Multitask")
-        .description("Allows actions while using items")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate")
         .description("ekwjfkljweklfjewfew")
@@ -234,7 +227,7 @@ public class GenyoSurroundV2 extends PlacerModule {
             return;
         }
 
-        if (!multitask.get() && checkMultitask()) {
+        if (!multitaskConfig.get() && checkMultitask()) {
             surround.clear();
             placements.clear();
             return;

@@ -1,5 +1,9 @@
 package com.genyo.addon.modules;
 
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.managers.player.rotation.Rotation;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,6 +19,8 @@ import java.util.function.Predicate;
 
 public class PlacerModule extends GenyoModule {
 
+    private final int rotationPriority;
+
     protected static final BlockState DEFAULT_OBSIDIAN_STATE = Blocks.OBSIDIAN.getDefaultState();
     // Blocks that can prevent explosion damage
     private static final List<Block> RESISTANT_BLOCKS = new LinkedList<>()
@@ -24,9 +30,33 @@ public class PlacerModule extends GenyoModule {
         add(Blocks.ENDER_CHEST);
     }};
 
+    protected final Setting<Boolean> multitaskConfig = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("Multitask")
+        .description("Allows mining while using items")
+        .defaultValue(false)
+        .build()
+    );
+
     public PlacerModule(Category category, String name, String desc)
     {
         super(category, name, desc);
+        this.rotationPriority = 100;
+    }
+
+    public PlacerModule(Category category, String name, String desc, int priority)
+    {
+        super(category, name, desc);
+        this.rotationPriority = priority;
+    }
+
+    protected void setRotation(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotation(new Rotation(getRotationPriority(), yaw, pitch));
+    }
+
+    protected int getRotationPriority()
+    {
+        return rotationPriority;
     }
 
     /**

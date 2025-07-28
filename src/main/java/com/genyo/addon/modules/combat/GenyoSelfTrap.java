@@ -57,13 +57,6 @@ public class GenyoSelfTrap extends PlacerModule {
         .build()
     );
 
-    private final Setting<Boolean> multitaskConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Multitask")
-        .description("Allows mining while using items")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> prePlaceExplosionConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("PrePlace Explosions")
         .description("Pre places before explosions")

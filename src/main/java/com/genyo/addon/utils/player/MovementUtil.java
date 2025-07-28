@@ -18,6 +18,17 @@ public class MovementUtil {
     /**
      * @return
      */
+    public static boolean isInputtingMovement()
+    {
+        return mc.options.forwardKey.isPressed()
+            || mc.options.backKey.isPressed()
+            || mc.options.leftKey.isPressed()
+            || mc.options.rightKey.isPressed();
+    }
+
+    /**
+     * @return
+     */
     public static boolean isMoving()
     {
         double d = mc.player.getX() - mc.player.lastRenderX;
