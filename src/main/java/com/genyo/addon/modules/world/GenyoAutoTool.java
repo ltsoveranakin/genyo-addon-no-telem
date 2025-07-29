@@ -15,7 +15,7 @@ import net.minecraft.item.SwordItem;
 public class GenyoAutoTool extends GenyoModule {
 
     public GenyoAutoTool() {
-        super(GenyoAddon.GENYO, "genyo-autotool", "Yés");
+        super(GenyoAddon.GENYO, "genyo-auto-tool", "Yés");
     }
 
     @EventHandler

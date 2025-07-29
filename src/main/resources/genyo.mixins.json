@@ -24,6 +24,7 @@
   },
   "mixins": [
     "MixinClientConnection",
-    "meteor.MixinSetting"
+    "meteor.MixinSetting",
+    "network.MixinServerPlayerEntity"
   ]
 }

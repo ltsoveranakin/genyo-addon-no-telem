@@ -107,6 +107,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoSelfTrap());
         modules.add(new GenyoScaffold());
         modules.add(new GenyoPenisESP());
+        modules.add(new GenyoAutoTotem());
     }
 
     private void initHUD(Hud hud) {

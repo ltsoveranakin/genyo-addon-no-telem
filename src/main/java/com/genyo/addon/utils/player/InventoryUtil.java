@@ -30,4 +30,18 @@ public class InventoryUtil {
         return itemCount;
     }
 
+    public static boolean hasItemInInventory(final Item item, final boolean hotbar)
+    {
+        final int startSlot = hotbar ? 0 : 9;
+        for (int i = startSlot; i < 36; ++i)
+        {
+            final ItemStack itemStack = mc.player.getInventory().getStack(i);
+            if (!itemStack.isEmpty() && itemStack.getItem() == item)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

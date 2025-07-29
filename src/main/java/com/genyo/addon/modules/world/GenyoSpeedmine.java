@@ -30,6 +30,8 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.PickaxeItem;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -50,6 +52,11 @@ public class GenyoSpeedmine extends GenyoModule {
     public GenyoSpeedmine() {
         super(GenyoAddon.GENYO, "genyo-speedmine", "TU TU TU TU..MAX VERSTAPPEN. TU TU TU TU...");
     }
+
+    private boolean warnedNoIron = false;
+    private long swapBackTime = 0;
+    private int swapBackSlot = -1;
+
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgBreak = settings.createGroup("Break");
@@ -126,6 +133,20 @@ public class GenyoSpeedmine extends GenyoModule {
         .description("Resets mining after switching items")
         .defaultValue(false)
         .visible(() -> modeConfig.get() == SpeedmineMode.PACKET)
+        .build()
+    );
+
+    private final Setting<Boolean> ironOnlyConfig = sgBehaviour.add(new BoolSetting.Builder()
+        .name("Iron Only")
+        .description("Only uses iron pickaxes for mining")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> miningAC = sgBehaviour.add(new BoolSetting.Builder()
+        .name("Mining AntiCheat")
+        .description("Idk it uses a module from th")
+        .defaultValue(false)
         .build()
     );
 
@@ -398,6 +419,16 @@ public class GenyoSpeedmine extends GenyoModule {
         }
     }
 
+    private boolean hasIronPickaxe() {
+        for (int i = 0; i < mc.player.getInventory().size(); i++) {
+            ItemStack stack = mc.player.getInventory().getStack(i);
+            if (stack.getItem() == Items.IRON_PICKAXE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @EventHandler
     public void onRender3D(Render3DEvent event)
     {
@@ -420,6 +451,9 @@ public class GenyoSpeedmine extends GenyoModule {
 
             Color boxColor;
             Color lineColor;
+
+            boolean ironMissing = ironOnlyConfig.get() && !hasIronPickaxe();
+
             if (smoothColorConfig.get())
             {
                 boxColor = data.getState().isAir() ? colorDoneConfig.get().a(boxAlpha) :
@@ -431,6 +465,12 @@ public class GenyoSpeedmine extends GenyoModule {
             {
                 boxColor = data.getBlockDamage() >= 0.95f || data.getState().isAir() ? colorDoneConfig.get().a(boxAlpha) : colorConfig.get().a(boxAlpha);
                 lineColor = data.getBlockDamage() >= 0.95f || data.getState().isAir() ? colorDoneConfig.get().a(lineAlpha) : colorConfig.get().a(lineAlpha);
+            }
+
+            // 🔹 Override with orange if Iron Only mode but no iron pickaxe
+            if (ironMissing) {
+                boxColor = Color.ORANGE.a(boxAlpha);
+                lineColor = Color.ORANGE.a(lineAlpha);
             }
 
             BlockPos mining = data.getPos();
@@ -493,19 +533,24 @@ public class GenyoSpeedmine extends GenyoModule {
         }
     }
 
-    private boolean startMining(MiningData data)
+    /*private boolean startMining(MiningData data)
     {
-        if (data.isStarted())
-        {
-            return false;
-        }
+        if (data.isStarted()) return false;
 
         // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L76
         // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L98
         data.setStarted();
+
+        // 🔹 Swap to correct tool before sending START
+        int slot = data.getSlot();
+        if (slot != -1 && slot != Managers.INVENTORY.getServerSlot()) {
+            swapTo(slot);
+            Managers.INVENTORY.syncToClient();
+        }
+
         if (grimNewConfig.get())
         {
-            /*if (!AnticheatModule.getInstance().getMiningFix())
+            if (!miningAC.get())
             {
                 Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                     PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
@@ -515,10 +560,10 @@ public class GenyoSpeedmine extends GenyoModule {
                     PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
             }
             else
-            {*/
-            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-            //}
+            {
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            }
 
             Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                 PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
@@ -543,6 +588,41 @@ public class GenyoSpeedmine extends GenyoModule {
             PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
         Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
         return true;
+    }*/
+
+    private boolean startMining(MiningData data) {
+        if (data.isStarted()) return false;
+        data.setStarted();
+
+        // 🔹 Tool swap before mining
+        int slot = data.getSlot();
+        if (slot != -1 && slot != Managers.INVENTORY.getServerSlot()) {
+            swapTo(slot);
+            Managers.INVENTORY.syncToClient();
+        }
+
+        // --- START Packet ---
+        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+
+        // --- STOP Packet (delayed to avoid canceling START immediately) ---
+        mc.execute(() -> Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+            PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection())));
+
+        // Hand Swing
+        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+
+        // --- Fallback resend after small delay ---
+        mc.execute(() -> {
+            if (!mc.world.getBlockState(data.getPos()).isAir()) {
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            }
+        });
+
+        return true;
     }
 
     private void abortMining(MiningData data)
@@ -556,36 +636,40 @@ public class GenyoSpeedmine extends GenyoModule {
         Managers.INVENTORY.syncToClient();
     }
 
+    private int findIronPickaxeSlot() {
+        for (int i = 0; i < mc.player.getInventory().size(); i++) {
+            ItemStack stack = mc.player.getInventory().getStack(i);
+            if (stack.getItem() == Items.IRON_PICKAXE) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void stopMining(MiningData data)
     {
-        if (!data.isStarted() || data.getState().isAir())
-        {
-            return;
-        }
+        if (!data.isStarted() || data.getState().isAir()) return;
+
+        // Handle rotation
         if (rotateConfig.get())
         {
             float[] rotations = RotationUtil.getRotationsTo(mc.player.getEyePos(), data.getPos().toCenterPos());
-            if (grimConfig.get())
-            {
-                Managers.ROTATION.setRotationSilent(rotations[0], rotations[1]);
-            }
-            else
-            {
-                Managers.ROTATION.setRotation(new Rotation(2, rotations[0], rotations[1]));
-            }
+            if (grimConfig.get()) Managers.ROTATION.setRotationSilent(rotations[0], rotations[1]);
+            else Managers.ROTATION.setRotation(new Rotation(2, rotations[0], rotations[1]));
         }
+
+        // Get slots
         int slot = data.getSlot();
         boolean canSwap = slot != -1 && slot != Managers.INVENTORY.getServerSlot();
-        if (canSwap)
-        {
-            swapTo(slot);
-        }
-        stopMiningInternal(data);
+
+        // 🔹 Normal swap behavior
+        if (canSwap) swapTo(slot);
+        Managers.INVENTORY.syncToClient();
+        mc.execute(() -> stopMiningInternal(data));
+        if (canSwap) swapSync(slot);
+
         lastBreak = System.currentTimeMillis();
-        if (canSwap)
-        {
-            swapSync(slot);
-        }
+
         if (rotateConfig.get())
         {
             Managers.ROTATION.setRotationSilentSync();
@@ -630,6 +714,59 @@ public class GenyoSpeedmine extends GenyoModule {
         return miningQueue.size() == 2 && data == miningQueue.getLast();
     }
 
+    private float getBlockBreakingSpeed(BlockState block) {
+        if (ironOnlyConfig.get()) {
+            // Try to find iron pickaxe
+            int ironSlot = -1;
+            for (int i = 0; i < mc.player.getInventory().size(); i++) {
+                ItemStack stack = mc.player.getInventory().getStack(i);
+                if (stack.getItem() == Items.IRON_PICKAXE) {
+                    ironSlot = i;
+                    break;
+                }
+            }
+
+            if (ironSlot != -1) {
+                // Use iron pickaxe speed
+                ItemStack stack = mc.player.getInventory().getStack(ironSlot);
+                return calculateSpeedFromStack(stack, block);
+            }
+            // No iron pickaxe → fall back to normal logic
+        }
+
+        // Default: best available tool
+        int bestTool = Modules.get().get(GenyoAutoTool.class).getBestTool(block);
+        ItemStack stack = mc.player.getInventory().getStack(bestTool);
+        return calculateSpeedFromStack(stack, block);
+    }
+
+    private float calculateSpeedFromStack(ItemStack stack, BlockState block) {
+        float speed = stack.getMiningSpeedMultiplier(block);
+
+        if (speed > 1.0F) {
+            int efficiency = EnchantmentUtil.getLevel(stack, Enchantments.EFFICIENCY);
+            if (efficiency > 0 && !stack.isEmpty()) {
+                speed += (float) (efficiency * efficiency + 1);
+            }
+        }
+        if (StatusEffectUtil.hasHaste(mc.player)) {
+            speed *= 1.0f + (float) (StatusEffectUtil.getHasteAmplifier(mc.player) + 1) * 0.2f;
+        }
+        if (mc.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
+            float fatigueFactor = switch (mc.player.getStatusEffect(StatusEffects.MINING_FATIGUE).getAmplifier()) {
+                case 0 -> 0.3f;
+                case 1 -> 0.09f;
+                case 2 -> 0.0027f;
+                default -> 8.1e-4f;
+            };
+            speed *= fatigueFactor;
+        }
+        if (!mc.player.isOnGround()) {
+            speed /= 5.0f;
+        }
+        return speed;
+    }
+
     public float calcBlockBreakingDelta(BlockState state, BlockView world, BlockPos pos)
     {
         if (swapConfig.get() == Swap.OFF)
@@ -648,7 +785,7 @@ public class GenyoSpeedmine extends GenyoModule {
         }
     }
 
-    private float getBlockBreakingSpeed(BlockState block)
+    /*private float getBlockBreakingSpeed(BlockState block)
     {
         int tool = Modules.get().get(GenyoAutoTool.class).getBestTool(block);
         //if (tool == -1) return 0.0f;
@@ -686,13 +823,26 @@ public class GenyoSpeedmine extends GenyoModule {
             f /= 5.0f;
         }
         return f;
-    }
+    }*/
 
-    private boolean canHarvest(BlockState state)
+    /*private boolean canHarvest(BlockState state)
     {
         if (state.isToolRequired())
         {
             int tool = InvUtils.findFastestTool(state).slot();
+            return mc.player.getInventory().getStack(tool).isSuitableFor(state);
+        }
+        return true;
+    }*/
+    private boolean canHarvest(BlockState state) {
+        if (state.isToolRequired()) {
+            int tool = InvUtils.findFastestTool(state).slot();
+
+            // Ensure a valid slot
+            if (tool < 0 || tool >= mc.player.getInventory().size()) {
+                return false; // No valid tool found
+            }
+
             return mc.player.getInventory().getStack(tool).isSuitableFor(state);
         }
         return true;
@@ -773,9 +923,45 @@ public class GenyoSpeedmine extends GenyoModule {
             return direction;
         }
 
-        public int getSlot()
+        /*public int getSlot()
         {
             return Modules.get().get(GenyoAutoTool.class).getBestToolNoFallback(getState());
+        }*/
+        public int getSlot() {
+            GenyoSpeedmine speedmine = Modules.get().get(GenyoSpeedmine.class);
+
+            if (speedmine.ironOnlyConfig.get()) {
+                // Try iron pickaxe first
+                for (int i = 0; i < mc.player.getInventory().size(); i++) {
+                    ItemStack stack = mc.player.getInventory().getStack(i);
+                    if (stack.getItem() == Items.IRON_PICKAXE) {
+                        speedmine.warnedNoIron = false; // Reset warning if found
+                        return i;
+                    }
+                }
+
+                // No iron pickaxe found — warn if not already warned
+                if (!speedmine.warnedNoIron) {
+                    speedmine.sendError("No iron pickaxe found - using fallback tool.");
+                    speedmine.warnedNoIron = true;
+                }
+
+                // Fallback: Best available tool
+                int bestTool = Modules.get().get(GenyoAutoTool.class).getBestToolNoFallback(getState());
+                if (bestTool != -1) {
+                    return bestTool;
+                }
+
+                // Last resort: current selected slot
+                return mc.player.getInventory().selectedSlot;
+            }
+
+            // Default if Iron Only is off
+            int bestTool = Modules.get().get(GenyoAutoTool.class).getBestToolNoFallback(getState());
+            if (bestTool != -1) {
+                return bestTool;
+            }
+            return mc.player.getInventory().selectedSlot;
         }
 
         public BlockState getState()
