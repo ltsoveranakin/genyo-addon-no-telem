@@ -1,4 +1,4 @@
-package com.genyo.addon.modules.combat;
+package com.genyo.addon.modules.world;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.modules.GenyoModule;

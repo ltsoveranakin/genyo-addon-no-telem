@@ -2,6 +2,7 @@ package com.genyo.addon.utils.world;
 
 import com.genyo.addon.utils.player.EnchantmentUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.DamageUtil;
@@ -19,8 +20,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.RaycastContext;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.Set;
@@ -515,6 +520,37 @@ public class ExplosionUtil {
     @FunctionalInterface
     public interface RaycastFactory extends BiFunction<ExposureRaycastContext, BlockPos, BlockHitResult>
     {
+    }
+
+    /**
+     * Returns the BlockHitResult of the block without considering other blocks
+     *
+     * @param context context with point of player's eyes and final aiming point
+     * @param block   position of block
+     * @return BlockHitResult
+     */
+    public static BlockHitResult rayCastBlock(RaycastContext context, BlockPos block) {
+        return BlockView.raycast(context.getStart(), context.getEnd(), context, (raycastContext, blockPos) -> {
+            BlockState blockState;
+
+            if (!blockPos.equals(block)) blockState = Blocks.AIR.getDefaultState();
+            else blockState = Blocks.OBSIDIAN.getDefaultState();
+
+            Vec3d vec3d = raycastContext.getStart();
+            Vec3d vec3d2 = raycastContext.getEnd();
+            VoxelShape voxelShape = raycastContext.getBlockShape(blockState, mc.world, blockPos);
+            BlockHitResult blockHitResult = mc.world.raycastBlock(vec3d, vec3d2, blockPos, voxelShape, blockState);
+            VoxelShape voxelShape2 = VoxelShapes.empty();
+            BlockHitResult blockHitResult2 = voxelShape2.raycast(vec3d, vec3d2, blockPos);
+
+            double d = blockHitResult == null ? Double.MAX_VALUE : raycastContext.getStart().squaredDistanceTo(blockHitResult.getPos());
+            double e = blockHitResult2 == null ? Double.MAX_VALUE : raycastContext.getStart().squaredDistanceTo(blockHitResult2.getPos());
+
+            return d <= e ? blockHitResult : blockHitResult2;
+        }, (raycastContext) -> {
+            Vec3d vec3d = raycastContext.getStart().subtract(raycastContext.getEnd());
+            return BlockHitResult.createMissed(raycastContext.getEnd(), Direction.getFacing(vec3d.x, vec3d.y, vec3d.z), BlockPos.ofFloored(raycastContext.getEnd()));
+        });
     }
 
     public enum IgnoreTerrain

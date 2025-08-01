@@ -404,18 +404,10 @@ public class GenyoSpeedmine extends GenyoModule {
     }
 
     @EventHandler
-    public void onConfigUpdate(SettingChangedEvent event)
-    {
-        if ( event.setting == doubleBreakConfig)
-        {
-            if (doubleBreakConfig.get())
-            {
-                miningQueue = new FirstOutQueue<>(2);
-            }
-            else
-            {
-                miningQueue = new FirstOutQueue<>(1);
-            }
+    public void onConfigUpdate(SettingChangedEvent event) {
+        if ( event.setting == doubleBreakConfig) {
+            if (doubleBreakConfig.get()) miningQueue = new FirstOutQueue<>(2);
+            else miningQueue = new FirstOutQueue<>(1);
         }
     }
 
@@ -533,8 +525,7 @@ public class GenyoSpeedmine extends GenyoModule {
         }
     }
 
-    /*private boolean startMining(MiningData data)
-    {
+    private boolean startMiningV1(MiningData data) {
         if (data.isStarted()) return false;
 
         // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L76
@@ -548,47 +539,48 @@ public class GenyoSpeedmine extends GenyoModule {
             Managers.INVENTORY.syncToClient();
         }
 
-        if (grimNewConfig.get())
-        {
-            if (!miningAC.get())
-            {
+        if (doubleBreakConfig.get()) {
+            if (grimNewConfig.get()) {
+                if (!miningAC.get()) {
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                } else {
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                }
+
                 Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                     PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-            }
-            else
-            {
-                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                return true;
             }
 
             Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                 PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
             Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
             Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-            Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-            return true;
+        } else {
+            mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
         }
-
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
         return true;
-    }*/
+    }
 
     private boolean startMining(MiningData data) {
         if (data.isStarted()) return false;

@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +38,13 @@ public class PlacerModule extends GenyoModule {
         .build()
     );
 
+    protected final Setting<Boolean> strictDirectionConfig = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("Strict Direction")
+        .description("Places on visible sides only")
+        .defaultValue(false)
+        .build()
+    );
+
     public PlacerModule(Category category, String name, String desc)
     {
         super(category, name, desc);
@@ -57,6 +65,22 @@ public class PlacerModule extends GenyoModule {
     protected int getRotationPriority()
     {
         return rotationPriority;
+    }
+
+    protected void setRotationSilent(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotationSilent(yaw, pitch);
+    }
+
+    /**
+     * Sets client look yaw and pitch
+     *
+     * @param yaw
+     * @param pitch
+     */
+    protected void setRotationClient(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotationClient(yaw, pitch);
     }
 
     /**
@@ -128,5 +152,7 @@ public class PlacerModule extends GenyoModule {
         }
         return -1;
     }
+
+
 
 }

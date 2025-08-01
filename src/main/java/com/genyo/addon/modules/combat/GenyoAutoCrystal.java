@@ -6,6 +6,7 @@ import com.genyo.addon.events.RunTickEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.modules.world.GenyoAutoMine;
+import com.genyo.addon.modules.world.GenyoSurroundV2;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.collection.EvictingQueue;
@@ -21,11 +22,15 @@ import com.google.common.collect.Lists;
 import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
+import meteordevelopment.meteorclient.events.render.Render2DEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
+import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.combat.CrystalAura;
+import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
@@ -55,6 +60,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
+import org.joml.Vector3d;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -567,6 +573,13 @@ public class GenyoAutoCrystal extends GenyoModule {
         .build()
     );
 
+    private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
+        .name("Render Color")
+        .description("asdsadsadsadsadsa")
+        .defaultValue(new Color(236, 243, 122, 40))
+        .build()
+    );
+
     private final Setting<Boolean> debugDamage = sgRender.add(new BoolSetting.Builder()
         .name("Debug Damage")
         .description("Renders damage")
@@ -575,10 +588,13 @@ public class GenyoAutoCrystal extends GenyoModule {
         .build()
     );
 
-    private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
-        .name("Render Color")
-        .description("asdsadsadsadsadsa")
-        .defaultValue(new Color(236, 243, 122, 40))
+    private final Setting<Double> damageTextScale = sgRender.add(new DoubleSetting.Builder()
+        .name("damage-scale")
+        .description("How big the damage text should be.")
+        .defaultValue(1.25)
+        .min(1)
+        .sliderMax(4)
+        .visible(debugDamage::get)
         .build()
     );
 
@@ -617,6 +633,11 @@ public class GenyoAutoCrystal extends GenyoModule {
     // Antistuck
     private final Map<Integer, Integer> antiStuckCrystals = new HashMap<>();
     private final List<AntiStuckData> stuckCrystals = new CopyOnWriteArrayList<>();
+
+    // Genyo sajkhfjwehfjhwekjfhjkwefew
+    private final BlockPos.Mutable placeRenderPos = new BlockPos.Mutable();
+    private final Vector3d vec3 = new Vector3d();
+    private int placeRenderTimer, breakRenderTimer;
 
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -889,6 +910,26 @@ public class GenyoAutoCrystal extends GenyoModule {
                 Animation animation = new Animation(true, fadeTime.get());
                 fadeList.put(renderPos, animation);
             }
+        }
+    }
+
+    @EventHandler
+    private void onRender2D(Render2DEvent event) {
+        if (!debugDamage.get()) return;
+        //if (placeRenderTimer <= 0 && breakRenderTimer <= 0) return;
+
+        vec3.set(placeRenderPos.getX() + 0.5, placeRenderPos.getY() + 0.5, placeRenderPos.getZ() + 0.5);
+
+        if (NametagUtils.to2D(vec3, damageTextScale.get())) {
+            NametagUtils.begin(vec3);
+            TextRenderer.get().begin(1, false, true);
+
+            String text = String.format("%.1f", renderDamage);
+            double w = TextRenderer.get().getWidth(text) / 2;
+            TextRenderer.get().render(text, -w, 0, color.get().a(255), true);
+
+            TextRenderer.get().end();
+            NametagUtils.end();
         }
     }
 
@@ -1242,16 +1283,16 @@ public class GenyoAutoCrystal extends GenyoModule {
                     }
                 }
                 placeInternal(result, Hand.MAIN_HAND);
+
+                placeRenderPos.set(blockPos);
+
                 placePackets.put(blockPos, System.currentTimeMillis());
                 if (canSwap)
                 {
-                    if (autoSwap.get() == Swap.SILENT_ALT)
-                    {
+                    if (autoSwap.get() == Swap.SILENT_ALT) {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
                             crystalSlot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
-                    }
-                    else if (autoSwap.get() == Swap.SILENT)
-                    {
+                    } else if (autoSwap.get() == Swap.SILENT) {
                         Managers.INVENTORY.syncToClient();
                     }
                 }

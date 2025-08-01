@@ -3,6 +3,7 @@ package com.genyo.addon.managers.network;
 import com.genyo.addon.events.network.ConnectScreenEvent;
 import com.genyo.addon.events.network.DisconnectEvent;
 import com.genyo.addon.mixin.accessor.AccessorClientWorld;
+import com.genyo.addon.imixins.IClientPlayNetworkHandler;
 import com.genyo.addon.utils.math.PerSecondCounter;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;
@@ -58,6 +59,15 @@ public class NetworkManager {
         }
         mc.getNetworkHandler().getConnection().connect(address.getAddress(), address.getPort(),
             new ClientLoginNetworkHandler(mc.getNetworkHandler().getConnection(), mc, info, null, false, null, null, null));
+    }
+
+    public void sendQuietPacket(final Packet<?> p)
+    {
+        if (mc.getNetworkHandler() != null)
+        {
+            PACKET_CACHE.add(p);
+            ((IClientPlayNetworkHandler) mc.getNetworkHandler()).sendQuietPacket(p);
+        }
     }
 
     /**

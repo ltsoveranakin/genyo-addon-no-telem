@@ -1,12 +1,8 @@
-package com.genyo.addon.modules.combat;
+package com.genyo.addon.modules.world;
 
 import com.genyo.addon.GenyoAddon;
-import com.genyo.addon.events.network.PlayerTickEvent;
 import com.genyo.addon.managers.Managers;
-import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.modules.PlacerModule;
-import com.genyo.addon.modules.world.GenyoAutoMine;
-import com.genyo.addon.modules.world.GenyoSpeedmine;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.math.GPositionUtils;
@@ -14,6 +10,7 @@ import com.genyo.addon.utils.math.MathUtil;
 import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -45,10 +42,10 @@ import java.util.*;
 public class GenyoSelfTrap extends PlacerModule {
 
     public GenyoSelfTrap() {
-        super(GenyoAddon.GENYO, "genyo-self-trap", "fffffffffffffffffffffffffffffffffffff");
+        super(GenyoAddon.GENYO, "Genyo SelfTrap", "yeees");
     }
 
-    private SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Timing> timingConfig = sgGeneral.add(new EnumSetting.Builder<Timing>()
         .name("Timing")
@@ -58,7 +55,7 @@ public class GenyoSelfTrap extends PlacerModule {
     );
 
     private final Setting<Boolean> prePlaceExplosionConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("PrePlace Explosions")
+        .name("PrePlace-Explosion")
         .description("Pre places before explosions")
         .defaultValue(false)
         .visible(() -> timingConfig.get() == Timing.SEQUENTIAL)
@@ -85,13 +82,6 @@ public class GenyoSelfTrap extends PlacerModule {
     private final Setting<Boolean> rotateConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate")
         .description("Rotates to block before placing")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Boolean> strictDirectionConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Strict Direction")
-        .description("Only mines on visible faces")
         .defaultValue(false)
         .build()
     );
@@ -132,7 +122,7 @@ public class GenyoSelfTrap extends PlacerModule {
     );
 
     private final Setting<Boolean> headConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("CoverHead")
+        .name("Cover Head")
         .description("Place a block at your head")
         .defaultValue(false)
         .build()
@@ -157,7 +147,7 @@ public class GenyoSelfTrap extends PlacerModule {
     );
 
     private final Setting<Boolean> autoDisableConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("AutoDisable")
+        .name("Auto Disable")
         .description("Disables after placing the blocks")
         .defaultValue(true)
         .build()
@@ -170,19 +160,21 @@ public class GenyoSelfTrap extends PlacerModule {
         .build()
     );
 
-    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
-        .name("Render Color")
-        .description("asdsadsadsadsadsa")
-        .defaultValue(new Color(236, 243, 122, 40))
-        .build()
-    );
-
     private final Setting<Integer> fadeTimeConfig = sgGeneral.add(new IntSetting.Builder()
         .name("Fade-Time")
         .description("Time to fade")
         .min(0)
         .defaultValue(250)
         .max(1000)
+        .visible(() -> false)
+        .build()
+    );
+
+    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+        .name("Render Color")
+        .description("asdsadsadsadsadsa")
+        .visible(renderConfig::get)
+        .defaultValue(new Color(236, 243, 122, 40))
         .build()
     );
 
@@ -194,18 +186,14 @@ public class GenyoSelfTrap extends PlacerModule {
     private double prevY;
 
     @Override
-    public void onActivate()
-    {
-        if (mc.player == null)
-        {
-            return;
-        }
+    public void onActivate() {
+        if (mc.player == null) return;
+
         prevY = mc.player.getY();
     }
 
     @Override
-    public void onDeactivate()
-    {
+    public void onDeactivate() {
         surround.clear();
         placements.clear();
         packets.clear();
@@ -213,12 +201,13 @@ public class GenyoSelfTrap extends PlacerModule {
     }
 
     @EventHandler
-    public void onPlayerTick(PlayerTickEvent event)
+    public void onTick(TickEvent.Pre event)
     {
         blocksPlaced = 0;
         if (autoDisableConfig.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f))
         {
             toggle();
+            sendDisableMsg("Auto Disable.");
             return;
         }
 
@@ -287,31 +276,18 @@ public class GenyoSelfTrap extends PlacerModule {
     }
 
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event)
-    {
-        if (mc.player == null || mc.world == null)
-        {
-            return;
-        }
-        if (event.packet instanceof BundleS2CPacket packet)
-        {
-            for (Packet<?> packet1 : packet.getPackets())
-            {
-                handlePackets(packet1);
-            }
-        }
-        else
-        {
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (mc.player == null || mc.world == null) return;
+
+        if (event.packet instanceof BundleS2CPacket packet) {
+            for (Packet<?> packet1 : packet.getPackets()) handlePackets(packet1);
+        } else {
             handlePackets(event.packet);
         }
     }
 
-    private void handlePackets(Packet<?> serverPacket)
-    {
-        if (timingConfig.get() != Timing.SEQUENTIAL)
-        {
-            return;
-        }
+    private void handlePackets(Packet<?> serverPacket) {
+        if (timingConfig.get() != Timing.SEQUENTIAL) return;
 
         if (serverPacket instanceof BlockUpdateS2CPacket packet)
         {
@@ -553,8 +529,9 @@ public class GenyoSelfTrap extends PlacerModule {
     }
 
     @EventHandler
-    public void onRender3D(Render3DEvent event)
-    {
+    public void onRender3D(Render3DEvent event) {
+        if (mc.player == null || mc.world == null) return;
+
         if (renderConfig.get())
         {
             for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
@@ -595,5 +572,4 @@ public class GenyoSelfTrap extends PlacerModule {
         VANILLA,
         SEQUENTIAL
     }
-
 }

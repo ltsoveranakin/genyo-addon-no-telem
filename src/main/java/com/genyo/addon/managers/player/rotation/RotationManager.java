@@ -1,13 +1,11 @@
 package com.genyo.addon.managers.player.rotation;
 
 import com.genyo.addon.events.StageEvent;
-import com.genyo.addon.events.entity.RenderPlayerEvent;
-import com.genyo.addon.events.keyboard.KeyboardTickEvent;
 import com.genyo.addon.events.network.MovementPacketsEvent;
 import com.genyo.addon.events.network.PlayerTickEvent;
 import com.genyo.addon.events.network.PlayerUpdateEvent;
 import com.genyo.addon.managers.Managers;
-import com.genyo.addon.mixin.imixins.IClientPlayerEntity;
+import com.genyo.addon.imixins.IClientPlayerEntity;
 import com.genyo.addon.utils.player.PlayerUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;
@@ -109,8 +107,8 @@ public class RotationManager {
     {
         if (event.getStage() == StageEvent.EventStage.POST)
         {
-            lastServerYaw = ((IClientPlayerEntity) mc.player).getLastSpoofedYaw();
-            lastServerPitch = ((IClientPlayerEntity) mc.player).getLastSpoofedPitch();
+            lastServerYaw = ((IClientPlayerEntity) mc.player).genyo_addon$getLastSpoofedYaw();
+            lastServerPitch = ((IClientPlayerEntity) mc.player).genyo_addon$getLastSpoofedPitch();
         }
     }
 

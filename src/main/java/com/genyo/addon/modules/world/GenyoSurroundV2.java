@@ -1,10 +1,8 @@
-package com.genyo.addon.modules.combat;
+package com.genyo.addon.modules.world;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.managers.Managers;
-import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.modules.PlacerModule;
-import com.genyo.addon.modules.world.GenyoAutoMine;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.math.GPositionUtils;
@@ -24,14 +22,11 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
@@ -100,13 +95,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .defaultValue(4.0f)
         .min(0.0f)
         .max(6.0f)
-        .build()
-    );
-
-    private final Setting<Boolean> strictDirection = sgGeneral.add(new BoolSetting.Builder()
-        .name("Strict Direction")
-        .description("Places on visible sides only")
-        .defaultValue(false)
         .build()
     );
 
@@ -358,7 +346,7 @@ public class GenyoSurroundV2 extends PlacerModule {
     private void placeBlock(BlockPos pos, int slot)
     {
         if (!buggy.get()) {
-            Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
+            Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
             {
                 if (rotate.get() && state) {
                     Managers.ROTATION.setRotationSilent(angles[0], angles[1]);

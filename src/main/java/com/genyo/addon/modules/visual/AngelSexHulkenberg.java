@@ -2,7 +2,7 @@ package com.genyo.addon.modules.visual;
 
 import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.TotemPopEvent;
-import com.genyo.addon.mixin.imixins.IEntity;
+import com.genyo.addon.mixin.entity.IEntity;
 import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.render.Render2DEngine;
 import com.genyo.addon.render.Render3DEngine;

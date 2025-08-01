@@ -1,5 +1,7 @@
 package com.genyo.addon.modules;
 
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.managers.player.rotation.Rotation;
 import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -9,6 +11,7 @@ import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.network.SequencedPacketCreator;
@@ -20,13 +23,21 @@ import net.minecraft.util.Hand;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GenyoModule extends Module {
+
+    protected Random RANDOM = ThreadLocalRandom.current();
 
     private final String prefix = Formatting.GOLD + "" + Formatting.BOLD + "[Genyo]";
 
     public GenyoModule(Category category, String name, String description) {
         super(category, name, description);
+    }
+
+    public static boolean fullNullCheck() {
+        return MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().world == null;
     }
 
     //  Messages
@@ -50,7 +61,7 @@ public class GenyoModule extends Module {
         if (mc.world == null) return;
 
         ChatUtils.forceNextPrefixClass(getClass());
-        String msg = prefix + " " + Formatting.WHITE + title + Formatting.RED + " OFF " + Formatting.GRAY + text;
+        String msg = prefix + " " + Formatting.WHITE + title + Formatting.RED + " OFF " + Formatting.GRAY + "- " + text;
         sendMessage(Text.of(msg), hashCode());
     }
 
@@ -85,6 +96,30 @@ public class GenyoModule extends Module {
     public void sendPacket(Packet<?> packet) {
         if (mc.getNetworkHandler() == null) return;
         mc.getNetworkHandler().sendPacket(packet);
+    }
+
+    protected void sendSequencedPacket(SequencedPacketCreator packetCreator) {
+        if (mc.getNetworkHandler() == null || mc.world == null) return;
+
+        try (PendingUpdateManager pendingUpdateManager = mc.world.getPendingUpdateManager().incrementSequence();) {
+            int i = pendingUpdateManager.getSequence();
+            mc.getNetworkHandler().sendPacket(packetCreator.predict(i));
+        }
+    }
+
+    protected void setRotation(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotation(new Rotation(100, yaw, pitch));
+    }
+
+    protected boolean isRotationBlocked()
+    {
+        return Managers.ROTATION.isRotationBlocked(100);
+    }
+
+    protected void setRotationSilent(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotationSilent(yaw, pitch);
     }
 
     public void sendSequenced(SequencedPacketCreator packetCreator) {

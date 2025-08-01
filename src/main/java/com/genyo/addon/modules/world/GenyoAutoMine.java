@@ -4,7 +4,6 @@ import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.AttackBlockEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
-import com.genyo.addon.modules.combat.GenyoSurround;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.GEntityUtils;
@@ -805,7 +804,7 @@ public class GenyoAutoMine extends GenyoModule {
         double dz = (render1.maxZ - render1.minZ) / 2.0;
         final Box scaled = new Box(center, center).expand(dx * scale, dy * scale, dz * scale);
 
-        renderer.box(scaled, boxColor, lineColor, ShapeMode.Both, 0);
+        renderer.box(scaled, boxColor, lineColor, ShapeMode.Both, 1);
         //RenderManager.renderBox(matrixStack, scaled, boxColor);
         //RenderManager.renderBoundingBox(matrixStack, scaled, 1.5f, lineColor);
     }
@@ -874,6 +873,31 @@ public class GenyoAutoMine extends GenyoModule {
         }*/
 
         instantMineAnim = new MineAnimation(data, new Animation(true, fadeTime.get()));
+    }
+
+    private boolean startMiningV2(MineData data) {
+        // --- START Packet ---
+        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+
+        // --- STOP Packet (delayed to avoid canceling START immediately) ---
+        mc.execute(() -> Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+            PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection())));
+
+        // Hand Swing
+        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+
+        // --- Fallback resend after small delay ---
+        mc.execute(() -> {
+            if (!mc.world.getBlockState(data.getPos()).isAir()) {
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+            }
+        });
+
+        return true;
     }
 
     public void abortMining(MineData data)

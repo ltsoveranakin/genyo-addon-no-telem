@@ -4,6 +4,7 @@ import com.genyo.addon.utils.math.GPositionUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CobwebBlock;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
@@ -70,6 +71,20 @@ public class PlayerUtil {
             }
         }
         return false;
+    }
+
+    public static boolean isEating() {
+        if (mc.player == null) return false;
+
+        return (mc.player.getMainHandStack().getComponents().contains(DataComponentTypes.FOOD)
+            || mc.player.getOffHandStack().getComponents().contains(DataComponentTypes.FOOD))
+            && mc.player.isUsingItem();
+    }
+
+    public static boolean isMining() {
+        if (mc.interactionManager == null) return false;
+
+        return mc.interactionManager.isBreakingBlock();
     }
 
 }

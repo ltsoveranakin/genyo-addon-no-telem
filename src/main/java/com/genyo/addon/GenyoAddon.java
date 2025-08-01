@@ -1,13 +1,12 @@
 package com.genyo.addon;
 
+import com.genyo.addon.hud.ActiveGenyoHud;
 import com.genyo.addon.modules.combat.*;
 import com.genyo.addon.modules.misc.*;
+import com.genyo.addon.modules.movement.GenyoVelocity;
 import com.genyo.addon.modules.visual.AngelSexHulkenberg;
 import com.genyo.addon.modules.visual.GenyoPenisESP;
-import com.genyo.addon.modules.world.GenyoAutoMine;
-import com.genyo.addon.modules.world.GenyoAutoTool;
-import com.genyo.addon.modules.world.GenyoScaffold;
-import com.genyo.addon.modules.world.GenyoSpeedmine;
+import com.genyo.addon.modules.world.*;
 import com.genyo.addon.systems.enemies.EnemiesTab;
 import com.genyo.addon.hud.InCombatHud;
 import com.genyo.addon.hud.PvPNeccessaryHud;
@@ -104,15 +103,20 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoSpeedmine());
         modules.add(new GenyoAutoTool());
         modules.add(new GenyoReplenish());
-        modules.add(new GenyoSelfTrap());
         modules.add(new GenyoScaffold());
         modules.add(new GenyoPenisESP());
         modules.add(new GenyoAutoTotem());
+        modules.add(new GenyoVelocity());
+        modules.add(new KFCSpawnKill());
+        modules.add(new GenyoCriticals());
+        modules.add(new GenyoGhostBlocks());
+        modules.add(new GenyoSelfTrap());
     }
 
     private void initHUD(Hud hud) {
         hud.register(PvPNeccessaryHud.INFO);
         hud.register(InCombatHud.INFO);
+        hud.register(ActiveGenyoHud.INFO);
     }
 
     @Override

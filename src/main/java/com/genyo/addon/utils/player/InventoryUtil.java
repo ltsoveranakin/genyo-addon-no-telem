@@ -1,5 +1,6 @@
 package com.genyo.addon.utils.player;
 
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -42,6 +43,24 @@ public class InventoryUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isHolding32k()
+    {
+        return isHolding32k(1000);
+    }
+
+    /**
+     * @param lvl
+     * @return
+     */
+    public static boolean isHolding32k(int lvl)
+    {
+        final ItemStack mainhand = mc.player.getMainHandStack();
+        return EnchantmentUtil.getLevel(mainhand, Enchantments.SHARPNESS) >= lvl;
     }
 
 }

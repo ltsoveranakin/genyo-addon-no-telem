@@ -15,15 +15,22 @@
     "accessor.AccessorClientPlayerInteractionManager",
     "accessor.AccessorClientWorld",
     "accessor.AccessorGameOptions",
-    "imixins.IClientPlayerEntity",
-    "imixins.IEntity",
-    "network.MixinClientPlayerEntity"
+    "network.MixinClientPlayerEntity",
+    "network.MixinClientPlayNetworkHandler",
+    "render.MixinRenderTickCounter",
+    "render.MixinWorldRenderer",
+    "world.MixinClientWorld"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
     "MixinClientConnection",
+    "accessor.AccessorClientConnection",
+    "accessor.AccessorEntityVelocityUpdateS2CPacket",
+    "entity.IEntity",
+    "entity.MixinEntity",
+    "entity.player.MixinPlayerEntity",
     "meteor.MixinSetting",
     "network.MixinServerPlayerEntity"
   ]
