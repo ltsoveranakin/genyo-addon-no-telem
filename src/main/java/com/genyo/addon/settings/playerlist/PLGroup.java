@@ -1,7 +1,5 @@
 package com.genyo.addon.settings.playerlist;
 
-import com.genyo.addon.modules.GenyoWelcome;
-
 import java.util.List;
 
 public class PLGroup {

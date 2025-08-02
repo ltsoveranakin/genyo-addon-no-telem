@@ -1,39 +1,43 @@
 package com.genyo.addon.modules;
 
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.managers.player.rotation.Rotation;
 import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.config.Config;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.player.Rotation;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.network.SequencedPacketCreator;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
+import java.util.Comparator;
 import java.util.Objects;
-
-import static meteordevelopment.meteorclient.MeteorClient.mc;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GenyoModule extends Module {
+
+    protected Random RANDOM = ThreadLocalRandom.current();
 
     private final String prefix = Formatting.GOLD + "" + Formatting.BOLD + "[Genyo]";
 
     public GenyoModule(Category category, String name, String description) {
         super(category, name, description);
+    }
+
+    public static boolean fullNullCheck() {
+        return MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().world == null;
     }
 
     //  Messages
@@ -57,7 +61,7 @@ public class GenyoModule extends Module {
         if (mc.world == null) return;
 
         ChatUtils.forceNextPrefixClass(getClass());
-        String msg = prefix + " " + Formatting.WHITE + title + Formatting.RED + " OFF " + Formatting.GRAY + text;
+        String msg = prefix + " " + Formatting.WHITE + title + Formatting.RED + " OFF " + Formatting.GRAY + "- " + text;
         sendMessage(Text.of(msg), hashCode());
     }
 
@@ -92,6 +96,30 @@ public class GenyoModule extends Module {
     public void sendPacket(Packet<?> packet) {
         if (mc.getNetworkHandler() == null) return;
         mc.getNetworkHandler().sendPacket(packet);
+    }
+
+    protected void sendSequencedPacket(SequencedPacketCreator packetCreator) {
+        if (mc.getNetworkHandler() == null || mc.world == null) return;
+
+        try (PendingUpdateManager pendingUpdateManager = mc.world.getPendingUpdateManager().incrementSequence();) {
+            int i = pendingUpdateManager.getSequence();
+            mc.getNetworkHandler().sendPacket(packetCreator.predict(i));
+        }
+    }
+
+    protected void setRotation(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotation(new Rotation(100, yaw, pitch));
+    }
+
+    protected boolean isRotationBlocked()
+    {
+        return Managers.ROTATION.isRotationBlocked(100);
+    }
+
+    protected void setRotationSilent(float yaw, float pitch)
+    {
+        Managers.ROTATION.setRotationSilent(yaw, pitch);
     }
 
     public void sendSequenced(SequencedPacketCreator packetCreator) {
@@ -157,5 +185,24 @@ public class GenyoModule extends Module {
             .defaultValue(false)
             .build()
         );
+    }
+
+    public PlayerEntity getClosestPlayer(double range) {
+        return mc.world.getPlayers().stream().filter(e -> !(e instanceof ClientPlayerEntity) && !e.isSpectator())
+            .filter(e -> mc.player.squaredDistanceTo(e) <= range * range)
+            //.filter(e -> !Managers.SOCIAL.isFriend(e.getName().getString()))
+            .filter(e -> !Friends.get().isFriend(e))
+            .min(Comparator.comparingDouble(e -> mc.player.squaredDistanceTo(e))).orElse(null);
+    }
+
+    public boolean checkMultitask() {
+        return checkMultitask(false);
+    }
+
+    public boolean checkMultitask(boolean checkOffhand) {
+        if (checkOffhand && mc.player.getActiveHand() != Hand.MAIN_HAND) {
+            return false;
+        }
+        return mc.player.isUsingItem();
     }
 }

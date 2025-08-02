@@ -3,6 +3,7 @@ package com.genyo.addon.screens;
 import com.genyo.addon.settings.playerlist.ListGroupSetting;
 import com.genyo.addon.settings.playerlist.ListPlayer;
 import com.genyo.addon.settings.playerlist.PLGroup;
+import com.genyo.addon.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
@@ -13,6 +14,7 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPlus;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
+import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.gui.screen.Screen;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -38,7 +40,11 @@ public class ListGroupScreen extends WindowScreen {
     public void initWidgets() {
         table = add(theme.table()).expandX().minWidth(400).widget();
 
-        table.add(theme.label("Group Name")).widget();
+        table.add(theme.label("Status"));
+        table.add(theme.label((currentGroup.isEnabled() ? "Enabled" : "Disabled")).color(currentGroup.isEnabled() ? Color.GREEN : Color.RED));
+        table.row();
+
+        table.add(theme.label("Name")).widget();
         WTextBox textBox = table.add(theme.textBox(currentGroup.getGroupName())).expandX().widget();
         textBox.action = () -> currentGroup.setGroupName(textBox.get());
         textBox.actionOnUnfocused = this::confirmChanges;
@@ -54,24 +60,25 @@ public class ListGroupScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
         table.row();
 
-        initTable(table);
+        table.add(theme.label("Players"));
+        table.row();
 
         // New
         WHorizontalList list = table.add(theme.horizontalList()).expandX().widget();
 
         WTextBox nameW = list.add(theme.textBox("", (text, c) -> c != ' ')).expandX().widget();
-        nameW.setFocused(true);
+        //nameW.setFocused(true);
 
         WPlus add = list.add(theme.plus()).widget();
         add.action = () -> {
             String name = nameW.get().trim();
             if (name.equalsIgnoreCase("")) return;
 
-            //PLGroup currentGroup = setting.get().get(index);
-
             ListPlayer player = new ListPlayer(name);
             if (currentGroup.containsPlayer(player)) { // it already exists
                 nameW.set("");
+                nameW.setFocused(true);
+                GenyoChatUtils.sendError("Player '" + name + "' already exists in '" +  currentGroup.getGroupName() + "'!");
                 return;
             }
 
@@ -82,8 +89,14 @@ public class ListGroupScreen extends WindowScreen {
             confirmChanges();
         };
 
+        table.row();
+
+        initTable(table);
+
         enterAction = add.action;
 
+        table.row();
+        table.add(theme.horizontalSeparator()).expandX();
         table.row();
 
         WButton save = table.add(theme.button("Save")).expandX().widget();

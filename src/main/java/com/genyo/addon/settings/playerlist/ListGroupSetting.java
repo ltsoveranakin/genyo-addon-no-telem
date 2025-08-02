@@ -34,16 +34,22 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
         for (int i = 0; i < setting.get().size(); i++) {
             int currentIndex = i;
             PLGroup currentGroup = groups.get(currentIndex);
+
             WCheckbox toggle = table.add(theme.checkbox(currentGroup.isEnabled())).widget();
             toggle.action = () -> {
                 currentGroup.setEnabled(toggle.checked);
                 GenyoChatUtils.sendInfo("Set group '" + currentGroup.getGroupName() + "' to " + (toggle.checked ? "enabled" : "disabled."));
             };
-            table.add(theme.label(groups.get(i).getGroupName()));
-            WButton button = table.add(theme.button("Edit")).expandX().widget();
-            button.action = () -> {
+
+            //table.add(theme.tooltip(currentGroup.getGroupName())).expandX();
+            table.add(theme.label(currentGroup.getGroupName())).padHorizontal(20);
+            //table.add(theme.verticalSeparator());
+
+            WButton edit = table.add(theme.button("Edit")).expandX().widget();
+            edit.action = () -> {
                 mc.setScreen(new ListGroupScreen(theme, setting, currentIndex, mc.currentScreen));
             };
+
 
             WMinus delete = table.add(theme.minus()).widget();
             delete.action = () -> {
