@@ -776,11 +776,10 @@ public class KFCSpawnKill extends GenyoModule {
     {
         double min = Double.MAX_VALUE;
         Entity attackTarget = null;
-        for (Entity entity : mc.world.getEntities())
-        {
+        for (Entity entity : mc.world.getEntities()) {
             if (entity == null || entity == mc.player
                 || !entity.isAlive() || !isEnemy(entity)
-                || Friends.get().isFriend((PlayerEntity) entity)
+                || (entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity))
                 || entity instanceof EndCrystalEntity
                 || entity instanceof ItemEntity
                 || entity instanceof ArrowEntity

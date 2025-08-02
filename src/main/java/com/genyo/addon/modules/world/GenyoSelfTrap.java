@@ -7,6 +7,7 @@ import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.math.GPositionUtils;
 import com.genyo.addon.utils.math.MathUtil;
+import com.genyo.addon.utils.player.Rotation;
 import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
@@ -14,16 +15,19 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.world.AirPlace;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
@@ -42,147 +46,147 @@ import java.util.*;
 public class GenyoSelfTrap extends PlacerModule {
 
     public GenyoSelfTrap() {
-        super(GenyoAddon.GENYO, "Genyo SelfTrap", "yeees");
+        super(GenyoAddon.GENYO, "Genyo SelfTrap V2", "a funny one for sure.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<Timing> timingConfig = sgGeneral.add(new EnumSetting.Builder<Timing>()
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
+        .name("Rotate")
+        .description("ekwjfkljweklfjewfew")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Timing> timing = sgGeneral.add(new EnumSetting.Builder<Timing>()
         .name("Timing")
         .description("Timing for replacing blocks")
         .defaultValue(Timing.VANILLA)
         .build()
     );
 
-    private final Setting<Boolean> prePlaceExplosionConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("PrePlace-Explosion")
+    private final Setting<Boolean> buggy = sgGeneral.add(new BoolSetting.Builder()
+        .name("Buggy Placing")
+        .description("not a bug, its a genyo feature")
+        .defaultValue(timing.get() == Timing.SEQUENTIAL)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
+        .build()
+    );
+
+    private final Setting<Boolean> prePlaceExplosion = sgGeneral.add(new BoolSetting.Builder()
+        .name("Pre Place Explosions")
         .description("Pre places before explosions")
         .defaultValue(false)
-        .visible(() -> timingConfig.get() == Timing.SEQUENTIAL)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
 
-    private final Setting<Boolean> prePlaceTickConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("PrePlace Tick")
+    private final Setting<Boolean> prePlaceTick = sgGeneral.add(new BoolSetting.Builder()
+        .name("Pre Place Tick")
         .description("Pre places before ticks")
         .defaultValue(false)
-        .visible(() -> timingConfig.get() == Timing.SEQUENTIAL)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
 
-    private final Setting<Float> placeRangeConfig = sgGeneral.add(new FloatSetting.Builder()
+    private final Setting<Float> placeRange = sgGeneral.add(new FloatSetting.Builder()
         .name("Place Range")
         .description("The placement range for trap")
-        .min(0.0f)
         .defaultValue(4.0f)
+        .min(0.0f)
         .max(6.0f)
         .build()
     );
 
-    private final Setting<Boolean> rotateConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Rotate")
-        .description("Rotates to block before placing")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Boolean> attackConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> attack = sgGeneral.add(new BoolSetting.Builder()
         .name("Attack")
         .description("Attacks crystals in the way of trap")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<Boolean> extendConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> extend = sgGeneral.add(new BoolSetting.Builder()
         .name("Extend")
         .description("Extends trap if the player is not in the center of a block")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<Boolean> mineExtendConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> head = sgGeneral.add(new BoolSetting.Builder()
+        .name("Cover Head")
+        .description("Doesn't work rn")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> mineExtend = sgGeneral.add(new BoolSetting.Builder()
         .name("Mine Extend")
-        .description("Extends surround if the feet block is being mined")
+        .description("Extends trap if the block is being mined")
         .defaultValue(false)
         .build()
     );
 
-    private final Setting<Boolean> headExtendConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Head Extend")
-        .description("Extends surround if the head block is being mined")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Boolean> supportConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> support = sgGeneral.add(new BoolSetting.Builder()
         .name("Support")
         .description("Creates a floor for the trap if there is none")
         .defaultValue(false)
         .build()
     );
 
-    private final Setting<Boolean> headConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Cover Head")
-        .description("Place a block at your head")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Integer> shiftTicksConfig = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> shiftTicks = sgGeneral.add(new IntSetting.Builder()
         .name("Shift Ticks")
         .description("The number of blocks to place per tick")
         .min(1)
-        .defaultValue(2)
+        .defaultValue(8)
         .max(10)
         .build()
     );
 
-    private final Setting<Float> shiftDelayConfig = sgGeneral.add(new FloatSetting.Builder()
+    private final Setting<Float> shiftDelay = sgGeneral.add(new FloatSetting.Builder()
         .name("Shift Delay")
         .description("The delay between each block placement interval")
         .min(0.0f)
-        .defaultValue(1.0f)
+        .defaultValue(0.0f)
         .max(5.0f)
         .build()
     );
 
-    private final Setting<Boolean> autoDisableConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> jumpDisable = sgGeneral.add(new BoolSetting.Builder()
         .name("Auto Disable")
-        .description("Disables after placing the blocks")
+        .description("Disables after moving out of the hole")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<Boolean> renderConfig = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders where trap is placing blocks")
-        .defaultValue(false)
+        .defaultValue(true)
         .build()
     );
 
-    private final Setting<Integer> fadeTimeConfig = sgGeneral.add(new IntSetting.Builder()
-        .name("Fade-Time")
+    private final Setting<Integer> fadeTime = sgGeneral.add(new IntSetting.Builder()
+        .name("Fade Time")
         .description("Time to fade")
         .min(0)
         .defaultValue(250)
         .max(1000)
-        .visible(() -> false)
+        .visible(() -> false) // ????
         .build()
     );
 
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
         .name("Render Color")
         .description("asdsadsadsadsadsa")
-        .visible(renderConfig::get)
         .defaultValue(new Color(236, 243, 122, 40))
         .build()
     );
 
-    private List<BlockPos> surround = new ArrayList<>();
+    private int blocksPlaced;
+    private List<BlockPos> trap = new ArrayList<>();
     private List<BlockPos> placements = new ArrayList<>();
     private final Map<BlockPos, Long> packets = new HashMap<>();
     private final Map<BlockPos, Animation> fadeList = new HashMap<>();
-    private int blocksPlaced;
     private double prevY;
 
     @Override
@@ -194,71 +198,59 @@ public class GenyoSelfTrap extends PlacerModule {
 
     @Override
     public void onDeactivate() {
-        surround.clear();
+        trap.clear();
         placements.clear();
         packets.clear();
         fadeList.clear();
     }
 
     @EventHandler
-    public void onTick(TickEvent.Pre event)
-    {
+    public void onTick(TickEvent.Pre event) {
+        if (mc.player == null && mc.world == null) return;
+
         blocksPlaced = 0;
-        if (autoDisableConfig.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f))
-        {
+
+        if (jumpDisable.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f)) {
+            sendInfo("Player jumped, disabling.");
             toggle();
-            sendDisableMsg("Auto Disable.");
             return;
         }
 
-        if (!multitaskConfig.get() && checkMultitask())
-        {
-            surround.clear();
+        if (!multitaskConfig.get() && checkMultitask()) {
+            trap.clear();
             placements.clear();
             return;
         }
 
         final int slot = getResistantBlockItem();
-        if (slot == -1)
-        {
-            surround.clear();
+        if (slot == -1) {
+            trap.clear();
             placements.clear();
             return;
         }
 
-        BlockPos playerPos = GPositionUtils.getRoundedBlockPos(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-        surround = getSurround(playerPos, mc.player);
-        if (surround.isEmpty())
-        {
-            return;
-        }
-        if (attackConfig.get())
-        {
-            attackBlockingCrystals(surround);
-        }
-        placements = getPlacementsFromSurround(surround);
-        if (placements.isEmpty())
-        {
-            return;
-        }
-        if (supportConfig.get())
-        {
+        trap = getSurround(mc.player);
+        if (trap.isEmpty()) return;
+
+        if (attack.get()) attackBlockingCrystals(trap);
+
+        placements = getPlacementsFromSurround(trap);
+        if (placements.isEmpty()) return;
+
+        if (support.get()) {
             for (BlockPos block : new ArrayList<>(placements))
             {
-                if (block.getY() > playerPos.getY())
-                {
+                if (block.getY() > mc.player.getBlockY() + 1.0) {
                     continue;
                 }
-                Direction direction = Managers.INTERACT.getInteractDirectionInternal(block, strictDirectionConfig.get());
-                if (direction == null)
-                {
+                Direction direction = mc.player.getHorizontalFacing();
+                if (direction == null) {
                     placements.add(block.down());
                 }
             }
         }
         placements.sort(Comparator.comparingInt(Vec3i::getY));
-        while (blocksPlaced < shiftTicksConfig.get())
-        {
+        while (blocksPlaced < shiftTicks.get()) {
             if (blocksPlaced >= placements.size())
             {
                 break;
@@ -269,9 +261,9 @@ public class GenyoSelfTrap extends PlacerModule {
             placeBlock(targetPos, slot);
         }
 
-        if (rotateConfig.get())
+        if (rotate.get())
         {
-            Managers.ROTATION.setRotationSilentSync();
+            Rotation.get().setRotationSilentSync();
         }
     }
 
@@ -286,16 +278,17 @@ public class GenyoSelfTrap extends PlacerModule {
         }
     }
 
-    private void handlePackets(Packet<?> serverPacket) {
-        if (timingConfig.get() != Timing.SEQUENTIAL) return;
+    private void handlePackets(Packet<?> serverPacket)
+    {
+        if (timing.get() != Timing.SEQUENTIAL) return;
 
         if (serverPacket instanceof BlockUpdateS2CPacket packet)
         {
             final BlockState blockState = packet.getState();
             final BlockPos targetPos = packet.getPos();
-            if (surround.contains(targetPos))
+            if (trap.contains(targetPos))
             {
-                if (blockState.isReplaceable() && mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
+                if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
                 {
                     final int slot = getResistantBlockItem();
                     if (slot == -1)
@@ -311,15 +304,15 @@ public class GenyoSelfTrap extends PlacerModule {
             }
         }
 
-        if (blocksPlaced > shiftTicksConfig.get() * 2) // Give some leniency if we are getting place on
+        if (blocksPlaced > shiftTicks.get() * 2) // Give some leniency if we are getting place on
         {
             return;
         }
 
-        if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosionConfig.get())
+        if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosion.get())
         {
             BlockPos pos = BlockPos.ofFloored(packet.center().getX(), packet.center().getY(), packet.center().getZ());
-            if (surround.contains(pos))
+            if (trap.contains(pos))
             {
                 final int slot = getResistantBlockItem();
                 if (slot == -1)
@@ -331,9 +324,9 @@ public class GenyoSelfTrap extends PlacerModule {
         }
 
         if (serverPacket instanceof EntitySpawnS2CPacket packet
-            && packet.getEntityType().equals(EntityType.END_CRYSTAL) && prePlaceTickConfig.get())
+            && packet.getEntityType().equals(EntityType.END_CRYSTAL) && prePlaceTick.get())
         {
-            for (BlockPos pos : surround)
+            for (BlockPos pos : trap)
             {
                 if (!pos.equals(BlockPos.ofFloored(packet.getX(), packet.getY(), packet.getZ())))
                 {
@@ -353,13 +346,18 @@ public class GenyoSelfTrap extends PlacerModule {
 
     private void placeBlock(BlockPos pos, int slot)
     {
-        Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
-        {
-            if (rotateConfig.get() && state)
+        if (!buggy.get()) {
+            Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
             {
-                Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
-            }
-        });
+                if (rotate.get() && state) {
+                    Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
+                }
+            });
+        } else {
+            if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
+
+            BlockUtils.place(pos, InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 0, true);
+        }
         packets.put(pos, System.currentTimeMillis());
         blocksPlaced++;
     }
@@ -374,45 +372,102 @@ public class GenyoSelfTrap extends PlacerModule {
             {
                 continue;
             }
-            Managers.NETWORK.sendPacket(PlayerInteractEntityC2SPacket.attack(crystalEntity, mc.player.isSneaking()));
-            Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+            mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(crystalEntity, mc.player.isSneaking()));
+            mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
             return;
         }
     }
 
-    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround)
-    {
+    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround) {
         List<BlockPos> placements = new ArrayList<>();
         for (BlockPos surroundPos : surround)
         {
             Long placed = packets.get(surroundPos);
-            if (shiftDelayConfig.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelayConfig.get() * 50.0f)
-            {
+            if (shiftDelay.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelay.get() * 50.0f) {
                 continue;
             }
-            if (!mc.world.getBlockState(surroundPos).isReplaceable())
-            {
+            if (!mc.world.getBlockState(surroundPos).isReplaceable()) {
                 continue;
             }
             double dist = mc.player.squaredDistanceTo(surroundPos.toCenterPos());
-            if (dist > MathUtil.squared(placeRangeConfig.get()))
-            {
+            if (dist > MathUtil.squared(placeRange.get())) {
                 continue;
             }
-            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent()))
-            {
+
+            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent())) {
                 placements.add(surroundPos);
             }
         }
+
+
+        if (Modules.get().isActive(GenyoSurroundV2.class)) {
+            List<BlockPos> toRemove = new ArrayList<>();
+            for (BlockPos pos : placements) {
+                if (Modules.get().get(GenyoSurroundV2.class).isInPlacements(pos)) {
+                    toRemove.add(pos);
+                }
+            }
+
+            placements.removeAll(toRemove);
+        }
+
         return placements;
     }
 
-    public List<BlockPos> getSurround(BlockPos playerPos, PlayerEntity player)
+    public List<BlockPos> getSurround(PlayerEntity player)
+    {
+        List<BlockPos> surroundBlocks = getSurroundNoDown(player);
+        List<BlockPos> playerBlocks = getPlayerBlocks(player);
+        for (BlockPos playerPos : playerBlocks)
+        {
+            if (playerPos.equals(player.getBlockPos()))
+            {
+                continue;
+            }
+            surroundBlocks.add(playerPos.down());
+        }
+        if (mineExtend.get())
+        {
+            for (BlockPos surroundPos : new ArrayList<>(surroundBlocks))
+            {
+                if (!Managers.BLOCK.isPassed(surroundPos, 0.7f)) continue;
+
+                for (Direction direction : Direction.values()) {
+                    if (direction == Direction.DOWN) continue;
+
+                    BlockPos blockerPos = surroundPos.offset(direction);
+                    if (playerBlocks.contains(blockerPos)
+                        || Modules.get().get(GenyoAutoMine.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
+                    {
+                        continue;
+                    }
+                    surroundBlocks.add(blockerPos);
+                }
+            }
+        }
+
+        /*if (AirPlaceModule.getInstance().isEnabled() && head.get())
+        {
+            surroundBlocks.add(mc.player.getBlockPos().up(2));
+        }*/
+        return surroundBlocks;
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player)
+    {
+        return getSurroundNoDown(player, 0.0f);
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range)
     {
         List<BlockPos> surroundBlocks = new ArrayList<>();
-        List<BlockPos> playerBlocks = getPlayerBlocks(playerPos, player);
+        List<BlockPos> playerBlocks = getPlayerBlocks(player);
         for (BlockPos pos : playerBlocks)
         {
+            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range)
+            {
+                continue;
+            }
             for (Direction dir : Direction.values())
             {
                 if (!dir.getAxis().isHorizontal())
@@ -425,99 +480,26 @@ public class GenyoSelfTrap extends PlacerModule {
                     continue;
                 }
                 surroundBlocks.add(pos1);
-                surroundBlocks.add(pos1.up());
             }
         }
-        if (headConfig.get())
-        {
-            boolean support = false;
-            final List<BlockPos> headBlocks = new ArrayList<>();
-            for (BlockPos pos : playerBlocks)
-            {
-                BlockPos headPos = pos.offset(Direction.UP, 2);
-                if (!mc.world.getBlockState(headPos).isReplaceable())
-                {
-                    support = true;
-                }
-                headBlocks.add(headPos);
-            }
-            if (!Modules.get().isActive(AirPlace.class))
-            {
-                BlockPos supportingPos = null;
-                double min = Double.MAX_VALUE;
-                for (BlockPos pos : surroundBlocks)
-                {
-                    BlockPos pos1 = pos.offset(Direction.UP, 2);
-                    if (!mc.world.getBlockState(pos1).isReplaceable())
-                    {
-                        support = true;
-                        break;
-                    }
-                    double dist = mc.player.squaredDistanceTo(pos1.toCenterPos());
-                    if (dist < min)
-                    {
-                        supportingPos = pos1;
-                        min = dist;
-                    }
-                }
-                if (supportingPos != null && !support)
-                {
-                    surroundBlocks.add(supportingPos);
-                }
-            }
-            surroundBlocks.addAll(headBlocks);
-        }
-        for (BlockPos pos2 : playerBlocks)
-        {
-            if (pos2.equals(playerPos))
-            {
-                continue;
-            }
-            surroundBlocks.add(pos2.down());
-        }
-        if (mineExtendConfig.get())
-        {
-            for (BlockPos surroundPos : new ArrayList<>(surroundBlocks))
-            {
-                boolean secondLayer = surroundPos.getY() != playerPos.getY();
-                if (!headExtendConfig.get() && secondLayer)
-                {
-                    continue;
-                }
-                if (!Managers.BLOCK.isPassed(surroundPos, 0.7f))
-                {
-                    continue;
-                }
 
-                if (secondLayer && Managers.INTERACT.getInteractDirectionInternal(surroundPos,
-                    strictDirectionConfig.get()) == null)
-                {
-                    continue;
-                }
+        if (!surroundBlocks.isEmpty()) {
+            List<BlockPos> toAdd = new ArrayList<>();
+            surroundBlocks.forEach(pos -> {
+                toAdd.add(pos.up());
+            });
 
-                for (Direction direction : Direction.values())
-                {
-                    if (direction == Direction.DOWN || direction == Direction.UP && secondLayer)
-                    {
-                        continue;
-                    }
-                    BlockPos blockerPos = surroundPos.offset(direction);
-                    if (playerBlocks.contains(blockerPos)
-                        || Modules.get().get(GenyoAutoMine.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
-                    {
-                        continue;
-                    }
-                    surroundBlocks.add(blockerPos);
-                }
-            }
+            surroundBlocks.addAll(toAdd);
         }
+
         return surroundBlocks;
     }
 
-    public List<BlockPos> getPlayerBlocks(BlockPos playerPos, PlayerEntity entity)
+    public List<BlockPos> getPlayerBlocks(PlayerEntity entity)
     {
+        BlockPos playerPos = GPositionUtils.getRoundedBlockPos(entity.getX(), entity.getY(), entity.getZ());
         final List<BlockPos> playerBlocks = new ArrayList<>();
-        if (extendConfig.get())
+        if (extend.get())
         {
             playerBlocks.addAll(GPositionUtils.getAllInBox(entity.getBoundingBox(), playerPos));
         }
@@ -530,9 +512,13 @@ public class GenyoSelfTrap extends PlacerModule {
 
     @EventHandler
     public void onRender3D(Render3DEvent event) {
-        if (mc.player == null || mc.world == null) return;
+        if (mc.world == null && mc.player == null) return;
 
-        if (renderConfig.get())
+        /*if (SelfTrapModule.getInstance().isEnabled())
+        {
+            return;
+        }*/
+        if (render.get())
         {
             for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
             {
@@ -543,7 +529,7 @@ public class GenyoSelfTrap extends PlacerModule {
                 Color boxColor = color.get().a(boxAlpha);
                 Color lineColor = color.get().a(lineAlpha);
 
-                event.renderer.box(set.getKey(), boxColor, lineColor, ShapeMode.Both, 0);
+                event.renderer.box(BlockPos.ofFloored(set.getKey().toCenterPos()), boxColor, lineColor, ShapeMode.Both, 1);
             }
 
             if (placements.isEmpty())
@@ -553,7 +539,7 @@ public class GenyoSelfTrap extends PlacerModule {
 
             for (BlockPos pos : placements)
             {
-                Animation animation = new Animation(true, fadeTimeConfig.get());
+                Animation animation = new Animation(true, fadeTime.get());
                 fadeList.put(pos, animation);
             }
         }
@@ -572,4 +558,14 @@ public class GenyoSelfTrap extends PlacerModule {
         VANILLA,
         SEQUENTIAL
     }
+
+    public record BlockSlot(Block block, int slot)
+    {
+        @Override
+        public boolean equals(Object obj)
+        {
+            return obj instanceof BlockSlot b && b.block() == block;
+        }
+    }
+
 }

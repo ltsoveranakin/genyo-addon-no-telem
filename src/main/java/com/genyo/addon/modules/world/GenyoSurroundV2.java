@@ -535,6 +535,10 @@ public class GenyoSurroundV2 extends PlacerModule {
         return !placements.isEmpty();
     }
 
+    public boolean isInPlacements(BlockPos pos) {
+        return placements.contains(pos);
+    }
+
     public enum Timing
     {
         VANILLA,

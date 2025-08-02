@@ -96,6 +96,9 @@ public class GenyoAutoEZ extends GenyoModule {
     private int timer = 0;
 
     @Override
+    public void onDeactivate() { taggedPlayers.clear(); }
+
+    @Override
     public void onActivate() {
         taggedPlayers.clear();
     }

@@ -15,11 +15,11 @@ public class MathUtil {
         return (float) (angle * Math.PI / 180);
     }
 
-    public static int pickRandom(List list) {
+    public static int pickRandom(List<?> list) {
         if (list.size() == 1) return 0;
 
-        int num = r.nextInt(1, list.size());
-        return num-1;
+        int num = r.nextInt(0, list.size()-1);
+        return num;
     }
 
     public static float squared(float value) {

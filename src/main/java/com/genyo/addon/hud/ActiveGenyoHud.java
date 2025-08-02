@@ -1,6 +1,7 @@
 package com.genyo.addon.hud;
 
 import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.modules.GenyoModule;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -193,11 +194,7 @@ public class ActiveGenyoHud extends HudElement {
         modules.clear();
 
         for (Module module : Modules.get().getActive()) {
-            if (module.name.startsWith("genyo")
-                || module.name.startsWith("Genyo")
-                || module.name.startsWith("KFC")
-                || module.name.startsWith("angel"))
-                modules.add(module);
+            if (module instanceof GenyoModule) modules.add(module);
         }
 
         if (modules.isEmpty()) {

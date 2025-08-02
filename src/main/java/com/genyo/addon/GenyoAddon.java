@@ -111,6 +111,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoCriticals());
         modules.add(new GenyoGhostBlocks());
         modules.add(new GenyoSelfTrap());
+        modules.add(new CombatBrainrot());
     }
 
     private void initHUD(Hud hud) {
