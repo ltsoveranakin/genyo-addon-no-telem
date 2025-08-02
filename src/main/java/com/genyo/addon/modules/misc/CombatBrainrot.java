@@ -7,13 +7,19 @@ import com.genyo.addon.utils.math.MathUtil;
 import com.genyo.addon.utils.math.timer.CacheTimer;
 import com.genyo.addon.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.entity.player.AttackEntityEvent;
+import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringListSetting;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +41,7 @@ public class CombatBrainrot extends GenyoModule {
 
     private final Setting<Float> delay = sgGeneral.add(new FloatSetting.Builder()
         .name("Delay")
-        .description("to maybe not get kicked or smth idk (in milliseconds)")
+        .description("to maybe not get kicked or smth idk (in seconds)")
         .min(0.1f)
         .defaultValue(0.2f)
         .max(1f)
@@ -78,12 +84,23 @@ public class CombatBrainrot extends GenyoModule {
     }
 
     @EventHandler
-    public void onAttackEntity(AttackEntityEvent event) {
+    public void onPacketSend(PacketEvent.Send event) {
         if (mc.player == null || mc.world == null) return;
+        if (mc.getServer() == null) return;
 
-        if (!(event.entity instanceof EndCrystalEntity)) return;
+        if (event.packet instanceof PlayerInteractEntityC2SPacket packet) {
+            Entity entity = packet.getEntity(mc.getServer().getWorld(mc.player.getWorld().getRegistryKey()));
+            if (entity == null) return;
 
+            if (entity instanceof EndCrystalEntity) {
+                queueNext();
+            }
+        }
+    }
+
+    private void queueNext() {
         queue.add(brainrots.get().get(MathUtil.pickRandom(brainrots.get())));
+        timer.reset();
     }
 
 }

@@ -1,11 +1,22 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.guardsquare:proguard-gradle:7.4.2"
+    }
+}
+
 plugins {
+    id 'base'
     id "fabric-loom" version "1.10-SNAPSHOT"
 }
 
+version = project.mod_version
+group = project.maven_group
+
 base {
-    archivesBaseName = project.archives_base_name
-    version = project.mod_version
-    group = project.maven_group
+    archivesName.set(project.archives_base_name)
 }
 
 loom {
@@ -13,6 +24,7 @@ loom {
 }
 
 repositories {
+    mavenCentral()
     maven {
         name = "Meteor Dev Releases"
         url = "https://maven.meteordev.org/releases"
@@ -46,9 +58,14 @@ tasks {
     }
 
     jar {
+        archiveClassifier.set('dev')
         from("LICENSE") {
-            rename { "${it}_${project.base.archivesBaseName}" }
+            rename { "${it}_${archiveBaseName.get()}" }
         }
+    }
+
+    remapJar {
+        archiveClassifier.set('reobf') // my-mod-1.0.0-reobf.jar
     }
 
     java {
@@ -60,4 +77,23 @@ tasks {
         it.options.encoding = "UTF-8"
         it.options.release = 21
     }
+}
+
+import net.fabricmc.loom.task.RemapJarTask
+import proguard.gradle.ProGuardTask
+
+tasks.register("proguardObf", ProGuardTask) { ProGuardTask t ->
+    description = "Obfuscate and shrink the reobf JAR"
+
+    dependsOn "remapJar"
+    def reobfJar = file("$buildDir/libs/${archivesBaseName}-${version}-reobf.jar")
+    inputs.file reobfJar
+    injars    reobfJar
+    outjars   file("$buildDir/libs/${archivesBaseName}-${version}-obf.jar")
+    libraryjars files(configurations.modImplementation)  // only your Meteor Client + other libs
+    configuration "proguard-rules.pro"
+}
+
+tasks.build {
+    dependsOn "proguardObf"
 }

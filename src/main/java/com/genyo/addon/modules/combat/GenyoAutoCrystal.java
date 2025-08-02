@@ -731,8 +731,6 @@ public class GenyoAutoCrystal extends GenyoModule {
                 EndCrystalEntity crystalEntity = intersectingCrystalCheck(placeCrystal.getDamageData());
                 if (crystalEntity != null)
                 {
-                    GenyoAddon.LOG.info("fewkjkfewf");
-
                     double self = ExplosionUtil.getDamageTo(mc.player, crystalEntity.getPos(),
                         blockDestruction.get(), selfExtrapolate.get() ? extrapolateTicks.get() : 0, false);
                     if (!safety.get() || !playerDamageCheck(self))
