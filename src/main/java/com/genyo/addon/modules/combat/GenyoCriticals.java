@@ -4,6 +4,7 @@ import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
 import com.genyo.addon.modules.world.GenyoAutoMine;
+import com.genyo.addon.modules.world.GenyoSelfTrap;
 import com.genyo.addon.modules.world.GenyoSurroundV2;
 import com.genyo.addon.utils.GEntityUtils;
 import com.genyo.addon.utils.math.GPositionUtils;
