@@ -46,7 +46,7 @@ import java.util.*;
 public class GenyoSelfTrap extends PlacerModule {
 
     public GenyoSelfTrap() {
-        super(GenyoAddon.GENYO, "Genyo SelfTrap V2", "a funny one for sure.");
+        super(GenyoAddon.GENYO, "Genyo SelfTrap", "a funny one for sure.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
