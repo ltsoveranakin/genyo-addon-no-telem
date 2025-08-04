@@ -1,6 +1,7 @@
 package com.genyo.addon;
 
 import com.genyo.addon.hud.ActiveGenyoHud;
+import com.genyo.addon.hud.PacketsHud;
 import com.genyo.addon.modules.combat.*;
 import com.genyo.addon.modules.misc.*;
 import com.genyo.addon.modules.movement.GenyoVelocity;
@@ -96,7 +97,6 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoWelcome());
         modules.add(new GenyoSkinBlink());
         modules.add(new GenyoGoodbye());
-        modules.add(new GenyoAutoMine());
         modules.add(new GenyoSurroundV2());
         modules.add(new GenyoAutoCrystal());
         modules.add(new GenyoDiscord());
@@ -112,12 +112,15 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoGhostBlocks());
         modules.add(new GenyoSelfTrap());
         modules.add(new CombatBrainrot());
+        modules.add(new PacketDebug());
+        modules.add(new GenyoAutoMine());
     }
 
     private void initHUD(Hud hud) {
         hud.register(PvPNeccessaryHud.INFO);
         hud.register(InCombatHud.INFO);
         hud.register(ActiveGenyoHud.INFO);
+        hud.register(PacketsHud.INFO);
     }
 
     @Override

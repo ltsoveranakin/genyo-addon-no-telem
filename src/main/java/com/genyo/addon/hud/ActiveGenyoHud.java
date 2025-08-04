@@ -40,7 +40,7 @@ public class ActiveGenyoHud extends HudElement {
     private final Setting<Boolean> showKeybind = sgGeneral.add(new BoolSetting.Builder()
         .name("show-keybind")
         .description("Shows the module's keybind next to its name.")
-        .defaultValue(false)
+        .defaultValue(true)
         .build()
     );
 

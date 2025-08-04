@@ -4,11 +4,15 @@ import com.genyo.addon.GenyoAddon;
 import com.genyo.addon.events.AttackBlockEvent;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.modules.GenyoModule;
+import com.genyo.addon.modules.combat.GenyoAutoCrystal;
 import com.genyo.addon.render.animation.Animation;
 import com.genyo.addon.settings.FloatSetting;
 import com.genyo.addon.utils.GEntityUtils;
 import com.genyo.addon.utils.math.GPositionUtils;
 import com.genyo.addon.utils.math.MathUtil;
+import com.genyo.addon.utils.math.timer.CacheTimer;
+import com.genyo.addon.utils.math.timer.Timer;
+import com.genyo.addon.utils.player.RotationUtil;
 import com.genyo.addon.utils.render.ColorUtil;
 import com.genyo.addon.utils.world.BlastResistantBlocks;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
@@ -18,16 +22,14 @@ import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
@@ -38,22 +40,24 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class GenyoAutoMine extends GenyoModule {
 
     public GenyoAutoMine() {
-        super(GenyoAddon.GENYO, "genyo-auto-mine", "dábül");
+        super(GenyoAddon.GENYO, "Genyo AutoMine", "fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgSelection = settings.createGroup("Selection");
+    private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<Boolean> multitask = sgGeneral.add(new BoolSetting.Builder()
         .name("Allow Multitask")
         .description("Allows actions while using items")
-        .defaultValue(false)
+        .defaultValue(true)
         .build()
     );
 
@@ -112,14 +116,14 @@ public class GenyoAutoMine extends GenyoModule {
         .build()
     );
 
-    private final Setting<Boolean> antiCrawl = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> antiCrawl = sgSelection.add(new BoolSetting.Builder()
         .name("Anti Crawl")
         .description("Attempts to stop player from crawling")
         .defaultValue(false)
         .build()
     );
 
-    private final Setting<Boolean> head = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> head = sgSelection.add(new BoolSetting.Builder()
         .name("Target Body")
         .description("Attempts to mine players face blocks")
         .defaultValue(false)
@@ -127,7 +131,7 @@ public class GenyoAutoMine extends GenyoModule {
         .build()
     );
 
-    private final Setting<Boolean> aboveHead = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> aboveHead = sgSelection.add(new BoolSetting.Builder()
         .name("Target Head")
         .description("Attempts to mine above players head")
         .defaultValue(false)
@@ -138,7 +142,7 @@ public class GenyoAutoMine extends GenyoModule {
     private final Setting<Boolean> doubleBreak = sgGeneral.add(new BoolSetting.Builder()
         .name("Double Break")
         .description("Allows you to mine two blocks at once")
-        .defaultValue(false)
+        .defaultValue(true)
         .build()
     );
 
@@ -155,14 +159,14 @@ public class GenyoAutoMine extends GenyoModule {
     private final Setting<RemineMode> remine = sgGeneral.add(new EnumSetting.Builder<RemineMode>()
         .name("Remine")
         .description("Remines already mined blocks")
-        .defaultValue(RemineMode.NORMAL)
+        .defaultValue(RemineMode.INSTANT)
         .build()
     );
 
     private final Setting<Boolean> packetInstant = sgGeneral.add(new BoolSetting.Builder()
         .name("Fast")
         .description("Instant mines on packet")
-        .defaultValue(false)
+        .defaultValue(true)
         .visible(() -> remine.get() == RemineMode.INSTANT)
         .build()
     );
@@ -171,14 +175,14 @@ public class GenyoAutoMine extends GenyoModule {
         .name("Range")
         .description("The range to mine blocks")
         .min(0.1f)
-        .defaultValue(4.0f)
+        .defaultValue(6.0f)
         .max(6.0f)
         .build()
     );
 
     private final Setting<Float> speed = sgGeneral.add(new FloatSetting.Builder()
         .name("Speed")
-        .description("The speed to mine blocks")
+        .description("The speed to mine blocks (idk what the fuck this is)")
         .min(0.1f)
         .defaultValue(1.0f)
         .max(1.0f)
@@ -197,6 +201,13 @@ public class GenyoAutoMine extends GenyoModule {
         .description("Swaps before fully done mining")
         .defaultValue(false)
         .visible(() -> swap.get() != Swap.OFF)
+        .build()
+    );
+
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
+        .name("Rotate")
+        .description("yes")
+        .defaultValue(true)
         .build()
     );
 
@@ -229,28 +240,30 @@ public class GenyoAutoMine extends GenyoModule {
         .build()
     );
 
-    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
-        .name("Mine Color")
-        .description("The mine render color")
-        .defaultValue(new SettingColor(255, 0, 0, 45))
-        .build()
-    );
+    // Render
 
-    private final Setting<SettingColor> colorDone = sgGeneral.add(new ColorSetting.Builder()
-        .name("Done Color")
-        .description("The done render color")
-        .defaultValue(new SettingColor(0, 255, 0, 45))
-        .build()
-    );
-
-    private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder()
         .name("Render")
         .description("wa")
         .defaultValue(true)
         .build()
     );
 
-    private final Setting<Integer> fadeTime = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<SettingColor> mineColor = sgRender.add(new ColorSetting.Builder()
+        .name("Mine Color")
+        .description("The mine render color")
+        .defaultValue(new SettingColor(255, 0, 0, 255))
+        .build()
+    );
+
+    private final Setting<SettingColor> colorDone = sgRender.add(new ColorSetting.Builder()
+        .name("Done Color")
+        .description("The done render color")
+        .defaultValue(new SettingColor(0, 255, 0, 255))
+        .build()
+    );
+
+    private final Setting<Integer> fadeTime = sgRender.add(new IntSetting.Builder()
         .name("Fade Time")
         .description("Time to fade")
         .min(0)
@@ -260,11 +273,10 @@ public class GenyoAutoMine extends GenyoModule {
         .build()
     );
 
-    private final Setting<Boolean> smoothColor = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> smoothColor = sgRender.add(new BoolSetting.Builder()
         .name("Smooth Color")
         .description("Interpolates from start to done color")
         .defaultValue(false)
-        .visible(() -> false) // ??????????
         .build()
     );
 
@@ -272,7 +284,7 @@ public class GenyoAutoMine extends GenyoModule {
     private MineData packetMine, instantMine; // mining2 should always be the instant mine
     private boolean packetSwapBack;
     private boolean manualOverride;
-    private int remineTimer = 0; // TODO: tick timer
+    private final Timer remineTimer = new CacheTimer();
 
     private boolean changedInstantMine;
     private boolean waitForPacketMine;
@@ -284,71 +296,85 @@ public class GenyoAutoMine extends GenyoModule {
     private final Queue<MineData> autoMineQueue = new ArrayDeque<>();
     private int autoMineTickDelay;
 
-    private MineAnimation packetMineAnim = new MineAnimation(MineData.empty(), new Animation(true, 200));
-    private MineAnimation instantMineAnim = new MineAnimation(MineData.empty(), new Animation(true, 200));
+    private MineAnimation packetMineAnim = new MineAnimation(
+        MineData.empty(), new Animation(true, 200));
+    private MineAnimation instantMineAnim = new MineAnimation(
+        MineData.empty(), new Animation(true, 200));
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         autoMineQueue.clear();
         playerTarget = null;
         packetMine = null;
-
-        if (instantMine != null) {
+        if (instantMine != null)
+        {
             abortMining(instantMine);
             instantMine = null;
         }
-
         packetMineAnim = new MineAnimation(MineData.empty(), new Animation(true, 200));
         instantMineAnim = new MineAnimation(MineData.empty(), new Animation(true, 200));
-
         autoMineTickDelay = 0;
         antiCrawlTicks = 0;
         manualOverride = false;
         antiCrawlOverride = false;
         waitForPacketMine = false;
         packetMineStuck = false;
-        if (packetSwapBack) {
+        if (packetSwapBack)
+        {
             Managers.INVENTORY.syncToClient();
             packetSwapBack = false;
         }
     }
 
     @EventHandler
-    public void onTick(TickEvent.Pre event) {
-        if (mc.player == null) return;
-        if (mc.player.isCreative() || mc.player.isSpectator()) return;
+    public void onTick(TickEvent.Pre event)
+    {
+        if (mc.player.isCreative() || mc.player.isSpectator())
+        {
+            return;
+        }
 
-        remineTimer++;
-
-        PlayerEntity currentTarget = getClosestPlayer((double) enemyRange.get());
+        PlayerEntity currentTarget = getClosestPlayer(enemyRange.get());
         boolean targetChanged = playerTarget != null && playerTarget != currentTarget;
         playerTarget = currentTarget;
 
-        if (isInstantMineComplete()) {
-            if (changedInstantMine) changedInstantMine = false;
-            if (waitForPacketMine) waitForPacketMine = false;
+        if (isInstantMineComplete())
+        {
+            if (changedInstantMine)
+            {
+                changedInstantMine = false;
+            }
+            if (waitForPacketMine)
+            {
+                waitForPacketMine = false;
+            }
         }
 
         autoMineTickDelay--;
         antiCrawlTicks--;
 
         // Mining packet handling
-        if (packetMine != null && packetMine.getTicksMining() > mineTicks.get()) {
+        if (packetMine != null && packetMine.getTicksMining() > mineTicks.get())
+        {
             packetMineStuck = true;
             packetMineAnim.animation.setState(false);
-            if (packetSwapBack) {
+            if (packetSwapBack)
+            {
                 Managers.INVENTORY.syncToClient();
                 packetSwapBack = false;
             }
             packetMine = null;
-            if (!isInstantMineComplete()) {
+            if (!isInstantMineComplete())
+            {
                 waitForPacketMine = true;
             }
         }
 
-        if (packetMine != null) {
-            final float damageDelta = mc.world.getBlockState(packetMine.getPos()).calcBlockBreakingDelta(mc.player, mc.world, packetMine.getPos());
-
+        if (packetMine != null)
+        {
+            final float damageDelta = Modules.get().get(GenyoSpeedmine.class).calcBlockBreakingDelta(
+                packetMine.getState(), mc.world, packetMine.getPos());
             packetMine.addBlockDamage(damageDelta);
 
             int slot = packetMine.getBestSlot();
@@ -356,8 +382,7 @@ public class GenyoAutoMine extends GenyoModule {
                 || packetMineStuck ? damageDelta : 0.0f);
             if (damageDone >= 1.0f && slot != -1  && !checkMultitask())
             {
-                //Managers.INVENTORY.setSlot(slot);
-                InvUtils.move().slot(slot);
+                Managers.INVENTORY.setSlot(slot);
                 packetSwapBack = true;
                 if (packetMineStuck)
                 {
@@ -388,30 +413,39 @@ public class GenyoAutoMine extends GenyoModule {
         if (instantMine != null)
         {
             final double distance = mc.player.getEyePos().squaredDistanceTo(instantMine.getPos().toCenterPos());
-            if (distance > MathUtil.squared(range.get()) || instantMine.getTicksMining() > mineTicks.get()) {
+            if (distance > MathUtil.squared(range.get())
+                || instantMine.getTicksMining() > mineTicks.get())
+            {
                 abortMining(instantMine);
                 instantMineAnim.animation.setState(false);
                 instantMine = null;
             }
         }
 
-        if (instantMine != null) {
-            final float damageDelta = mc.world.getBlockState(instantMine.getPos()).calcBlockBreakingDelta(mc.player, mc.world, instantMine.getPos());
-
+        if (instantMine != null)
+        {
+            final float damageDelta = Modules.get().get(GenyoSpeedmine.class).calcBlockBreakingDelta(
+                instantMine.getState(), mc.world, instantMine.getPos());
             instantMine.addBlockDamage(damageDelta);
 
-            if (instantMine.getBlockDamage() >= speed.get()) {
+            if (instantMine.getBlockDamage() >= speed.get())
+            {
                 boolean canMine = canMine(instantMine.getState());
                 boolean canPlace = mc.world.canPlace(instantMine.getState(), instantMine.getPos(), ShapeContext.absent());
-                if (canMine) {
+                if (canMine)
+                {
                     instantMine.markAttemptedMine();
-                } else {
+                }
+                else
+                {
                     instantMine.resetMiningTicks();
-                    if (remine.get() == RemineMode.NORMAL || remine.get() == RemineMode.FAST) {
+                    if (remine.get() == RemineMode.NORMAL || remine.get() == RemineMode.FAST)
+                    {
                         instantMine.setTotalBlockDamage(0.0f, 0.0f);
                     }
 
-                    if (manualOverride) {
+                    if (manualOverride)
+                    {
                         manualOverride = false;
                         // Clear our old manual mine
                         abortMining(instantMine);
@@ -420,16 +454,22 @@ public class GenyoAutoMine extends GenyoModule {
                     }
                 }
 
-                boolean passedRemine = remine.get() == RemineMode.INSTANT || (remineTimer >= 500);
-
+                boolean passedRemine = remine.get() == RemineMode.INSTANT || remineTimer.passed(500);
                 if (instantMine != null && (remine.get() == RemineMode.INSTANT
                     && packetInstant.get() && packetMine == null && canPlace || canMine && passedRemine)
                     && (!checkMultitask() || multitask.get() || swap.get() == Swap.OFF))
                 {
                     stopMining(instantMine);
-                    remineTimer = 0;
+                    remineTimer.reset();
 
-                    if (remine.get() == RemineMode.FAST) {
+                    if (Modules.get().isActive(GenyoAutoCrystal.class)
+                        && Modules.get().get(GenyoAutoCrystal.class).shouldPreForcePlace())
+                    {
+                        Modules.get().get(GenyoAutoCrystal.class).placeCrystalForTarget(playerTarget, instantMine.getPos().down());
+                    }
+
+                    if (remine.get() == RemineMode.FAST)
+                    {
                         startMining(instantMine);
                     }
                 }
@@ -437,31 +477,33 @@ public class GenyoAutoMine extends GenyoModule {
         }
 
         // Clear overrides
-        if (manualOverride && (instantMine == null || instantMine.getGoal() != MiningGoal.MANUAL)) {
+        if (manualOverride && (instantMine == null || instantMine.getGoal() != MiningGoal.MANUAL))
+        {
             manualOverride = false;
         }
 
-        if (antiCrawlOverride && (instantMine == null || instantMine.getGoal() != MiningGoal.PREVENT_CRAWL)) {
+        if (antiCrawlOverride && (instantMine == null || instantMine.getGoal() != MiningGoal.PREVENT_CRAWL))
+        {
             antiCrawlOverride = false;
         }
 
-        if (auto.get()) {
-            if (!autoMineQueue.isEmpty() && autoMineTickDelay <= 0) {
+        if (auto.get())
+        {
+            if (!autoMineQueue.isEmpty() && autoMineTickDelay <= 0)
+            {
                 MineData nextMine = autoMineQueue.poll();
-                if (nextMine != null) {
-                    startMining(nextMine);
-                    autoMineTickDelay = 5;
-
-                    nextMine = autoMineQueue.poll();
-                    if (nextMine == null) return;
+                if (nextMine != null)
+                {
                     startMining(nextMine);
                     autoMineTickDelay = 5;
                 }
             }
 
             BlockPos antiCrawlPos = getAntiCrawlPos(playerTarget);
-            if (antiCrawlOverride) {
-                if (mc.player.getPose().equals(EntityPose.SWIMMING)) {
+            if (antiCrawlOverride)
+            {
+                if (mc.player.getPose().equals(EntityPose.SWIMMING))
+                {
                     antiCrawlTicks = 10;
                 }
 
@@ -472,25 +514,33 @@ public class GenyoAutoMine extends GenyoModule {
                 }
             }
 
-            if (autoMineQueue.isEmpty() && !manualOverride && !antiCrawlOverride) {
+            if (autoMineQueue.isEmpty() && !manualOverride && !antiCrawlOverride)
+            {
                 if (antiCrawl.get() && mc.player.getPose().equals(EntityPose.SWIMMING) && antiCrawlPos != null)
                 {
                     MineData data = new MineData(antiCrawlPos, strictDirection.get() ?
-                        mc.player.getHorizontalFacing() : Direction.UP, MiningGoal.PREVENT_CRAWL);
+                        Managers.INTERACT.getInteractDirection(antiCrawlPos, false) : Direction.UP, MiningGoal.PREVENT_CRAWL);
                     if (isInstantMineComplete() || !instantMine.equals(data))
                     {
                         startAutoMine(data);
                         antiCrawlOverride = true;
                     }
-                } else if (playerTarget != null && !targetChanged) {
+                }
+
+                else if (playerTarget != null && !targetChanged)
+                {
                     BlockPos targetPos = GEntityUtils.getRoundedBlockPos(playerTarget);
                     boolean bedrockPhased = GPositionUtils.isBedrock(playerTarget.getBoundingBox(), targetPos) && !playerTarget.isCrawling();
 
-                    if (!isInstantMineComplete() && checkDataY(instantMine, targetPos, bedrockPhased)) {
+                    if (!isInstantMineComplete() && checkDataY(instantMine, targetPos, bedrockPhased))
+                    {
                         abortMining(instantMine);
                         instantMineAnim.animation.setState(false);
                         instantMine = null;
-                    } else if (packetMine != null && checkDataY(packetMine, targetPos, bedrockPhased)) {
+                    }
+
+                    else if (packetMine != null && checkDataY(packetMine, targetPos, bedrockPhased))
+                    {
                         packetMineAnim.animation.setState(false);
                         if (packetSwapBack)
                         {
@@ -499,17 +549,21 @@ public class GenyoAutoMine extends GenyoModule {
                         }
                         packetMine = null;
                         waitForPacketMine = false;
-                    } else {
+                    }
+
+                    else
+                    {
                         List<BlockPos> phasedBlocks = getPhaseBlocks(playerTarget, targetPos, bedrockPhased);
 
                         MineData bestMine;
                         if (!phasedBlocks.isEmpty())
                         {
                             BlockPos pos1 = phasedBlocks.removeFirst();
-                            GenyoAddon.LOG.info(phasedBlocks.toString());
-                            bestMine = new MineData(pos1, strictDirection.get() ? mc.player.getHorizontalFacing() : Direction.UP);
+                            bestMine = new MineData(pos1, strictDirection.get() ?
+                                Managers.INTERACT.getInteractDirection(pos1, false) : Direction.UP);
 
-                            if (packetMine == null && doubleBreak.get() || isInstantMineComplete()) {
+                            if (packetMine == null && doubleBreak.get() || isInstantMineComplete())
+                            {
                                 startAutoMine(bestMine);
                             }
                         }
@@ -526,16 +580,22 @@ public class GenyoAutoMine extends GenyoModule {
                             }
                         }
                     }
-                } else {
-                    if (!isInstantMineComplete() && instantMine.getGoal() == MiningGoal.MINING_ENEMY) {
+                }
+
+                else
+                {
+                    if (!isInstantMineComplete() && instantMine.getGoal() == MiningGoal.MINING_ENEMY)
+                    {
                         abortMining(instantMine);
                         instantMineAnim.animation.setState(false);
                         instantMine = null;
                     }
 
-                    if (packetMine != null && packetMine.getGoal() == MiningGoal.MINING_ENEMY) {
+                    if (packetMine != null && packetMine.getGoal() == MiningGoal.MINING_ENEMY)
+                    {
                         packetMineAnim.animation.setState(false);
-                        if (packetSwapBack) {
+                        if (packetSwapBack)
+                        {
                             Managers.INVENTORY.syncToClient();
                             packetSwapBack = false;
                         }
@@ -548,16 +608,20 @@ public class GenyoAutoMine extends GenyoModule {
     }
 
     @EventHandler
-    public void onAttackBlock(AttackBlockEvent event) {
-        if (mc.player == null && mc.world == null) return;
-        if (mc.player.isCreative() || mc.player.isSpectator()) return;
-
-        if (event.state.getBlock() == null) return;
+    public void onAttackBlock(AttackBlockEvent event)
+    {
+        if (mc.player.isCreative() || mc.player.isSpectator())
+        {
+            return;
+        }
 
         event.cancel();
 
         // Do not try to break unbreakable blocks
-        if (event.state.getBlock().getHardness() == -1.0f || !canMine(event.state) || isMining(event.pos)) return;
+        if (event.state.getBlock().getHardness() == -1.0f || !canMine(event.state) || isMining(event.pos))
+        {
+            return;
+        }
 
         MineData data = new MineData(event.pos, event.direction, MiningGoal.MANUAL);
 
@@ -567,7 +631,8 @@ public class GenyoAutoMine extends GenyoModule {
             manualOverride = true;
         }
 
-        if (!doubleBreak.get()) {
+        if (!doubleBreak.get())
+        {
             instantMine = data;
             startMining(instantMine);
             mc.player.swingHand(Hand.MAIN_HAND, false);
@@ -575,12 +640,16 @@ public class GenyoAutoMine extends GenyoModule {
         }
 
         boolean updateChanged = false;
-        if (!isInstantMineComplete() && !changedInstantMine) {
-            if (packetMine == null) {
+        if (!isInstantMineComplete() && !changedInstantMine)
+        {
+            if (packetMine == null)
+            {
                 packetMine = instantMine.copy();
                 packetMineAnim = new MineAnimation(packetMine,
                     new Animation(true, fadeTime.get()));
-            } else {
+            }
+            else
+            {
                 updateChanged = true;
             }
         }
@@ -588,43 +657,63 @@ public class GenyoAutoMine extends GenyoModule {
         instantMine = data;
         startMining(instantMine);
         mc.player.swingHand(Hand.MAIN_HAND, false);
-        if (updateChanged) changedInstantMine = true;
+        if (updateChanged)
+        {
+            changedInstantMine = true;
+        }
     }
 
     @EventHandler
-    public void onPacketSent(PacketEvent.Sent event) {
-        if (event.packet instanceof UpdateSelectedSlotC2SPacket && switchReset.get() && instantMine != null) {
+    public void onPacketSend(PacketEvent.Send event)
+    {
+        if (event.packet instanceof UpdateSelectedSlotC2SPacket && switchReset.get() && instantMine != null)
+        {
             instantMine.setTotalBlockDamage(0.0f, 0.0f);
         }
     }
 
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.packet instanceof BlockUpdateS2CPacket packet && canMine(packet.getState())) {
-            if (antiCrawlOverride && packet.getPos().equals(getAntiCrawlPos(playerTarget))) {
+    public void onPacketReceive(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof BlockUpdateS2CPacket packet && canMine(packet.getState()))
+        {
+            if (antiCrawlOverride && packet.getPos().equals(getAntiCrawlPos(playerTarget)))
+            {
                 antiCrawlTicks = 10;
             }
         }
     }
 
-    public void startAutoMine(MineData data) {
-        if (!canMine(data.getState()) || isMining(data.getPos())) return;
+    public void startAutoMine(MineData data)
+    {
+        if (!canMine(data.getState()) || isMining(data.getPos()))
+        {
+            return;
+        }
 
-        if (!doubleBreak.get()) {
+        if (!doubleBreak.get())
+        {
             instantMine = data;
             autoMineQueue.offer(data);
             return;
         }
 
-        if (changedInstantMine && !isInstantMineComplete() || waitForPacketMine) return;
+        if (changedInstantMine && !isInstantMineComplete() || waitForPacketMine)
+        {
+            return;
+        }
 
         boolean updateChanged = false;
-        if (!isInstantMineComplete() && !changedInstantMine) {
-            if (packetMine == null) {
+        if (!isInstantMineComplete() && !changedInstantMine)
+        {
+            if (packetMine == null)
+            {
                 packetMine = instantMine.copy();
                 packetMineAnim = new MineAnimation(packetMine,
                     new Animation(true, fadeTime.get()));
-            } else {
+            }
+            else
+            {
                 updateChanged = true;
             }
         }
@@ -632,14 +721,17 @@ public class GenyoAutoMine extends GenyoModule {
         instantMine = data;
         autoMineQueue.offer(data);
 
-        if (updateChanged) {
+        if (updateChanged)
+        {
             changedInstantMine = true;
         }
     }
 
-    public MineData getInstantMine(List<BlockPos> miningBlocks, boolean bedrockPhased) {
+    public MineData getInstantMine(List<BlockPos> miningBlocks, boolean bedrockPhased)
+    {
         PriorityQueue<MineData> validInstantMines = new PriorityQueue<>();
-        for (BlockPos blockPos : miningBlocks) {
+        for (BlockPos blockPos : miningBlocks)
+        {
             BlockState state1 = mc.world.getBlockState(blockPos);
             if (!isAutoMineBlock(state1.getBlock())) // bedrock mine exploit!!
             {
@@ -647,17 +739,25 @@ public class GenyoAutoMine extends GenyoModule {
             }
 
             double dist = mc.player.getEyePos().squaredDistanceTo(blockPos.toCenterPos());
-            if (dist > MathUtil.squared(range.get())) continue;
+            if (dist > MathUtil.squared(range.get()))
+            {
+                continue;
+            }
 
             BlockState state2 = mc.world.getBlockState(blockPos.down());
-            if (bedrockPhased || state2.isOf(Blocks.OBSIDIAN) || state2.isOf(Blocks.BEDROCK)) {
-                Direction direction = strictDirection.get() ? mc.player.getHorizontalFacing() : Direction.UP;
+            if (bedrockPhased || state2.isOf(Blocks.OBSIDIAN) || state2.isOf(Blocks.BEDROCK))
+            {
+                Direction direction = strictDirection.get() ?
+                    Managers.INTERACT.getInteractDirection(blockPos, false) : Direction.UP;
 
                 validInstantMines.add(new MineData(blockPos, direction));
             }
         }
 
-        if (validInstantMines.isEmpty()) return null;
+        if (validInstantMines.isEmpty())
+        {
+            return null;
+        }
 
         return validInstantMines.peek();
     }
@@ -667,17 +767,27 @@ public class GenyoAutoMine extends GenyoModule {
         List<BlockPos> phaseBlocks = GPositionUtils.getAllInBox(player.getBoundingBox(),
             targetBedrockPhased && head.get() ? playerPos.up() : playerPos);
 
-        phaseBlocks.removeIf(p -> {
+        phaseBlocks.removeIf(p ->
+        {
             BlockState state = mc.world.getBlockState(p);
-            if (!isAutoMineBlock(state.getBlock()) || !canMine(state) || isMining(p)) return true;
+            if (!isAutoMineBlock(state.getBlock()) || !canMine(state) || isMining(p))
+            {
+                return true;
+            }
 
             double dist = mc.player.getEyePos().squaredDistanceTo(p.toCenterPos());
-            if (dist > MathUtil.squared(range.get())) return true;
+            if (dist > MathUtil.squared(range.get()))
+            {
+                return true;
+            }
 
             return avoidSelf.get() && intersectsPlayer(p);
         });
 
-        if (targetBedrockPhased && aboveHead.get()) phaseBlocks.add(playerPos.up(2));
+        if (targetBedrockPhased && aboveHead.get())
+        {
+            phaseBlocks.add(playerPos.up(2));
+        }
 
         return phaseBlocks;
     }
@@ -689,12 +799,13 @@ public class GenyoAutoMine extends GenyoModule {
      */
     public List<BlockPos> getMiningBlocks(PlayerEntity player, BlockPos playerPos, boolean bedrockPhased)
     {
-        List<BlockPos> surroundingBlocks = Modules.get().get(GenyoSurround.class).getSurroundNoDown(player, range.get());
+        List<BlockPos> surroundingBlocks = Modules.get().get(GenyoSurroundV2.class).getSurroundNoDown(player, range.get());
         List<BlockPos> miningBlocks;
         if (bedrockPhased)
         {
             List<BlockPos> facePlaceBlocks = new ArrayList<>();
-            if (head.get()) {
+            if (head.get())
+            {
                 facePlaceBlocks.addAll(surroundingBlocks.stream().map(BlockPos::up).toList());
             }
 
@@ -749,28 +860,36 @@ public class GenyoAutoMine extends GenyoModule {
 
     private boolean intersectsPlayer(BlockPos pos)
     {
-        List<BlockPos> playerBlocks = Modules.get().get(GenyoSurround.class).getPlayerBlocks(mc.player);
-        List<BlockPos> surroundingBlocks = Modules.get().get(GenyoSurround.class).getSurroundNoDown(mc.player);
+        List<BlockPos> playerBlocks = Modules.get().get(GenyoSurroundV2.class).getPlayerBlocks(mc.player);
+        List<BlockPos> surroundingBlocks = Modules.get().get(GenyoSurroundV2.class).getSurroundNoDown(mc.player);
         return playerBlocks.contains(pos) || surroundingBlocks.contains(pos);
     }
 
     @EventHandler
-    public void onRender3D(Render3DEvent event) {
-        if (mc.player == null && mc.world == null) return;
-        if (mc.player.isCreative() || mc.player.isSpectator()) return;
+    public void onRender3D(Render3DEvent event)
+    {
+        if (mc.player.isCreative() || mc.player.isSpectator())
+        {
+            return;
+        }
+
+        if (!render.get()) return;
 
         if (instantMineAnim != null && instantMineAnim.animation().getFactor() > 0.01f)
         {
-            renderMiningData(event.matrices, event.tickDelta, instantMineAnim, true, event.renderer);
+            renderMiningData(event.renderer, event.tickDelta,
+                instantMineAnim, true);
         }
 
         if (doubleBreak.get() && packetMineAnim != null && packetMineAnim.animation().getFactor() > 0.01f)
         {
-            renderMiningData(event.matrices, event.tickDelta, packetMineAnim, false, event.renderer);
+            renderMiningData(event.renderer, event.tickDelta,
+                packetMineAnim, false);
         }
     }
 
-    public void renderMiningData(MatrixStack matrixStack, float tickDelta, MineAnimation mineAnimation, boolean instantMine, Renderer3D renderer)
+    public void renderMiningData(Renderer3D renderer, float tickDelta,
+                                 MineAnimation mineAnimation, boolean instantMine)
     {
         MineData data = mineAnimation.data();
         Animation animation = mineAnimation.animation();
@@ -779,18 +898,23 @@ public class GenyoAutoMine extends GenyoModule {
 
         Color boxColor;
         Color lineColor;
-        if (smoothColor.get()) {
-            boxColor = !canMine(data.getState()) ? colorDone.get() : ColorUtil.interpolateColor(Math.min(data.getBlockDamage(), 1.0f), colorDone.get(), color.get());
-            lineColor = !canMine(data.getState()) ? colorDone.get() : ColorUtil.interpolateColor(Math.min(data.getBlockDamage(), 1.0f), colorDone.get(), color.get());
-        } else {
-            boxColor = data.getBlockDamage() >= 0.95f || !canMine(data.getState()) ? colorDone.get() : color.get();
-            lineColor = data.getBlockDamage() >= 0.95f || !canMine(data.getState()) ? colorDone.get() : color.get();
+        if (smoothColor.get())
+        {
+            boxColor = !canMine(data.getState()) ? colorDone.get().a(boxAlpha) :
+                ColorUtil.interpolateColor(Math.min(data.getBlockDamage(), 1.0f), colorDone.get().a(boxAlpha), mineColor.get().a(boxAlpha));
+            lineColor = !canMine(data.getState()) ? colorDone.get().a(lineAlpha) :
+                ColorUtil.interpolateColor(Math.min(data.getBlockDamage(), 1.0f), colorDone.get().a(lineAlpha), mineColor.get().a(lineAlpha));
+        }
+        else
+        {
+            boxColor = data.getBlockDamage() >= 0.95f || !canMine(data.getState()) ? colorDone.get().a(boxAlpha) : mineColor.get().a(boxAlpha);
+            lineColor = data.getBlockDamage() >= 0.95f || !canMine(data.getState()) ? colorDone.get().a(lineAlpha) : mineColor.get().a(lineAlpha);
         }
 
         BlockPos mining = data.getPos();
         VoxelShape outlineShape = VoxelShapes.fullCube();
-
-        if (!instantMine || data.getBlockDamage() < speed.get()) {
+        if (!instantMine || data.getBlockDamage() < speed.get())
+        {
             outlineShape = data.getState().getOutlineShape(mc.world, mining);
             outlineShape = outlineShape.isEmpty() ? VoxelShapes.fullCube() : outlineShape;
         }
@@ -804,14 +928,12 @@ public class GenyoAutoMine extends GenyoModule {
         double dz = (render1.maxZ - render1.minZ) / 2.0;
         final Box scaled = new Box(center, center).expand(dx * scale, dy * scale, dz * scale);
 
-        renderer.box(scaled, boxColor, lineColor, ShapeMode.Both, 1);
-        //RenderManager.renderBox(matrixStack, scaled, boxColor);
-        //RenderManager.renderBoundingBox(matrixStack, scaled, 1.5f, lineColor);
+        renderer.box(scaled, boxColor, lineColor, ShapeMode.Both, 0);
     }
 
     public void startMining(MineData data)
     {
-        /*if (rotate.get())
+        if (rotate.get())
         {
             float[] rotations = RotationUtil.getRotationsTo(mc.player.getEyePos(), data.getPos().toCenterPos());
             if (grim.get())
@@ -822,7 +944,7 @@ public class GenyoAutoMine extends GenyoModule {
             {
                 setRotation(rotations[0], rotations[1]);
             }
-        }*/
+        }
 
         if (doubleBreak.get())
         {
@@ -830,85 +952,67 @@ public class GenyoAutoMine extends GenyoModule {
             // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L98
             if (grimNew.get())
             {
-                if (anticheat.get()) {
-                    mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                if (!anticheat.get())
+                {
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                         PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                    mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                         PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                    mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                         PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                } else {
-                    mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                }
+                else
+                {
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                         PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
                 }
 
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                     PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-                mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-                mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-            } else {
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
             }
-        } else {
-            mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+            else
+            {
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+            }
+        }
+        else
+        {
+            Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
                 PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
         }
 
-        /*if (rotate.get() && grim.get())
+        if (rotate.get() && grim.get())
         {
             Managers.ROTATION.setRotationSilentSync();
-        }*/
+        }
 
         instantMineAnim = new MineAnimation(data, new Animation(true, fadeTime.get()));
     }
 
-    private boolean startMiningV2(MineData data) {
-        // --- START Packet ---
-        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-
-        // --- STOP Packet (delayed to avoid canceling START immediately) ---
-        mc.execute(() -> Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-            PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection())));
-
-        // Hand Swing
-        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-
-        // --- Fallback resend after small delay ---
-        mc.execute(() -> {
-            if (!mc.world.getBlockState(data.getPos()).isAir()) {
-                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-                Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
-                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-            }
-        });
-
-        return true;
-    }
-
     public void abortMining(MineData data)
     {
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
             PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
     }
 
     public void stopMining(MineData data)
     {
-        /*if (rotate.get())
+        if (rotate.get())
         {
             float[] rotations = RotationUtil.getRotationsTo(mc.player.getEyePos(), data.getPos().toCenterPos());
             if (grim.get())
@@ -919,7 +1023,7 @@ public class GenyoAutoMine extends GenyoModule {
             {
                 setRotation(rotations[0], rotations[1]);
             }
-        }*/
+        }
 
         int slot = data.getBestSlot();
         if (slot != -1)
@@ -934,17 +1038,17 @@ public class GenyoAutoMine extends GenyoModule {
             swapSync(slot);
         }
 
-        /*if (rotate.get() && grim.get())
+        if (rotate.get() && grim.get())
         {
             Managers.ROTATION.setRotationSilentSync();
-        }*/
+        }
     }
 
     private void stopMiningInternal(MineData data)
     {
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
             PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, data.getPos(), data.getDirection()));
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+        Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(
             PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, data.getPos(), data.getDirection()));
     }
 
@@ -1017,8 +1121,7 @@ public class GenyoAutoMine extends GenyoModule {
 
     public static class MineData implements Comparable<MineData>
     {
-        private final MinecraftClient mc = MinecraftClient.getInstance();
-
+        private static final MinecraftClient mc = MinecraftClient.getInstance();
         private final BlockPos pos;
         private final Direction direction;
         private final MiningGoal goal;
@@ -1043,11 +1146,16 @@ public class GenyoAutoMine extends GenyoModule {
         private double getPriority()
         {
             double dist = mc.player.getEyePos().squaredDistanceTo(pos.down().toCenterPos());
+            if (dist <= Modules.get().get(GenyoAutoCrystal.class).getPlaceRange())
+            {
+                return 10.0f;
+            }
+
             return 0.0f;
         }
 
         @Override
-        public int compareTo(MineData o)
+        public int compareTo(@NotNull MineData o)
         {
             return Double.compare(getPriority(), o.getPriority());
         }
@@ -1129,34 +1237,39 @@ public class GenyoAutoMine extends GenyoModule {
 
         public int getBestSlot()
         {
-            return InvUtils.findFastestTool(getState()).slot();
+            return Modules.get().get(GenyoAutoTool.class).getBestToolNoFallback(getState());
         }
     }
 
     public record MineAnimation(MineData data, Animation animation) {}
 
-    public enum MiningGoal {
+    public enum MiningGoal
+    {
         MANUAL,
         MINING_ENEMY,
         PREVENT_CRAWL
     }
 
-    public enum RemineMode {
+    public enum RemineMode
+    {
         INSTANT,
         NORMAL,
         FAST
     }
 
-    public enum Selection {
+    public enum Selection
+    {
         WHITELIST,
         BLACKLIST,
         ALL
     }
 
-    public enum Swap {
+    public enum Swap
+    {
         NORMAL,
         SILENT,
         SILENT_ALT,
         OFF
     }
+
 }

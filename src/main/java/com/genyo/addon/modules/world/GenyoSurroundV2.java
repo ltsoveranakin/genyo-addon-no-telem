@@ -207,10 +207,9 @@ public class GenyoSurroundV2 extends PlacerModule {
     @EventHandler
     public void onTick(TickEvent.Pre event) {
         blocksPlaced = 0;
-        //if (SelfTrapModule.getInstance().isEnabled()) return;
 
         if (jumpDisable.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f)) {
-            sendInfo("Player jumped, disabling.");
+            sendDisableMsg("Player jumped, disabling.");
             toggle();
             return;
         }
@@ -428,7 +427,6 @@ public class GenyoSurroundV2 extends PlacerModule {
 
                     BlockPos blockerPos = surroundPos.offset(direction);
                     if (playerBlocks.contains(blockerPos)
-                        //|| AutoMineModule.getInstance().getMiningBlock() == blockerPos) // Dont want to help our opponent surround
                         || Modules.get().get(GenyoAutoMine.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
                     {
                         continue;

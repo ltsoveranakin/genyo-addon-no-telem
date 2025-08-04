@@ -211,7 +211,7 @@ public class GenyoSelfTrap extends PlacerModule {
         blocksPlaced = 0;
 
         if (jumpDisable.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f)) {
-            sendInfo("Player jumped, disabling.");
+            sendDisableMsg("Player jumped, disabling.");
             toggle();
             return;
         }
