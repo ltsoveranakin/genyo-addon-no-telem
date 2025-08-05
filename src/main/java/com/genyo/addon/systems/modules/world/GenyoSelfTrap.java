@@ -1,0 +1,571 @@
+package com.genyo.addon.systems.modules.world;
+
+import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.systems.modules.PlacerModule;
+import com.genyo.addon.render.animation.Animation;
+import com.genyo.addon.systems.settings.FloatSetting;
+import com.genyo.addon.utils.math.GPositionUtils;
+import com.genyo.addon.utils.math.MathUtil;
+import com.genyo.addon.utils.player.Rotation;
+import com.genyo.addon.utils.world.BlastResistantBlocks;
+import meteordevelopment.meteorclient.events.packets.PacketEvent;
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.renderer.ShapeMode;
+import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.render.color.Color;
+import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+
+import java.util.*;
+
+public class GenyoSelfTrap extends PlacerModule {
+
+    public GenyoSelfTrap() {
+        super(GenyoAddon.GENYO, "Genyo SelfTrap", "a funny one for sure.");
+    }
+
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
+        .name("Rotate")
+        .description("ekwjfkljweklfjewfew")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Timing> timing = sgGeneral.add(new EnumSetting.Builder<Timing>()
+        .name("Timing")
+        .description("Timing for replacing blocks")
+        .defaultValue(Timing.VANILLA)
+        .build()
+    );
+
+    private final Setting<Boolean> buggy = sgGeneral.add(new BoolSetting.Builder()
+        .name("Buggy Placing")
+        .description("not a bug, its a genyo feature")
+        .defaultValue(timing.get() == Timing.SEQUENTIAL)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
+        .build()
+    );
+
+    private final Setting<Boolean> prePlaceExplosion = sgGeneral.add(new BoolSetting.Builder()
+        .name("Pre Place Explosions")
+        .description("Pre places before explosions")
+        .defaultValue(false)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
+        .build()
+    );
+
+    private final Setting<Boolean> prePlaceTick = sgGeneral.add(new BoolSetting.Builder()
+        .name("Pre Place Tick")
+        .description("Pre places before ticks")
+        .defaultValue(false)
+        .visible(() -> timing.get() == Timing.SEQUENTIAL)
+        .build()
+    );
+
+    private final Setting<Float> placeRange = sgGeneral.add(new FloatSetting.Builder()
+        .name("Place Range")
+        .description("The placement range for trap")
+        .defaultValue(4.0f)
+        .min(0.0f)
+        .max(6.0f)
+        .build()
+    );
+
+    private final Setting<Boolean> attack = sgGeneral.add(new BoolSetting.Builder()
+        .name("Attack")
+        .description("Attacks crystals in the way of trap")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> extend = sgGeneral.add(new BoolSetting.Builder()
+        .name("Extend")
+        .description("Extends trap if the player is not in the center of a block")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> head = sgGeneral.add(new BoolSetting.Builder()
+        .name("Cover Head")
+        .description("Doesn't work rn")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> mineExtend = sgGeneral.add(new BoolSetting.Builder()
+        .name("Mine Extend")
+        .description("Extends trap if the block is being mined")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Boolean> support = sgGeneral.add(new BoolSetting.Builder()
+        .name("Support")
+        .description("Creates a floor for the trap if there is none")
+        .defaultValue(false)
+        .build()
+    );
+
+    private final Setting<Integer> shiftTicks = sgGeneral.add(new IntSetting.Builder()
+        .name("Shift Ticks")
+        .description("The number of blocks to place per tick")
+        .min(1)
+        .defaultValue(8)
+        .max(10)
+        .build()
+    );
+
+    private final Setting<Float> shiftDelay = sgGeneral.add(new FloatSetting.Builder()
+        .name("Shift Delay")
+        .description("The delay between each block placement interval")
+        .min(0.0f)
+        .defaultValue(0.0f)
+        .max(5.0f)
+        .build()
+    );
+
+    private final Setting<Boolean> jumpDisable = sgGeneral.add(new BoolSetting.Builder()
+        .name("Auto Disable")
+        .description("Disables after moving out of the hole")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
+        .name("Render")
+        .description("Renders where trap is placing blocks")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Integer> fadeTime = sgGeneral.add(new IntSetting.Builder()
+        .name("Fade Time")
+        .description("Time to fade")
+        .min(0)
+        .defaultValue(250)
+        .max(1000)
+        .visible(() -> false) // ????
+        .build()
+    );
+
+    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+        .name("Render Color")
+        .description("asdsadsadsadsadsa")
+        .defaultValue(new Color(236, 243, 122, 40))
+        .build()
+    );
+
+    private int blocksPlaced;
+    private List<BlockPos> trap = new ArrayList<>();
+    private List<BlockPos> placements = new ArrayList<>();
+    private final Map<BlockPos, Long> packets = new HashMap<>();
+    private final Map<BlockPos, Animation> fadeList = new HashMap<>();
+    private double prevY;
+
+    @Override
+    public void onActivate() {
+        if (mc.player == null) return;
+
+        prevY = mc.player.getY();
+    }
+
+    @Override
+    public void onDeactivate() {
+        trap.clear();
+        placements.clear();
+        packets.clear();
+        fadeList.clear();
+    }
+
+    @EventHandler
+    public void onTick(TickEvent.Pre event) {
+        if (mc.player == null && mc.world == null) return;
+
+        blocksPlaced = 0;
+
+        if (jumpDisable.get() && (mc.player.getY() - prevY > 0.5 || mc.player.fallDistance > 1.5f)) {
+            sendDisableMsg("Player jumped, disabling.");
+            toggle();
+            return;
+        }
+
+        if (!multitaskConfig.get() && checkMultitask()) {
+            trap.clear();
+            placements.clear();
+            return;
+        }
+
+        final int slot = getResistantBlockItem();
+        if (slot == -1) {
+            trap.clear();
+            placements.clear();
+            return;
+        }
+
+        trap = getSurround(mc.player);
+        if (trap.isEmpty()) return;
+
+        if (attack.get()) attackBlockingCrystals(trap);
+
+        placements = getPlacementsFromSurround(trap);
+        if (placements.isEmpty()) return;
+
+        if (support.get()) {
+            for (BlockPos block : new ArrayList<>(placements))
+            {
+                if (block.getY() > mc.player.getBlockY() + 1.0) {
+                    continue;
+                }
+                Direction direction = mc.player.getHorizontalFacing();
+                if (direction == null) {
+                    placements.add(block.down());
+                }
+            }
+        }
+        placements.sort(Comparator.comparingInt(Vec3i::getY));
+        while (blocksPlaced < shiftTicks.get()) {
+            if (blocksPlaced >= placements.size())
+            {
+                break;
+            }
+            BlockPos targetPos = placements.get(blocksPlaced);
+            // All rotations for shift ticks must send extra packet
+            // This may not work on all servers
+            placeBlock(targetPos, slot);
+        }
+
+        if (rotate.get())
+        {
+            Rotation.get().setRotationSilentSync();
+        }
+    }
+
+    @EventHandler
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (mc.player == null || mc.world == null) return;
+
+        if (event.packet instanceof BundleS2CPacket packet) {
+            for (Packet<?> packet1 : packet.getPackets()) handlePackets(packet1);
+        } else {
+            handlePackets(event.packet);
+        }
+    }
+
+    private void handlePackets(Packet<?> serverPacket)
+    {
+        if (timing.get() != Timing.SEQUENTIAL) return;
+
+        if (serverPacket instanceof BlockUpdateS2CPacket packet)
+        {
+            final BlockState blockState = packet.getState();
+            final BlockPos targetPos = packet.getPos();
+            if (trap.contains(targetPos))
+            {
+                if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
+                {
+                    final int slot = getResistantBlockItem();
+                    if (slot == -1)
+                    {
+                        return;
+                    }
+                    placeBlock(targetPos, slot);
+                }
+                else if (BlastResistantBlocks.isBlastResistant(blockState))
+                {
+                    packets.remove(targetPos);
+                }
+            }
+        }
+
+        if (blocksPlaced > shiftTicks.get() * 2) // Give some leniency if we are getting place on
+        {
+            return;
+        }
+
+        if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosion.get())
+        {
+            BlockPos pos = BlockPos.ofFloored(packet.center().getX(), packet.center().getY(), packet.center().getZ());
+            if (trap.contains(pos))
+            {
+                final int slot = getResistantBlockItem();
+                if (slot == -1)
+                {
+                    return;
+                }
+                placeBlock(pos, slot);
+            }
+        }
+
+        if (serverPacket instanceof EntitySpawnS2CPacket packet
+            && packet.getEntityType().equals(EntityType.END_CRYSTAL) && prePlaceTick.get())
+        {
+            for (BlockPos pos : trap)
+            {
+                if (!pos.equals(BlockPos.ofFloored(packet.getX(), packet.getY(), packet.getZ())))
+                {
+                    continue;
+                }
+
+                final int slot = getResistantBlockItem();
+                if (slot == -1)
+                {
+                    return;
+                }
+                placeBlock(pos, slot);
+                break;
+            }
+        }
+    }
+
+    private void placeBlock(BlockPos pos, int slot)
+    {
+        if (!buggy.get()) {
+            Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
+            {
+                if (rotate.get() && state) {
+                    Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
+                }
+            });
+        } else {
+            if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
+
+            BlockUtils.place(pos, InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 0, true);
+        }
+        packets.put(pos, System.currentTimeMillis());
+        blocksPlaced++;
+    }
+
+    public void attackBlockingCrystals(List<BlockPos> posList)
+    {
+        for (BlockPos pos : posList)
+        {
+            Entity crystalEntity = mc.world.getOtherEntities(null, new Box(pos)).stream()
+                .filter(e -> e instanceof EndCrystalEntity).findFirst().orElse(null);
+            if (crystalEntity == null)
+            {
+                continue;
+            }
+            mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(crystalEntity, mc.player.isSneaking()));
+            mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+            return;
+        }
+    }
+
+    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround) {
+        List<BlockPos> placements = new ArrayList<>();
+        for (BlockPos surroundPos : surround)
+        {
+            Long placed = packets.get(surroundPos);
+            if (shiftDelay.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelay.get() * 50.0f) {
+                continue;
+            }
+            if (!mc.world.getBlockState(surroundPos).isReplaceable()) {
+                continue;
+            }
+            double dist = mc.player.squaredDistanceTo(surroundPos.toCenterPos());
+            if (dist > MathUtil.squared(placeRange.get())) {
+                continue;
+            }
+
+            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent())) {
+                placements.add(surroundPos);
+            }
+        }
+
+
+        if (Modules.get().isActive(GenyoSurroundV2.class)) {
+            List<BlockPos> toRemove = new ArrayList<>();
+            for (BlockPos pos : placements) {
+                if (Modules.get().get(GenyoSurroundV2.class).isInPlacements(pos)) {
+                    toRemove.add(pos);
+                }
+            }
+
+            placements.removeAll(toRemove);
+        }
+
+        return placements;
+    }
+
+    public List<BlockPos> getSurround(PlayerEntity player)
+    {
+        List<BlockPos> surroundBlocks = getSurroundNoDown(player);
+        List<BlockPos> playerBlocks = getPlayerBlocks(player);
+        for (BlockPos playerPos : playerBlocks)
+        {
+            if (playerPos.equals(player.getBlockPos()))
+            {
+                continue;
+            }
+            surroundBlocks.add(playerPos.down());
+        }
+        if (mineExtend.get())
+        {
+            for (BlockPos surroundPos : new ArrayList<>(surroundBlocks))
+            {
+                if (!Managers.BLOCK.isPassed(surroundPos, 0.7f)) continue;
+
+                for (Direction direction : Direction.values()) {
+                    if (direction == Direction.DOWN) continue;
+
+                    BlockPos blockerPos = surroundPos.offset(direction);
+                    if (playerBlocks.contains(blockerPos)
+                        || Modules.get().get(GenyoAutoMine.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
+                    {
+                        continue;
+                    }
+                    surroundBlocks.add(blockerPos);
+                }
+            }
+        }
+
+        /*if (AirPlaceModule.getInstance().isEnabled() && head.get())
+        {
+            surroundBlocks.add(mc.player.getBlockPos().up(2));
+        }*/
+        return surroundBlocks;
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player)
+    {
+        return getSurroundNoDown(player, 0.0f);
+    }
+
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range)
+    {
+        List<BlockPos> surroundBlocks = new ArrayList<>();
+        List<BlockPos> playerBlocks = getPlayerBlocks(player);
+        for (BlockPos pos : playerBlocks)
+        {
+            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range)
+            {
+                continue;
+            }
+            for (Direction dir : Direction.values())
+            {
+                if (!dir.getAxis().isHorizontal())
+                {
+                    continue;
+                }
+                BlockPos pos1 = pos.offset(dir);
+                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1))
+                {
+                    continue;
+                }
+                surroundBlocks.add(pos1);
+            }
+        }
+
+        if (!surroundBlocks.isEmpty()) {
+            List<BlockPos> toAdd = new ArrayList<>();
+            surroundBlocks.forEach(pos -> {
+                toAdd.add(pos.up());
+            });
+
+            surroundBlocks.addAll(toAdd);
+        }
+
+        return surroundBlocks;
+    }
+
+    public List<BlockPos> getPlayerBlocks(PlayerEntity entity)
+    {
+        BlockPos playerPos = GPositionUtils.getRoundedBlockPos(entity.getX(), entity.getY(), entity.getZ());
+        final List<BlockPos> playerBlocks = new ArrayList<>();
+        if (extend.get())
+        {
+            playerBlocks.addAll(GPositionUtils.getAllInBox(entity.getBoundingBox(), playerPos));
+        }
+        else
+        {
+            playerBlocks.add(playerPos);
+        }
+        return playerBlocks;
+    }
+
+    @EventHandler
+    public void onRender3D(Render3DEvent event) {
+        if (mc.world == null && mc.player == null) return;
+
+        /*if (SelfTrapModule.getInstance().isEnabled())
+        {
+            return;
+        }*/
+        if (render.get())
+        {
+            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
+            {
+                set.getValue().setState(false);
+                int boxAlpha = (int) (40 * set.getValue().getFactor());
+                int lineAlpha = (int) (100 * set.getValue().getFactor());
+
+                Color boxColor = color.get().a(boxAlpha);
+                Color lineColor = color.get().a(lineAlpha);
+
+                event.renderer.box(BlockPos.ofFloored(set.getKey().toCenterPos()), boxColor, lineColor, ShapeMode.Both, 1);
+            }
+
+            if (placements.isEmpty())
+            {
+                return;
+            }
+
+            for (BlockPos pos : placements)
+            {
+                Animation animation = new Animation(true, fadeTime.get());
+                fadeList.put(pos, animation);
+            }
+        }
+
+        fadeList.entrySet().removeIf(e ->
+            e.getValue().getFactor() == 0.0);
+    }
+
+    public boolean isPlacing()
+    {
+        return !placements.isEmpty();
+    }
+
+    public enum Timing
+    {
+        VANILLA,
+        SEQUENTIAL
+    }
+
+    public record BlockSlot(Block block, int slot)
+    {
+        @Override
+        public boolean equals(Object obj)
+        {
+            return obj instanceof BlockSlot b && b.block() == block;
+        }
+    }
+
+}

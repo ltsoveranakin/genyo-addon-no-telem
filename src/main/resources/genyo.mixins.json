@@ -15,6 +15,7 @@
     "accessor.AccessorClientPlayerInteractionManager",
     "accessor.AccessorClientWorld",
     "accessor.AccessorGameOptions",
+    "entity.player.MixinPlayerListEntry",
     "network.MixinClientPlayerEntity",
     "network.MixinClientPlayNetworkHandler",
     "render.MixinRenderTickCounter",
@@ -31,7 +32,6 @@
     "entity.IEntity",
     "entity.MixinEntity",
     "entity.player.MixinPlayerEntity",
-    "meteor.MixinSetting",
     "network.MixinServerPlayerEntity"
   ]
 }

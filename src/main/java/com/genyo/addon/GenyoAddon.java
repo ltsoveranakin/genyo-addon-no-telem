@@ -1,20 +1,18 @@
 package com.genyo.addon;
 
-import com.genyo.addon.hud.ActiveGenyoHud;
-import com.genyo.addon.hud.PacketsHud;
-import com.genyo.addon.modules.combat.*;
-import com.genyo.addon.modules.misc.*;
-import com.genyo.addon.modules.movement.GenyoVelocity;
-import com.genyo.addon.modules.visual.AngelSexHulkenberg;
-import com.genyo.addon.modules.visual.GenyoPenisESP;
-import com.genyo.addon.modules.world.*;
+import com.genyo.addon.systems.hud.*;
+import com.genyo.addon.systems.modules.combat.*;
+import com.genyo.addon.systems.modules.misc.*;
+import com.genyo.addon.systems.modules.movement.GenyoVelocity;
+import com.genyo.addon.systems.modules.visual.AngelSexHulkenberg;
+import com.genyo.addon.systems.modules.visual.GenyoCapes;
+import com.genyo.addon.systems.modules.visual.GenyoPenisESP;
 import com.genyo.addon.systems.enemies.EnemiesTab;
-import com.genyo.addon.hud.InCombatHud;
-import com.genyo.addon.hud.PvPNeccessaryHud;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.systems.enemies.Enemies;
 import com.genyo.addon.systems.incombat.InCombatSystem;
 import com.genyo.addon.systems.incombat.InCombatTab;
+import com.genyo.addon.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -114,6 +112,10 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new CombatBrainrot());
         modules.add(new PacketDebug());
         modules.add(new GenyoAutoMine());
+        modules.add(new GenyoAutoXP());
+        modules.add(new GenyoAutoArmor());
+        modules.add(new GenyoAutoTrap());
+        modules.add(new GenyoCapes());
     }
 
     private void initHUD(Hud hud) {
@@ -121,6 +123,8 @@ public class GenyoAddon extends MeteorAddon {
         hud.register(InCombatHud.INFO);
         hud.register(ActiveGenyoHud.INFO);
         hud.register(PacketsHud.INFO);
+        hud.register(WatermarkHud.INFO);
+        hud.register(BetterPlayerRadarHud.INFO);
     }
 
     @Override

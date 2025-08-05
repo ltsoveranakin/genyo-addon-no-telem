@@ -5,7 +5,6 @@ import com.genyo.addon.events.sync.SyncEvent;
 import com.genyo.addon.events.network.*;
 import com.genyo.addon.imixins.IClientPlayerEntity;
 import meteordevelopment.meteorclient.MeteorClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.genyo.addon.modules.GenyoModule.fullNullCheck;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(ClientPlayerEntity.class)

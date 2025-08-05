@@ -1,5 +1,6 @@
 package com.genyo.addon.mixin.world;
 
+import com.genyo.addon.events.world.AddEntityEvent;
 import com.genyo.addon.events.world.RemoveEntityEvent;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.client.world.ClientWorld;
@@ -29,6 +30,16 @@ public abstract class MixinClientWorld {
 
         RemoveEntityEvent removeEntityEvent = RemoveEntityEvent.get(entity, removalReason);
         MeteorClient.EVENT_BUS.post(removeEntityEvent);
+    }
+
+    /**
+     * @param entity
+     * @param ci
+     */
+    @Inject(method = "addEntity", at = @At(value = "HEAD"))
+    private void hookAddEntity(Entity entity, CallbackInfo ci)
+    {
+        MeteorClient.EVENT_BUS.post(AddEntityEvent.get(entity));
     }
 
 }

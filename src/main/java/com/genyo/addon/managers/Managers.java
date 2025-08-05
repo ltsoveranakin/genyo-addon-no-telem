@@ -29,6 +29,7 @@ public class Managers {
     public static final PositionManager POSITION = new PositionManager();
     public static final AntiCheatManager ANTICHEAT = new AntiCheatManager();
     public static final TickManager TICK = new TickManager();
+    public static final SocialManager SOCIAL = new SocialManager();
 
     public static void subscribe() {
         MeteorClient.EVENT_BUS.subscribe(COMBAT);
