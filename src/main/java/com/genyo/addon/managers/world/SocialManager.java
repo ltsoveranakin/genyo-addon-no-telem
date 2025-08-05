@@ -1,6 +1,5 @@
-package com.genyo.addon.managers;
+package com.genyo.addon.managers.world;
 
-import meteordevelopment.meteorclient.systems.friends.Friend;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import net.minecraft.entity.player.PlayerEntity;
 

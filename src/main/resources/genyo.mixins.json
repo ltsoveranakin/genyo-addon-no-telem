@@ -32,6 +32,7 @@
     "entity.IEntity",
     "entity.MixinEntity",
     "entity.player.MixinPlayerEntity",
-    "network.MixinServerPlayerEntity"
+    "network.MixinServerPlayerEntity",
+    "world.MixinBlockCollisionSpliterator"
   ]
 }

@@ -108,12 +108,12 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
         cancellable = true)
     private void onPushOutOfBlocks(double x, double z, CallbackInfo ci)
     {
-        /*PushOutOfBlocksEvent pushOutOfBlocksEvent = new PushOutOfBlocksEvent();
+        PushOutOfBlocksEvent pushOutOfBlocksEvent = new PushOutOfBlocksEvent();
         MeteorClient.EVENT_BUS.post(pushOutOfBlocksEvent);
-
-        if (pushOutOfBlocksEvent.isCancelled()) {
+        if (pushOutOfBlocksEvent.isCancelled())
+        {
             ci.cancel();
-        }*/
+        }
     }
 
     @Override

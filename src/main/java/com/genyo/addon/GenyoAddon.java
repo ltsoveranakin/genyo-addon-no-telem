@@ -3,6 +3,7 @@ package com.genyo.addon;
 import com.genyo.addon.systems.hud.*;
 import com.genyo.addon.systems.modules.combat.*;
 import com.genyo.addon.systems.modules.misc.*;
+import com.genyo.addon.systems.modules.movement.GenyoPhase;
 import com.genyo.addon.systems.modules.movement.GenyoVelocity;
 import com.genyo.addon.systems.modules.visual.AngelSexHulkenberg;
 import com.genyo.addon.systems.modules.visual.GenyoCapes;
@@ -116,6 +117,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoAutoArmor());
         modules.add(new GenyoAutoTrap());
         modules.add(new GenyoCapes());
+        modules.add(new GenyoPhase());
     }
 
     private void initHUD(Hud hud) {
