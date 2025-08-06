@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 public class KFCSpawnKill extends GenyoModule {
 
     public KFCSpawnKill() {
-        super(GenyoAddon.GENYO, "KFC Spawn Kill", "ask about the name, i won't tell you.");
+        super(GenyoAddon.COMBAT, "KFC Spawn Kill", "ask about the name, i won't tell you.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -35,7 +35,7 @@ import java.util.List;
 public class GenyoVelocity extends GenyoModule {
 
     public GenyoVelocity() {
-        super(GenyoAddon.GENYO, "genyo-velocity", "efhewhfjkhewfjhkewfh jekw");
+        super(GenyoAddon.MOVEMENT, "genyo-velocity", "efhewhfjkhewfjhkewfh jekw");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

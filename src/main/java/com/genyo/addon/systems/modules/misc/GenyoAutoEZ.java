@@ -20,7 +20,7 @@ import java.util.*;
 public class GenyoAutoEZ extends GenyoModule {
 
     public GenyoAutoEZ() {
-        super(GenyoAddon.GENYO, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.-----------------------------------------------------------------");
+        super(GenyoAddon.MISC, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.-----------------------------------------------------------------");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -92,7 +92,7 @@ public class GenyoAutoEZ extends GenyoModule {
     private final Random r = new Random();
     private int lastPop;
     private final List<Message> messageQueue = new LinkedList<>();
-    private final HashMap<PlayerEntity, Integer> taggedPlayers = new HashMap<>();
+    public final HashMap<PlayerEntity, Integer> taggedPlayers = new HashMap<>();
     private int timer = 0;
 
     @Override

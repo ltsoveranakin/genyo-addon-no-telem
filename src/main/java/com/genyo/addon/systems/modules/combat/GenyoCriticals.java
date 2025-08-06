@@ -34,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 public class GenyoCriticals extends GenyoModule {
 
     public GenyoCriticals() {
-        super(GenyoAddon.GENYO, "genyo-criticals", "crrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+        super(GenyoAddon.COMBAT, "genyo-criticals", "crrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

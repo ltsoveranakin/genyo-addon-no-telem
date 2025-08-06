@@ -47,7 +47,7 @@ import java.util.*;
 public class GenyoAutoMine extends GenyoModule {
 
     public GenyoAutoMine() {
-        super(GenyoAddon.GENYO, "Genyo AutoMine", "fasz");
+        super(GenyoAddon.WORLD, "Genyo AutoMine", "fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

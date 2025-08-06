@@ -21,7 +21,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class BetterPlayerRadarHud extends HudElement {
 
-    public static final HudElementInfo<BetterPlayerRadarHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "player-radar", "Displays players in your visual range.", BetterPlayerRadarHud::new);
+    public static final HudElementInfo<BetterPlayerRadarHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "better-player-radar", "Displays players in your visual range.", BetterPlayerRadarHud::new);
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgFeatures = settings.createGroup("Features");

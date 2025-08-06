@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GenyoReplenish extends GenyoModule {
 
     public GenyoReplenish() {
-        super(GenyoAddon.GENYO, "genyo-replenish", "fwejhfkljwefklwejfklkwlefjlwefl");
+        super(GenyoAddon.COMBAT, "genyo-replenish", "fwejhfkljwefklwejfklkwlefjlwefl");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

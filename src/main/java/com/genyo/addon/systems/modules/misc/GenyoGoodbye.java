@@ -27,7 +27,7 @@ public class GenyoGoodbye extends GenyoModule {
     private ArrayList<String> namesList = new ArrayList<>();
 
     public GenyoGoodbye() {
-        super(GenyoAddon.GENYO, "genyo-goodbye", "i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. ");
+        super(GenyoAddon.MISC, "genyo-goodbye", "i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. ");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

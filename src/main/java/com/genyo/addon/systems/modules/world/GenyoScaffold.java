@@ -31,7 +31,7 @@ import java.util.Map;
 public class GenyoScaffold extends PlacerModule {
 
     public GenyoScaffold() {
-        super(GenyoAddon.GENYO, "genyo-scaffold", "i shit the bed regularly");
+        super(GenyoAddon.WORLD, "genyo-scaffold", "i shit the bed regularly");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

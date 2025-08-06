@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class AngelSexHulkenberg extends GenyoModule {
 
     public AngelSexHulkenberg() {
-        super(GenyoAddon.GENYO, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");
+        super(GenyoAddon.VISUAL, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

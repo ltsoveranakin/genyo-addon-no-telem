@@ -46,7 +46,7 @@ import java.util.*;
 public class GenyoSurroundV2 extends PlacerModule {
 
     public GenyoSurroundV2() {
-        super(GenyoAddon.GENYO, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
+        super(GenyoAddon.WORLD, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -352,8 +352,10 @@ public class GenyoSurroundV2 extends PlacerModule {
                 }
             });
         } else {
-            if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
+            if (slot == -1) return;
+            if (InvUtils.findInHotbar(Items.OBSIDIAN) == null) return;
 
+            Managers.INVENTORY.setSlot(slot);
             BlockUtils.place(pos, InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 0, true);
         }
         packets.put(pos, System.currentTimeMillis());
@@ -494,10 +496,6 @@ public class GenyoSurroundV2 extends PlacerModule {
     public void onRender3D(Render3DEvent event) {
         if (mc.world == null && mc.player == null) return;
 
-        /*if (SelfTrapModule.getInstance().isEnabled())
-        {
-            return;
-        }*/
         if (render.get())
         {
             for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
@@ -509,7 +507,7 @@ public class GenyoSurroundV2 extends PlacerModule {
                 Color boxColor = color.get().a(boxAlpha);
                 Color lineColor = color.get().a(lineAlpha);
 
-                event.renderer.box(BlockPos.ofFloored(set.getKey().toCenterPos()), boxColor, lineColor, ShapeMode.Both, 1);
+                event.renderer.box(set.getKey(), boxColor, lineColor, ShapeMode.Both, 1);
             }
 
             if (placements.isEmpty())
@@ -541,15 +539,6 @@ public class GenyoSurroundV2 extends PlacerModule {
     {
         VANILLA,
         SEQUENTIAL
-    }
-
-    public record BlockSlot(Block block, int slot)
-    {
-        @Override
-        public boolean equals(Object obj)
-        {
-            return obj instanceof BlockSlot b && b.block() == block;
-        }
     }
 
     private float square(float value) {

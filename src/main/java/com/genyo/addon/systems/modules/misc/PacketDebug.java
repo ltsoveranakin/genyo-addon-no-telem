@@ -15,7 +15,7 @@ import java.util.Set;
 public class PacketDebug extends GenyoModule {
 
     public PacketDebug() {
-        super(GenyoAddon.GENYO, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
+        super(GenyoAddon.MISC, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

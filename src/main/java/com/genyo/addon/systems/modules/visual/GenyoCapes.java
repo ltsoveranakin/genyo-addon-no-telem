@@ -9,7 +9,7 @@ public class GenyoCapes extends GenyoModule {
     private final Identifier capeTexture;
 
     public GenyoCapes() {
-        super(GenyoAddon.GENYO, "genyo-capes", "The thing");
+        super(GenyoAddon.VISUAL, "genyo-capes", "The thing");
 
         this.capeTexture = Identifier.of(GenyoAddon.MOD_ID, "textures/cape.png");
     }

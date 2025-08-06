@@ -19,7 +19,7 @@ import org.lwjgl.glfw.GLFW;
 public class GenyoGhostBlocks extends GenyoModule {
 
     public GenyoGhostBlocks() {
-        super(GenyoAddon.GENYO, "genyo-ghost-blocks", "maybe");
+        super(GenyoAddon.WORLD, "genyo-ghost-blocks", "maybe");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

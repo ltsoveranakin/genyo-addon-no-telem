@@ -40,7 +40,7 @@ import java.util.*;
 public class GenyoAutoTrap extends PlacerModule {
 
     public GenyoAutoTrap() {
-        super(GenyoAddon.GENYO, "genyo-auto-trap", "Fully traps enemies with blocks.");
+        super(GenyoAddon.COMBAT, "genyo-auto-trap", "Fully traps enemies with blocks.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

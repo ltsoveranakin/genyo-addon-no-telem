@@ -21,7 +21,7 @@ import java.util.List;
 public class GenyoPenisESP extends GenyoModule {
 
     public GenyoPenisESP() {
-        super(GenyoAddon.GENYO, "Genyo PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
+        super(GenyoAddon.VISUAL, "Genyo PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

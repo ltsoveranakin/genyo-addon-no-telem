@@ -26,7 +26,7 @@ import java.util.Queue;
 public class GenyoAutoArmor extends GenyoModule {
 
     public GenyoAutoArmor() {
-        super(GenyoAddon.GENYO, "genyo-auto-armor", "Automatically replaces armor pieces.");
+        super(GenyoAddon.COMBAT, "genyo-auto-armor", "Automatically replaces armor pieces.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

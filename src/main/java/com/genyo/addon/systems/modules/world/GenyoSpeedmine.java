@@ -45,7 +45,7 @@ import java.util.Map;
 public class GenyoSpeedmine extends GenyoModule {
 
     public GenyoSpeedmine() {
-        super(GenyoAddon.GENYO, "Genyo Speedmine", "fasz fasz fsaz fasz");
+        super(GenyoAddon.WORLD, "Genyo Speedmine", "fasz fasz fsaz fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -42,7 +42,7 @@ import java.util.Set;
 public class GenyoPhase extends PlacerModule {
 
     public GenyoPhase() {
-        super(GenyoAddon.GENYO, "genyo-phase", "asd");
+        super(GenyoAddon.MOVEMENT, "genyo-phase", "asd");
     }
 
     private static final List<Block> RESISTANT_BLOCKS = new LinkedList<>()

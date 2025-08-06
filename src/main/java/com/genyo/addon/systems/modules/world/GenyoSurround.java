@@ -96,7 +96,7 @@ public class GenyoSurround extends GenyoModule {
     private final Map<BlockPos, Long> espBlocks = new ConcurrentHashMap<>();
 
     public GenyoSurround() {
-        super(GenyoAddon.GENYO, "genyo-surround", "haaaaaaaaaaaaaa");
+        super(GenyoAddon.WORLD, "genyo-surround", "haaaaaaaaaaaaaa");
     }
 
     public void onActivate() {

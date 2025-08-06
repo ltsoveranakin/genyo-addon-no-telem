@@ -116,7 +116,7 @@ public class GenyoDiscord extends GenyoModule {
     }
 
     public GenyoDiscord() {
-        super(GenyoAddon.GENYO, "genyo-discord", "this one is superior to the original module because its genyo");
+        super(GenyoAddon.MISC, "genyo-discord", "this one is superior to the original module because its genyo");
 
         runInMainMenu = true;
     }

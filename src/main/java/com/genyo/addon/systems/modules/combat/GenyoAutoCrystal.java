@@ -69,7 +69,7 @@ import java.util.concurrent.*;
 public class GenyoAutoCrystal extends PlacerModule {
 
     public GenyoAutoCrystal() {
-        super(GenyoAddon.GENYO, "Genyo AutoCrystal", "asd");
+        super(GenyoAddon.COMBAT, "Genyo AutoCrystal", "asd");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -599,6 +599,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         .build()
     );
 
+    public PlayerEntity targetEntity;
     //
     private DamageData<EndCrystalEntity> attackCrystal;
     private DamageData<BlockPos> placeCrystal;
@@ -665,6 +666,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         placeCrystal = null;
         crystalRotation = null;
         silentRotations = null;
+        targetEntity = null;
         calculatePlaceCrystalTime = 0;
         stuckCrystals.clear();
         attackPackets.clear();
@@ -719,6 +721,9 @@ public class GenyoAutoCrystal extends PlacerModule {
         if (place.get())
         {
             placeCrystal = calculatePlaceCrystal(blocks, entities);
+            if (placeCrystal == null) {
+                if (targetEntity != null) targetEntity = null;
+            }
         }
         attackCrystal = calculateAttackCrystal(entities);
         if (attackCrystal == null)
@@ -736,6 +741,8 @@ public class GenyoAutoCrystal extends PlacerModule {
                             placeCrystal.getDamage(), self, crystalEntity.getBlockPos().down(), false);
                     }
                 }
+            } else {
+                if (targetEntity != null) targetEntity = null;
             }
             calculatePlaceCrystalTime = System.nanoTime() - timePre;
         }
@@ -1082,6 +1089,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 double dist = mc.player.squaredDistanceTo(entity);
                 if (dist > targetRange.get() * targetRange.get())
                 {
+                    if (targetEntity != null) targetEntity = null;
                     continue;
                 }
 
@@ -1093,6 +1101,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 attackRotate = damage > instantDamage.get() || attackCrystal != null
                     && damage >= attackCrystal.getDamage() && instantMax.get()
                     || entity instanceof LivingEntity entity1 && isCrystalLethalTo(data, entity1);
+                if (entity instanceof PlayerEntity) targetEntity = (PlayerEntity) entity;
                 if (attackRotate)
                 {
                     final Hand hand = getCrystalHand();
@@ -1470,6 +1479,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 double dist = mc.player.squaredDistanceTo(entity);
                 if (dist > targetRange.get() * targetRange.get())
                 {
+                    if (targetEntity != null) targetEntity = null;
                     continue;
                 }
 
@@ -1517,6 +1527,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 if (data == null || damage > data.getDamage())
                 {
                     data = currentData;
+                    if(entity instanceof PlayerEntity) targetEntity = (PlayerEntity) entity;
                 }
             }
         }
@@ -1603,6 +1614,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 double dist = mc.player.squaredDistanceTo(entity);
                 if (dist > targetRange.get() * targetRange.get())
                 {
+                    if (targetEntity != null) targetEntity = null;
                     continue;
                 }
 
@@ -1651,6 +1663,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 if (data == null || damage > data.getDamage())
                 {
                     data = currentData;
+                    if(entity instanceof PlayerEntity) targetEntity = (PlayerEntity) entity;
                 }
             }
         }
@@ -1721,6 +1734,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         }
 
         float[] rotations = RotationUtil.getRotationsTo(mc.player.getEyePos(), blockPos.toCenterPos());
+        targetEntity = target;
         setRotation(rotations[0], rotations[1]);
         placeCrystal(blockPos, Hand.MAIN_HAND, false);
         fadeList.put(blockPos, new Animation(true, fadeTime.get()));

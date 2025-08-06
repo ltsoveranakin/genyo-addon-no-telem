@@ -33,7 +33,7 @@ import java.util.Set;
 public class GenyoAutoTotem extends GenyoModule {
 
     public GenyoAutoTotem() {
-        super(GenyoAddon.GENYO, "genyo-auto-totem", "Automatically replenishes the totem in your offhand");
+        super(GenyoAddon.COMBAT, "genyo-auto-totem", "Automatically replenishes the totem in your offhand");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

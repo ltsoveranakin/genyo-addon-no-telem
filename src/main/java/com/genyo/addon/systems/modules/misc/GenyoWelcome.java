@@ -53,7 +53,7 @@ public class GenyoWelcome extends GenyoModule {
     }
 
     public GenyoWelcome() {
-        super(GenyoAddon.GENYO, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
+        super(GenyoAddon.MISC, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
     }
 
     @EventHandler

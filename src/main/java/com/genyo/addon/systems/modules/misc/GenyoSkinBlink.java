@@ -37,7 +37,7 @@ public class GenyoSkinBlink extends GenyoModule {
     );
 
     public GenyoSkinBlink() {
-        super(GenyoAddon.GENYO, "genyo-skin-blink", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. ");
+        super(GenyoAddon.MISC, "genyo-skin-blink", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. ");
     }
 
     private int timer = 0;

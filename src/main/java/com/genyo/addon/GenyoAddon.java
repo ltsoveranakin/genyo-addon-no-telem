@@ -30,10 +30,19 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 
+import java.lang.annotation.Target;
+
 public class GenyoAddon extends MeteorAddon {
 
     public static final Logger LOG = LogUtils.getLogger();
-    public static final Category GENYO = new Category("Genyo", Items.MILK_BUCKET.getDefaultStack());
+
+    // Categories
+    public static final Category COMBAT = new Category("G-COMBAT", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category MISC = new Category("G-MISC", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category MOVEMENT = new Category("G-MOVE", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category VISUAL = new Category("G-VISUAL", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category WORLD = new Category("G-WORLD", Items.MILK_BUCKET.getDefaultStack());
+
     public static final HudGroup HUD_GROUP = new HudGroup("Genyo");
 
     public static final String MOD_ID = "genyo";
@@ -127,11 +136,16 @@ public class GenyoAddon extends MeteorAddon {
         hud.register(PacketsHud.INFO);
         hud.register(WatermarkHud.INFO);
         hud.register(BetterPlayerRadarHud.INFO);
+        hud.register(TargetHud.INFO);
     }
 
     @Override
     public void onRegisterCategories() {
-        Modules.registerCategory(GENYO);
+        Modules.registerCategory(COMBAT);
+        Modules.registerCategory(MISC);
+        Modules.registerCategory(MOVEMENT);
+        Modules.registerCategory(VISUAL);
+        Modules.registerCategory(WORLD);
     }
 
     @Override

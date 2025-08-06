@@ -19,7 +19,7 @@ import net.minecraft.util.Hand;
 public class GenyoAutoXP extends GenyoModule {
 
     public GenyoAutoXP() {
-        super(GenyoAddon.GENYO, "Genyo AutoXP", "better than blackout");
+        super(GenyoAddon.COMBAT, "Genyo AutoXP", "better than blackout");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
