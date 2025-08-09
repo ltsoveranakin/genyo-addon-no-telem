@@ -127,6 +127,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoAutoTrap());
         modules.add(new GenyoCapes());
         modules.add(new GenyoPhase());
+        modules.add(new GenyoMainMenu());
     }
 
     private void initHUD(Hud hud) {
@@ -136,7 +137,6 @@ public class GenyoAddon extends MeteorAddon {
         hud.register(PacketsHud.INFO);
         hud.register(WatermarkHud.INFO);
         hud.register(BetterPlayerRadarHud.INFO);
-        hud.register(TargetHud.INFO);
     }
 
     @Override

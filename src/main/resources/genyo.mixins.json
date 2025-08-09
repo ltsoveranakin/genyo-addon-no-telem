@@ -9,7 +9,6 @@
     "MixinConnectScreen",
     "MixinItemUsageContext",
     "MixinKeyboardInput",
-    "MixinMinecraftClient",
     "PlayerUtilsMixin",
     "accessor.AccessorBundlePacket",
     "accessor.AccessorClientPlayerInteractionManager",
@@ -32,6 +31,7 @@
     "entity.IEntity",
     "entity.MixinEntity",
     "entity.player.MixinPlayerEntity",
+    "game.MixinMinecraftClient",
     "network.MixinServerPlayerEntity",
     "world.MixinBlockCollisionSpliterator"
   ]
