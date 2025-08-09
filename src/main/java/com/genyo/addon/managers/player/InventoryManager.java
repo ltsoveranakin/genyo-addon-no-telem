@@ -41,12 +41,11 @@ public class InventoryManager {
     @EventHandler
     public void onPacketSend(final PacketEvent.Send event)
     {
-        if (event.packet instanceof UpdateSelectedSlotC2SPacket packet)
-        {
+        if (event.packet instanceof UpdateSelectedSlotC2SPacket packet) {
             final int packetSlot = packet.getSelectedSlot();
             if (!PlayerInventory.isValidHotbarIndex(packetSlot) || slot == packetSlot)
             {
-                event.cancel();
+                event.setCancelled(true);
                 return;
             }
             slot = packetSlot;
@@ -219,7 +218,7 @@ public class InventoryManager {
     //
     public void closeScreen()
     {
-        mc.getNetworkHandler().sendPacket(new CloseHandledScreenC2SPacket(mc.player.currentScreenHandler.syncId));
+        Managers.NETWORK.sendPacket(new CloseHandledScreenC2SPacket(mc.player.currentScreenHandler.syncId));
     }
 
     /**
@@ -257,6 +256,7 @@ public class InventoryManager {
     }
 
     /**
+     * @param slot
      * @param button
      * @param type
      */

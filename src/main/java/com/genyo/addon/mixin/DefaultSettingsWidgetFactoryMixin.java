@@ -1,7 +1,7 @@
 package com.genyo.addon.mixin;
 
-import com.genyo.addon.settings.FloatSetting;
-import com.genyo.addon.settings.playerlist.ListGroupSetting;
+import com.genyo.addon.systems.settings.FloatSetting;
+import com.genyo.addon.systems.settings.playerlist.ListGroupSetting;
 import meteordevelopment.meteorclient.gui.DefaultSettingsWidgetFactory;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.utils.SettingsWidgetFactory;

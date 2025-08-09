@@ -1,19 +1,19 @@
 package com.genyo.addon;
 
-import com.genyo.addon.hud.ActiveGenyoHud;
-import com.genyo.addon.modules.combat.*;
-import com.genyo.addon.modules.misc.*;
-import com.genyo.addon.modules.movement.GenyoVelocity;
-import com.genyo.addon.modules.visual.AngelSexHulkenberg;
-import com.genyo.addon.modules.visual.GenyoPenisESP;
-import com.genyo.addon.modules.world.*;
+import com.genyo.addon.systems.hud.*;
+import com.genyo.addon.systems.modules.combat.*;
+import com.genyo.addon.systems.modules.misc.*;
+import com.genyo.addon.systems.modules.movement.GenyoPhase;
+import com.genyo.addon.systems.modules.movement.GenyoVelocity;
+import com.genyo.addon.systems.modules.visual.AngelSexHulkenberg;
+import com.genyo.addon.systems.modules.visual.GenyoCapes;
+import com.genyo.addon.systems.modules.visual.GenyoPenisESP;
 import com.genyo.addon.systems.enemies.EnemiesTab;
-import com.genyo.addon.hud.InCombatHud;
-import com.genyo.addon.hud.PvPNeccessaryHud;
 import com.genyo.addon.managers.Managers;
 import com.genyo.addon.systems.enemies.Enemies;
 import com.genyo.addon.systems.incombat.InCombatSystem;
 import com.genyo.addon.systems.incombat.InCombatTab;
+import com.genyo.addon.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -30,10 +30,19 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 
+import java.lang.annotation.Target;
+
 public class GenyoAddon extends MeteorAddon {
 
     public static final Logger LOG = LogUtils.getLogger();
-    public static final Category GENYO = new Category("Genyo", Items.MILK_BUCKET.getDefaultStack());
+
+    // Categories
+    public static final Category COMBAT = new Category("G-COMBAT", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category MISC = new Category("G-MISC", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category MOVEMENT = new Category("G-MOVE", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category VISUAL = new Category("G-VISUAL", Items.MILK_BUCKET.getDefaultStack());
+    public static final Category WORLD = new Category("G-WORLD", Items.MILK_BUCKET.getDefaultStack());
+
     public static final HudGroup HUD_GROUP = new HudGroup("Genyo");
 
     public static final String MOD_ID = "genyo";
@@ -96,7 +105,6 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoWelcome());
         modules.add(new GenyoSkinBlink());
         modules.add(new GenyoGoodbye());
-        modules.add(new GenyoAutoMine());
         modules.add(new GenyoSurroundV2());
         modules.add(new GenyoAutoCrystal());
         modules.add(new GenyoDiscord());
@@ -112,17 +120,32 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoGhostBlocks());
         modules.add(new GenyoSelfTrap());
         modules.add(new CombatBrainrot());
+        modules.add(new PacketDebug());
+        modules.add(new GenyoAutoMine());
+        modules.add(new GenyoAutoXP());
+        modules.add(new GenyoAutoArmor());
+        modules.add(new GenyoAutoTrap());
+        modules.add(new GenyoCapes());
+        modules.add(new GenyoPhase());
+        modules.add(new GenyoMainMenu());
     }
 
     private void initHUD(Hud hud) {
         hud.register(PvPNeccessaryHud.INFO);
         hud.register(InCombatHud.INFO);
         hud.register(ActiveGenyoHud.INFO);
+        hud.register(PacketsHud.INFO);
+        hud.register(WatermarkHud.INFO);
+        hud.register(BetterPlayerRadarHud.INFO);
     }
 
     @Override
     public void onRegisterCategories() {
-        Modules.registerCategory(GENYO);
+        Modules.registerCategory(COMBAT);
+        Modules.registerCategory(MISC);
+        Modules.registerCategory(MOVEMENT);
+        Modules.registerCategory(VISUAL);
+        Modules.registerCategory(WORLD);
     }
 
     @Override

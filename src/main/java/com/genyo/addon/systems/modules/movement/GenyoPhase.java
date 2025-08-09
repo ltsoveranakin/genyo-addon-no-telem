@@ -1,0 +1,454 @@
+package com.genyo.addon.systems.modules.movement;
+
+import com.genyo.addon.GenyoAddon;
+import com.genyo.addon.events.network.PlayerUpdateEvent;
+import com.genyo.addon.events.network.PushOutOfBlocksEvent;
+import com.genyo.addon.events.world.BlockCollisionEvent;
+import com.genyo.addon.managers.Managers;
+import com.genyo.addon.systems.modules.GenyoModule;
+import com.genyo.addon.systems.modules.PlacerModule;
+import com.genyo.addon.systems.settings.FloatSetting;
+import com.genyo.addon.utils.player.RaycastUtil;
+import com.genyo.addon.utils.player.RotationUtil;
+import com.genyo.addon.utils.string.EnumFormatter;
+import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ScaffoldingBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.EnderPearlItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
+import net.minecraft.util.shape.VoxelShapes;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+public class GenyoPhase extends PlacerModule {
+
+    public GenyoPhase() {
+        super(GenyoAddon.MOVEMENT, "genyo-phase", "asd");
+    }
+
+    private static final List<Block> RESISTANT_BLOCKS = new LinkedList<>()
+    {{
+        add(Blocks.OBSIDIAN);
+        add(Blocks.CRYING_OBSIDIAN);
+        add(Blocks.ENDER_CHEST);
+    }};
+
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgBlocks = settings.createGroup("Blocks");
+
+    private final Setting<PhaseMode> modeConfig = sgGeneral.add(new EnumSetting.Builder<PhaseMode>()
+        .name("Mode")
+        .description("The phase mode for clipping into blocks")
+        .defaultValue(PhaseMode.NORMAL)
+        .build()
+    );
+
+    private final Setting<Integer> pitchConfig = sgGeneral.add(new IntSetting.Builder()
+        .name("Pitch")
+        .description("The pitch to throw pearls")
+        .min(70)
+        .defaultValue(85)
+        .max(90)
+        .sliderMin(70)
+        .sliderMax(90)
+        .sliderRange(70, 90)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    private final Setting<Boolean> swapAltConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Swap Alternative")
+        .description("Uses inventory swap for swapping to pearls")
+        .defaultValue(true)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    private final Setting<Boolean> attackConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Attack")
+        .description("Attacks entities in the way of the pearl phase")
+        .defaultValue(false)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    private final Setting<Boolean> raytraceConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Raytrace")
+        .description("Checks the landing position of the pearl")
+        .defaultValue(false)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    private final Setting<Boolean> swingConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Swing")
+        .description("Swings the hand when throwing pearls")
+        .defaultValue(true)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    private final Setting<Boolean> selfFillConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Self Fill")
+        .description("Automatically fills blocks you are phasing on")
+        .defaultValue(false)
+        .visible(() -> modeConfig.get() == PhaseMode.PEARL)
+        .build()
+    );
+
+    // Blocks
+
+    private final Setting<Double> blocksConfig = sgBlocks.add(new DoubleSetting.Builder()
+        .name("Blocks")
+        .description("The blocks distance to phase clip")
+        .min(0.001d)
+        .defaultValue(0.003d)
+        .max(10.0d)
+        .visible(() -> modeConfig.get() != PhaseMode.PEARL && modeConfig.get() != PhaseMode.CLIP)
+        .build()
+    );
+
+    private final Setting<Double> distanceConfig = sgBlocks.add(new DoubleSetting.Builder()
+        .name("Distance")
+        .description("The distance to phase")
+        .min(0.0f)
+        .defaultValue(0.2f)
+        .max(10.0f)
+        .visible(() -> modeConfig.get() != PhaseMode.PEARL && modeConfig.get() != PhaseMode.CLIP)
+        .build()
+    );
+
+    private final Setting<Boolean> autoClipConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Auto Clip")
+        .description("Automatically clips into the block")
+        .defaultValue(true)
+        .visible(() -> modeConfig.get() != PhaseMode.PEARL && modeConfig.get() != PhaseMode.CLIP)
+        .build()
+    );
+
+    @Override
+    public String getInfoString()
+    {
+        return EnumFormatter.formatEnum(modeConfig.get());
+    }
+
+    @Override
+    public void onActivate()
+    {
+        if (mc.player == null)
+        {
+            return;
+        }
+
+        if (modeConfig.get() == PhaseMode.PEARL)
+        {
+            int pearlSlot = -1;
+            for (int i = 0; i < 45; i++)
+            {
+                ItemStack stack = mc.player.getInventory().getStack(i);
+                if (stack.getItem() instanceof EnderPearlItem)
+                {
+                    pearlSlot = i;
+                    break;
+                }
+            }
+
+            if (pearlSlot == -1 || mc.player.getItemCooldownManager().isCoolingDown(Items.ENDER_PEARL.getDefaultStack()))
+            {
+                toggle();
+                return;
+            }
+
+            float prevYaw = mc.player.getYaw();
+            float prevPitch = mc.player.getPitch();
+            final Vec3d pearlTargetVec = new Vec3d(Math.floor(mc.player.getX()) + 0.5, 0.0, Math.floor(mc.player.getZ()) + 0.5);
+            float[] rotations = RotationUtil.getRotationsTo(mc.player.getEyePos(), pearlTargetVec);
+            float yaw = rotations[0] + 180.0f;  // normalize
+
+            if (attackConfig.get())
+            {
+                BlockHitResult hitResult = (BlockHitResult) RaycastUtil.rayCast(3.0, new float[] { yaw, 60.0f });
+                for (Entity entity : mc.world.getOtherEntities(null, new Box(hitResult.getBlockPos()).expand(0.2)))
+                {
+                    if (entity instanceof ItemFrameEntity itemFrameEntity)
+                    {
+                        if (!itemFrameEntity.getHeldItemStack().isEmpty())
+                        {
+                            Managers.NETWORK.sendPacket(PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking()));
+                        }
+                        Managers.NETWORK.sendPacket(PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking()));
+                        Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+                    }
+                }
+
+                BlockState state = mc.world.getBlockState(mc.player.getBlockPos());
+                if (state.getBlock() instanceof ScaffoldingBlock)
+                {
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, mc.player.getBlockPos(), Direction.UP));
+                    Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, mc.player.getBlockPos(), Direction.UP));
+                }
+            }
+
+            if (selfFillConfig.get())
+            {
+                float yaw1 = yaw % 360.0f;
+                if (yaw1 < 0.0f)
+                {
+                    yaw1 += 360.0f;
+                }
+
+                BlockPos blockPos = mc.player.getBlockPos();
+                if (yaw1 >= 22.5 && yaw1 < 67.5)
+                {
+                    blockPos = blockPos.south().west();
+                }
+                else if (yaw1 >= 67.5 && yaw1 < 112.5)
+                {
+                    blockPos = blockPos.west();
+                }
+                else if (yaw1 >= 112.5 && yaw1 < 157.5)
+                {
+                    blockPos = blockPos.north().west();
+                }
+                else if (yaw1 >= 157.5 && yaw1 < 202.5)
+                {
+                    blockPos = blockPos.north();
+                }
+                else if (yaw1 >= 202.5 && yaw1 < 247.5)
+                {
+                    blockPos = blockPos.north().east();
+                }
+                else if (yaw1 >= 247.5 && yaw1 < 292.5)
+                {
+                    blockPos = blockPos.east();
+                }
+                else if (yaw1 >= 292.5 && yaw1 < 337.5)
+                {
+                    blockPos = blockPos.south().east();
+                }
+                else
+                {
+                    blockPos = blockPos.south();
+                }
+
+                int slot = getResistantBlockItem();
+                if (slot != -1 && blockPos != null && !mc.world.getBlockState(blockPos.down()).isReplaceable())
+                {
+                    Managers.INTERACT.placeBlock(blockPos, slot,
+                        strictDirectionConfig.get(), false, true, (state, angles) ->
+                        {
+                            if (state)
+                            {
+                                Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
+                            }
+                            else
+                            {
+                                Managers.ROTATION.setRotationSilentSync();
+                            }
+                        });
+                }
+            }
+
+            setRotationClient(yaw, pitchConfig.get());
+            // mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(rotations[0] + 180.0f, pitchConfig.get(), mc.player.isOnGround()));
+            if (swapAltConfig.get())
+            {
+                mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, mc.player.getInventory().selectedSlot + 36, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
+            }
+            else if (pearlSlot < 9)
+            {
+                Managers.INVENTORY.setSlot(pearlSlot);
+            }
+
+            setRotationSilent(yaw, pitchConfig.get());
+            Managers.NETWORK.sendSequencedPacket(id -> new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, id, yaw, pitchConfig.get()));
+            Managers.PEARL.setLastThrownAngles(new float[] { yaw, pitchConfig.get() });
+            if (swingConfig.get())
+            {
+                mc.player.swingHand(Hand.MAIN_HAND);
+            }
+            else
+            {
+                Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+            }
+
+            if (swapAltConfig.get())
+            {
+                mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, mc.player.getInventory().selectedSlot + 36, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
+            }
+            else if (pearlSlot < 9)
+            {
+                Managers.INVENTORY.syncToClient();
+            }
+
+            Managers.ROTATION.setRotationSilentSync();
+            setRotationClient(prevYaw, prevPitch);
+            toggle();
+        }
+
+        else if (autoClipConfig.get())
+        {
+            double cos = Math.cos(Math.toRadians(mc.player.getYaw() + 90.0f));
+            double sin = Math.sin(Math.toRadians(mc.player.getYaw() + 90.0f));
+            mc.player.setPosition(mc.player.getX() + (1.0 * blocksConfig.get() * cos + 0.0 * blocksConfig.get() * sin),
+                mc.player.getY(), mc.player.getZ() + (1.0 * blocksConfig.get() * sin - 0.0 * blocksConfig.get() * cos));
+        }
+    }
+
+    @EventHandler
+    public void onTick(TickEvent.Pre event)
+    {
+        if (modeConfig.get() != PhaseMode.CLIP
+            || !mc.player.isOnGround() || mc.player.isRiding())
+        {
+            return;
+        }
+
+        // fucks with mc hitbox checks
+        Vec3d vec3d = mc.player.getBlockPos().toCenterPos();
+        boolean flagX = (vec3d.x - mc.player.getX()) > 0;
+        boolean flagZ = (vec3d.z - mc.player.getZ()) > 0;
+        double x = vec3d.x + 0.20000000009497754 * (flagX ? -1 : 1);
+        double z = vec3d.z + 0.2000000000949811 * (flagZ ? -1 : 1);
+        mc.player.setPosition(x, mc.player.getY(), z);
+        toggle();
+    }
+
+    @EventHandler
+    public void onBlockCollision(BlockCollisionEvent event) {
+        if (mc.player == null)
+        {
+            return;
+        }
+        switch (modeConfig.get())
+        {
+            case NORMAL ->
+            {
+                if (event.shape != VoxelShapes.empty() && event.shape.getBoundingBox().maxY > mc.player.getBoundingBox().minY && mc.player.isSneaking())
+                {
+                    event.cancel();
+                    event.setVoxelShape(VoxelShapes.empty());
+                }
+            }
+            case SAND ->
+            {
+                event.cancel();
+                event.setVoxelShape(VoxelShapes.empty());
+                mc.player.noClip = true;
+            }
+            case CLIMB ->
+            {
+                if (mc.player.horizontalCollision)
+                {
+                    event.cancel();
+                    event.setVoxelShape(VoxelShapes.empty());
+                }
+                if (mc.player.input.playerInput.sneak() || (mc.player.input.playerInput.jump()
+                    && event.pos.getY() > mc.player.getY()))
+                {
+                    event.cancel();
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerUpdate(PlayerUpdateEvent event)
+    {
+        switch (modeConfig.get())
+        {
+            case NORMAL ->
+            {
+                if (mc.player.isSneaking() && isPhasing())
+                {
+                    float yaw = mc.player.getYaw();
+                    mc.player.setBoundingBox(mc.player.getBoundingBox().offset(
+                        distanceConfig.get() * Math.cos(Math.toRadians(yaw + 90.0f)),
+                        0.0, distanceConfig.get() * Math.sin(Math.toRadians(yaw + 90.0f))));
+                }
+            }
+            case SAND ->
+            {
+                Managers.MOVEMENT.setMotionY(0.0);
+                if (mc.isWindowFocused())
+                {
+                    if (mc.player.input.playerInput.jump())
+                    {
+                        Managers.MOVEMENT.setMotionY(mc.player.getVelocity().y + 0.3);
+                    }
+                    if (mc.player.input.playerInput.sneak())
+                    {
+                        Managers.MOVEMENT.setMotionY(mc.player.getVelocity().y - 0.3);
+                    }
+                }
+                mc.player.noClip = true;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPushOutOfBlocks(PushOutOfBlocksEvent event)
+    {
+        event.cancel();
+    }
+
+    public boolean isPhasing()
+    {
+        Box bb = mc.player.getBoundingBox();
+        for (int x = MathHelper.floor(bb.minX); x < MathHelper.floor(bb.maxX) + 1; x++)
+        {
+            for (int y = MathHelper.floor(bb.minY); y < MathHelper.floor(bb.maxY) + 1; y++)
+            {
+                for (int z = MathHelper.floor(bb.minZ); z < MathHelper.floor(bb.maxZ) + 1; z++)
+                {
+                    if (mc.world.getBlockState(new BlockPos(x, y, z)).blocksMovement())
+                    {
+                        if (bb.intersects(new Box(x, y, z, x + 1.0, y + 1.0, z + 1.0)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean shouldRaytrace()
+    {
+        return raytraceConfig.get();
+    }
+
+    public enum PhaseMode
+    {
+        NORMAL,
+        SAND,
+        CLIMB,
+        PEARL,
+        CLIP
+    }
+
+}

@@ -2,6 +2,7 @@ package com.genyo.addon.managers;
 
 import com.genyo.addon.managers.anticheat.AntiCheatManager;
 import com.genyo.addon.managers.combat.CombatManager;
+import com.genyo.addon.managers.combat.PearlManager;
 import com.genyo.addon.managers.combat.TotemManager;
 import com.genyo.addon.managers.network.GDTogglerManager;
 import com.genyo.addon.managers.network.NetworkManager;
@@ -11,6 +12,7 @@ import com.genyo.addon.managers.player.MovementManager;
 import com.genyo.addon.managers.player.PositionManager;
 import com.genyo.addon.managers.player.rotation.RotationManager;
 import com.genyo.addon.managers.world.BlockManager;
+import com.genyo.addon.managers.world.SocialManager;
 import com.genyo.addon.managers.world.tick.TickManager;
 import com.genyo.addon.render.Render3DEngine;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -29,6 +31,8 @@ public class Managers {
     public static final PositionManager POSITION = new PositionManager();
     public static final AntiCheatManager ANTICHEAT = new AntiCheatManager();
     public static final TickManager TICK = new TickManager();
+    public static final SocialManager SOCIAL = new SocialManager();
+    public static final PearlManager PEARL = new PearlManager();
 
     public static void subscribe() {
         MeteorClient.EVENT_BUS.subscribe(COMBAT);
@@ -44,6 +48,7 @@ public class Managers {
         MeteorClient.EVENT_BUS.subscribe(POSITION);
         MeteorClient.EVENT_BUS.subscribe(ANTICHEAT);
         MeteorClient.EVENT_BUS.subscribe(TICK);
+        MeteorClient.EVENT_BUS.subscribe(PEARL);
     }
 
 }

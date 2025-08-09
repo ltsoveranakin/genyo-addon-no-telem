@@ -1,6 +1,6 @@
 package com.genyo.addon.managers.network;
 
-import com.genyo.addon.modules.misc.GenyoDiscord;
+import com.genyo.addon.systems.modules.misc.GenyoDiscord;
 import com.genyo.addon.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.systems.modules.Modules;

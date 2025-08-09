@@ -2,7 +2,7 @@ package com.genyo.addon.mixin.network;
 
 import com.genyo.addon.mixin.accessor.AccessorClientConnection;
 import com.genyo.addon.imixins.IClientPlayNetworkHandler;
-import com.genyo.addon.modules.movement.GenyoVelocity;
+import com.genyo.addon.systems.modules.movement.GenyoVelocity;
 import meteordevelopment.meteorclient.mixininterface.IExplosionS2CPacket;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

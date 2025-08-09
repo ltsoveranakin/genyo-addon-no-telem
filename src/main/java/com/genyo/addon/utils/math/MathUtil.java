@@ -22,6 +22,10 @@ public class MathUtil {
         return num;
     }
 
+    public static double random(double max, double min) {
+        return Math.random() * (max - min) + min;
+    }
+
     public static float squared(float value) {
         return value*value;
     }
