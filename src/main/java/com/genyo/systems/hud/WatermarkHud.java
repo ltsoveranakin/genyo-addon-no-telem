@@ -12,9 +12,20 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 public class WatermarkHud extends HudElement {
 
     public static final HudElementInfo<WatermarkHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "watermark", "The best thing in the entire addon.", WatermarkHud::new);
+    public WatermarkHud() {
+        super(INFO);
+    }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScale = settings.createGroup("Scale");
+
+    private final Setting<Boolean> version = sgGeneral.add(new BoolSetting.Builder()
+        .name("Version")
+        .description("Render the current Genyo version")
+        .defaultValue(false)
+        .onChanged(this::updateRenderText)
+        .build()
+    );
 
     private final Setting<Boolean> shadow = sgGeneral.add(new BoolSetting.Builder()
         .name("shadow")
@@ -49,8 +60,11 @@ public class WatermarkHud extends HudElement {
         .build()
     );
 
-    public WatermarkHud() {
-        super(INFO);
+    private String renderText = "Genyo";
+
+    private void updateRenderText(boolean version) {
+        if (version) renderText = "Genyo " + GenyoAddon.VERSION;
+        else renderText = "Genyo";
     }
 
     private double getScale() {
@@ -59,13 +73,12 @@ public class WatermarkHud extends HudElement {
 
     @Override
     public void tick(HudRenderer renderer) {
-        setSize(renderer.textWidth("Genyo " + GenyoAddon.VERSION, shadow.get(), getScale()), renderer.textHeight(shadow.get(), getScale()));
+        setSize(renderer.textWidth(renderText, shadow.get(), getScale()), renderer.textHeight(shadow.get(), getScale()));
     }
 
     @Override
     public void render(HudRenderer renderer) {
-        renderer.text("Genyo ", x, y, color.get(), shadow.get(), getScale());
-        renderer.text(GenyoAddon.VERSION.toString(), x + renderer.textWidth("Genyo ", shadow.get(), getScale()), y, color.get(), shadow.get(), getScale());
+        renderer.text(renderText, x, y, color.get(), shadow.get(), getScale());
     }
 
 }
