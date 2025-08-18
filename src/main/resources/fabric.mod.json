@@ -16,7 +16,7 @@
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "com.genyo.addon.GenyoAddon"
+      "com.genyo.GenyoAddon"
     ]
   },
   "mixins": [
