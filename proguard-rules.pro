@@ -15,7 +15,7 @@
 -keep class com.genyo.addon.** { *; }
 
 # 4) Keep your addon’s main entrypoint (by name)
--keep class com.genyo.addon.GenyoAddon {
+-keep class com.genyo.GenyoAddon {
     public <init>();
 }
 
