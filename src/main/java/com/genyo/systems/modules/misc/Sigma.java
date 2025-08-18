@@ -6,10 +6,7 @@ import com.genyo.utils.math.MathUtil;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.EnumSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.resource.Resource;
@@ -24,6 +21,16 @@ public class Sigma extends GenyoModule {
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Integer> interval = sgGeneral.add(new IntSetting.Builder()
+        .name("Time Interval")
+        .description("The time between the comings of Christ (in minutes)")
+        .min(1)
+        .defaultValue(5)
+        .max(20)
+        .sliderRange(1, 20)
+        .build()
+    );
 
     private final Setting<Boolean> the = sgGeneral.add(new BoolSetting.Builder()
         .name("This doesn't do anything")
@@ -55,8 +62,8 @@ public class Sigma extends GenyoModule {
     public void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
 
-        if (!timer.passed(300000)) return;
-        //if (!timer.passed(5000)) return;
+        if (!timer.passed(interval.get() * 60000)) return;
+        //if (!timer.passed(5000)) return; // for testing
 
         String output = "";
         String sigma = getSigma();
@@ -88,7 +95,10 @@ public class Sigma extends GenyoModule {
             Resource resource = mc.getResourceManager().getResource(identifier).orElseThrow();
             List<String> messages = resource.getReader().lines().toList();
             sigma = messages.get(MathUtil.pickRandom(messages));
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            GenyoAddon.LOG.info(e.getMessage());
+            sendError("Couldn't read file. Send logs to wuritz pls.");
+        }
 
         if (sigma.isEmpty()) return null;
         else return sigma;

@@ -7,6 +7,7 @@ import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
@@ -31,6 +32,16 @@ public class Einstein extends GenyoModule {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
+    private final Setting<Integer> interval = sgGeneral.add(new IntSetting.Builder()
+        .name("Time Interval")
+        .description("The time between the executions of the Final Solution (in minutes)")
+        .min(1)
+        .defaultValue(5)
+        .max(20)
+        .sliderRange(1, 20)
+        .build()
+    );
+
     private final Setting<Boolean> goodbye = sgGeneral.add(new BoolSetting.Builder()
         .name("Say goodbye")
         .description("If you enter an incorrect answer you say something before you can't.")
@@ -44,7 +55,7 @@ public class Einstein extends GenyoModule {
     private final Random random = new Random();
 
     // Cooldown
-    private int cooldown = 300; // default: 300, testing: 5
+    private int cooldown = interval.get() * 60000; // default: 300, testing: 5
     private final Timer timer = new CacheTimer();
 
     // Game things
@@ -67,15 +78,15 @@ public class Einstein extends GenyoModule {
     public void onTick(TickEvent.Pre event) {
         if (mc.world == null && mc.player == null) return;
 
-        if (timer.passed(cooldown * 1000) && !inGame) {
-            game();
+        if (timer.passed(cooldown) && !inGame) {
+            startGame();
             inGame = true;
             resetGame();
         }
 
         if (inGame) { // In-game checks
             if (answerTimer.passed(15000)) {
-                incorrect();
+                endGame(false);
             } else if (answerTimer.getElapsedTime() - ((15 - remainingTime) * 1000L) >= 1000) {
                 remainingTime -= 1;
                 GenyoChatUtils.sendMessage(String.valueOf(remainingTime), "genyo-einstein-remaining");
@@ -83,7 +94,7 @@ public class Einstein extends GenyoModule {
         }
     }
 
-    private void game() {
+    private void startGame() {
         currentEntry = entries.get(random.nextInt(entries.size()));
         if (currentEntry == null) return;
 
@@ -105,22 +116,22 @@ public class Einstein extends GenyoModule {
         answerTimer.reset();
     }
 
-    public void correct() {
-        inGame = false;
-        String output = "";
+    public void endGame(boolean correct) {
+        if (correct) {
+            inGame = false;
+            String output = "";
 
-        output += Formatting.GREEN + " Correct :D";
+            output += Formatting.GREEN + " Correct :D";
 
-        GenyoChatUtils.sendMessage(output);
-    }
+            GenyoChatUtils.sendMessage(output);
+        } else {
+            inGame = false;
+            resetDefaults();
 
-    public void incorrect() {
-        inGame = false;
-        resetDefaults();
+            if (goodbye.get()) ChatUtils.sendPlayerMsg("I feel like leaving.");
 
-        if (goodbye.get()) ChatUtils.sendPlayerMsg("I feel like leaving.");
-
-        mc.close();
+            mc.close();
+        }
     }
 
     public String getCorrectChoice() {
@@ -165,6 +176,7 @@ public class Einstein extends GenyoModule {
             }
         } catch (Exception exception) {
             GenyoAddon.LOG.info(exception.getMessage());
+            sendError("Couldn't read file. Send logs to wuritz pls.");
         }
     }
 
@@ -215,14 +227,13 @@ public class Einstein extends GenyoModule {
 
     private void resetGame() {
         timer.reset();
-        cooldown = random.nextInt(120, 1800); // for real use
-        //cooldown = random.nextInt(5, 10); // for testing
+        cooldown = interval.get() * 60000;
     }
 
     private void resetDefaults() {
         timer.reset();
         answerTimer.reset();
-        cooldown = 300; // default: 300, testing: 5
+        cooldown = interval.get() * 60000;
         currentEntry = null;
         inGame = false;
         remainingTime = 15;

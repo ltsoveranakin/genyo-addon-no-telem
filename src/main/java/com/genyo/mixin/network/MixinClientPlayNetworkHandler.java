@@ -67,8 +67,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
                 String correct = einstein.getCorrectChoice();
 
-                if (message.equals(correct)) einstein.correct();
-                else einstein.incorrect();
+                einstein.endGame(message.equals(correct));
             }
         }
     }
