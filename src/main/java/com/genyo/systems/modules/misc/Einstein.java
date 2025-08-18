@@ -39,9 +39,9 @@ public class Einstein extends GenyoModule {
     );
 
     // Things
-    private final Identifier file = Identifier.of(GenyoAddon.MOD_ID, "files/einstein.yml");
-    private List<Entry> entries = new ArrayList<>();
-    private Random random = new Random();
+    private final Identifier file = Identifier.of(GenyoAddon.MOD_ID, "einstein/einstein.yml");
+    private final List<Entry> entries = new ArrayList<>();
+    private final Random random = new Random();
 
     // Cooldown
     private int cooldown = 5; // default: 300
@@ -138,8 +138,6 @@ public class Einstein extends GenyoModule {
 
             List<?> keys = yamlMap.keySet().stream().toList();
             for (Object o : keys) {
-                Integer index = (int) o;
-
                 // The things
                 String question;
                 List<String> answers;
