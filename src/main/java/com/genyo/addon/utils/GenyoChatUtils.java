@@ -25,8 +25,16 @@ public class GenyoChatUtils {
         if (mc.world == null) return;
 
         ChatUtils.forceNextPrefixClass(GenyoChatUtils.class);
-        String msg = prefix + " " + text;
+        String msg = prefix + Formatting.RESET + " " + text;
         sendMessage(Text.of(msg), Objects.hash("genyo-msg"));
+    }
+
+    public static void sendMessage(String text, String id) {
+        if (mc.world == null) return;
+
+        ChatUtils.forceNextPrefixClass(GenyoChatUtils.class);
+        String msg = prefix + Formatting.RESET + " " + text;
+        sendMessage(Text.of(msg), Objects.hash(id));
     }
 
     public static void sendError(String text) {

@@ -23,7 +23,7 @@ import java.util.List;
 public class CombatBrainrot extends GenyoModule {
 
     public CombatBrainrot() {
-        super(GenyoAddon.MISC, "combat-brainrot", "says something sigma when punching a crystal.");
+        super(GenyoAddon.MISC, "combat-brainrot", "says something sigma while in crystal pvp.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

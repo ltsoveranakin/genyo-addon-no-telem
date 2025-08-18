@@ -1,5 +1,6 @@
 package com.genyo.addon.mixin.render;
 
+import com.genyo.addon.events.render.RenderShaderEvent;
 import com.genyo.addon.events.render.RenderWorldEvent;
 import com.mojang.blaze3d.systems.RenderSystem;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -26,6 +27,15 @@ public abstract class MixinWorldRenderer {
         final RenderWorldEvent renderWorldEvent = RenderWorldEvent.get(matrixStack, tickCounter.getTickDelta(true));
         MeteorClient.EVENT_BUS.post(renderWorldEvent);
         RenderSystem.getModelViewStack().popMatrix();
+    }
+
+    @Inject(method = "render", at = @At(value = "RETURN"))
+    private void hookRender$1(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
+    {
+        MatrixStack matrixStack = new MatrixStack();
+        matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0f));
+        MeteorClient.EVENT_BUS.post(RenderShaderEvent.get(matrixStack, tickCounter.getTickDelta(true)));
     }
 
 }

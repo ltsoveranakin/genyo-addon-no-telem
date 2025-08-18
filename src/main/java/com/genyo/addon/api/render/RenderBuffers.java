@@ -1,4 +1,4 @@
-package com.genyo.addon.render;
+package com.genyo.addon.api.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -46,6 +46,18 @@ public class RenderBuffers {
             callback.run();
         }
         postRenderCallbacks.clear();
+    }
+
+    public static void post(Runnable callback)
+    {
+        if (isSetup)
+        {
+            postRenderCallbacks.add(callback);
+        }
+        else
+        {
+            callback.run();
+        }
     }
 
     private static Matrix4d toMatrix4d(Matrix4f matrix4f)

@@ -4,6 +4,7 @@ import com.genyo.addon.GenyoAddon;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.hud.*;
+import meteordevelopment.meteorclient.systems.modules.render.Nametags;
 import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
@@ -93,7 +94,7 @@ public class BetterPlayerRadarHud extends HudElement {
     private final Setting<Boolean> distance = sgFeatures.add(new BoolSetting.Builder()
         .name("distance")
         .description("Shows the distance to the player next to their name.")
-        .defaultValue(false)
+        .defaultValue(true)
         .build()
     );
 
@@ -110,6 +111,14 @@ public class BetterPlayerRadarHud extends HudElement {
         .defaultValue(true)
         .build()
     );
+
+    /*private final Setting<Boolean> coloredPing = sgFeatures.add(new BoolSetting.Builder()
+        .name("Colored Ping")
+        .description("Dynamic color based on ping.")
+        .defaultValue(true)
+        .visible(ping::get)
+        .build()
+    );*/
 
     // Scale
 
@@ -226,6 +235,7 @@ public class BetterPlayerRadarHud extends HudElement {
             // Strings
             String distanceText = null;
             String healthText = null;
+            String fullHealthText = null;
             String pingText = null;
 
             // Health
@@ -272,8 +282,9 @@ public class BetterPlayerRadarHud extends HudElement {
                 else healthColor = GREEN;
 
                 width += spaceWidth;
-                healthText = String.format("| %s", healthInt);
-                width += renderer.textWidth(healthText, shadow.get(), getScale());
+                healthText = String.format("%s", healthInt);
+                fullHealthText = "| " + healthText;
+                width += renderer.textWidth(fullHealthText, shadow.get(), getScale());
             }
 
             x = renderer.text(text, x, y, color, shadow.get());
@@ -282,11 +293,14 @@ public class BetterPlayerRadarHud extends HudElement {
                 x += spaceWidth + renderer.textWidth(distanceText, shadow.get(), getScale());
             }
             if (ping.get()) {
+                //TODO: ping color
                 renderer.text(pingText, x + spaceWidth, y, secondaryColor.get(), shadow.get(), getScale());
                 x += spaceWidth + renderer.textWidth(pingText, shadow.get(), getScale());
             }
             if (health.get()) {
-                renderer.text(healthText, x + spaceWidth, y, healthColor, shadow.get(), getScale());
+                renderer.text("|", x + spaceWidth, y, secondaryColor.get(), shadow.get(), getScale());
+                x += spaceWidth;
+                renderer.text(healthText, x + spaceWidth + spaceWidth, y, healthColor, shadow.get(), getScale());
                 x += spaceWidth;
             }
         }

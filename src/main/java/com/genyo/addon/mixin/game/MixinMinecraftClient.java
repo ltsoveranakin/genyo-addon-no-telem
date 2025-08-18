@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-    @Unique
+    /*@Unique
     @Nullable
     public ClientPlayerEntity player;
 
@@ -39,7 +39,6 @@ public abstract class MixinMinecraftClient {
         if (screen instanceof TitleScreen) {
             //Sydney.checkForUpdates(); auto updater
 
-            //if (Sydney.MODULE_MANAGER.getModule(MenuModule.class).isToggled() && Sydney.MODULE_MANAGER.getModule(MenuModule.class).mainMenu.getValue()) {
             if (Modules.get().isActive(GenyoMainMenu.class)) {
                 this.setScreen(new MainMenuScreen());
                 info.cancel();

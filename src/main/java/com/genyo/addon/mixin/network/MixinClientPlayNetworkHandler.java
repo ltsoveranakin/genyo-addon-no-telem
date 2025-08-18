@@ -2,9 +2,20 @@ package com.genyo.addon.mixin.network;
 
 import com.genyo.addon.mixin.accessor.AccessorClientConnection;
 import com.genyo.addon.imixins.IClientPlayNetworkHandler;
+import com.genyo.addon.systems.modules.misc.Einstein;
 import com.genyo.addon.systems.modules.movement.GenyoVelocity;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import meteordevelopment.meteorclient.MeteorClient;
+import meteordevelopment.meteorclient.commands.Commands;
+import meteordevelopment.meteorclient.events.game.SendMessageEvent;
 import meteordevelopment.meteorclient.mixininterface.IExplosionS2CPacket;
+import meteordevelopment.meteorclient.pathing.BaritoneUtils;
+import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.utils.player.ChatUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
@@ -12,16 +23,27 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
-public class MixinClientPlayNetworkHandler implements IClientPlayNetworkHandler {
+public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler implements IClientPlayNetworkHandler  {
+
+    @Unique
+    private boolean ignoreChatMessage;
+
+    @Shadow
+    public abstract void sendChatMessage(String content);
 
     @Shadow
     public ClientConnection getConnection() {
         return null;
+    }
+
+    protected MixinClientPlayNetworkHandler(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
+        super(client, connection, connectionState);
     }
 
     @Inject(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
@@ -39,6 +61,23 @@ public class MixinClientPlayNetworkHandler implements IClientPlayNetworkHandler 
     public void sendQuietPacket(Packet<?> packet)
     {
         ((AccessorClientConnection) getConnection()).hookSendInternal(packet, null, true);
+    }
+
+    @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
+    private void onSendChatMessage(String message, CallbackInfo ci) {
+        if (ignoreChatMessage) return;
+
+        Einstein einstein = Modules.get().get(Einstein.class);
+        if (Modules.get().isActive(Einstein.class)) {
+            if (einstein.isInGame()) {
+                ci.cancel();
+
+                String correct = einstein.getCorrectChoice();
+
+                if (message.equals(correct)) einstein.correct();
+                else einstein.incorrect();
+            }
+        }
     }
 
 }

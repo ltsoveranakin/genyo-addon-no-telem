@@ -1,0 +1,269 @@
+{0: {answers: {A: '279', B: '289', C: '299', D: '361'}, correct: '289', index: '0',
+     question: 'What is 17^2?'}, 1: {answers: {A: '1728', B: '1331', C: '2197', D: '2048'},
+                                     correct: '2197', index: '1', question: 'What is 13^3?'}, 2: {answers: {A: '720',
+                                                                                                            B: '5040', C: '40320', D: '362880'}, correct: '5040', index: '2', question: 'What
+      is 7!?'}, 3: {answers: {A: '6', B: '9', C: '18', D: '36'}, correct: '18', index: '3',
+                    question: 'What is gcd(252,198)?'}, 4: {answers: {A: '70', B: '140', C: '280',
+                                                                      D: '210'}, correct: '140', index: '4', question: 'What is lcm(14,20)?'}, 5: {
+    answers: {A: '1000', B: '1024', C: '2048', D: '512'}, correct: '1024', index: '5',
+    question: 'What is 2^10?'}, 6: {answers: {A: '12', B: '18', C: '24', D: '16'},
+                                    correct: '12', index: '6', question: "What is \u03C6(36)?"}, 7: {answers: {A: '1',
+                                                                                                               B: '3', C: '7', D: '9'}, correct: '7', index: '7', question: 'What is the last
+      digit of 7^2025?'}, 8: {answers: {A: '364', B: '495', C: '792', D: '220'}, correct: '495',
+                              index: '8', question: 'What is C(12,4)?'}, 9: {answers: {A: '1260', B: '1440',
+                                                                                       C: '1620', D: '1800'}, correct: '1440', index: '9', question: 'What is the sum
+      of interior angles of a decagon?'}, 10: {answers: {A: '1', B: '11', C: '13',
+                                                         D: '17'}, correct: '11', index: '10', question: 'What is det([[3,2],[5,7]])?'},
+    11: {answers: {A: '34', B: '55', C: '89', D: '144'}, correct: '55', index: '11',
+         question: 'What is F10 (F1=1,F2=1)?'}, 12: {answers: {A: '614', B: '604', C: '624',
+                                                               D: '544'}, correct: '604', index: '12', question: "What is 9^3\u22125^3?"},
+    13: {answers: {A: '18', B: '24', C: '30', D: '36'}, correct: '24', index: '13',
+         question: 'What is the number of divisors of 360?'}, 14: {answers: {A: '0', B: '1',
+                                                                             C: '5', D: '12'}, correct: '0', index: '14', question: 'What is the remainder
+      when 1001 is divided by 13?'}, 15: {answers: {A: '12', B: '13', C: '14', D: '15'},
+                                          correct: '13', index: '15', question: 'What is log2(8192)?'}, 16: {answers: {
+    A: '6561', B: '729', C: '2187', D: '8192'}, correct: '6561', index: '16', question: 'What
+      is 3^8?'}, 17: {answers: {A: '11', B: '13', C: '17', D: '19'}, correct: '13',
+                      index: '17', question: 'What is the smallest prime factor of 221?'}, 18: {answers: {
+    A: '1', B: '9', C: '3', D: '0'}, correct: '1', index: '18', question: 'What
+      is 0.999... as a fraction?'}, 19: {answers: {A: '56', B: '64', C: '70', D: '84'},
+                                         correct: '56', index: '19', question: 'What is C(8,3)?'}, 20: {answers: {A: '1',
+                                                                                                                  B: '2', C: '3', D: '4'}, correct: '3', index: '20', question: 'What is 15 mod
+      4?'}, 21: {answers: {A: '80', B: '40', C: '160', D: '320'}, correct: '80', index: '21',
+                 question: 'What is (d/dx)x^5 at x=2?'}, 22: {answers: {A: '1', B: '3', C: '0',
+                                                                        D: '2'}, correct: '1', index: '22', question: "What is \u222B0^1 3x^2 dx?"},
+    23: {answers: {A: '1225', B: '1275', C: '1325', D: '1375'}, correct: '1275', index: '23',
+         question: 'What is the sum of the first 50 positive integers?'}, 24: {answers: {
+    A: '1048576', B: '524288', C: '2097152', D: '262144'}, correct: '1048576', index: '24',
+                                                                               question: 'What is 2^20?'}, 25: {answers: {A: '935', B: '1001', C: '1003', D: '1099'},
+                                                                                                                correct: '1001', index: '25', question: "What is 11\xD713\xD77?"}, 26: {answers: {
+    A: '84', B: '96', C: '104', D: '112'}, correct: '96', index: '26', question: "What\
+      \ is 14^2\u221210^2?"}, 27: {answers: {A: '48', B: '60', C: '72', D: '96'},
+                                   correct: '72', index: '27', question: "What is 3\xD74!?"}, 28: {answers: {A: '120',
+                                                                                                             B: '360', C: '720', D: '840'}, correct: '720', index: '28', question: 'What
+      is the number of permutations of 6 distinct items?'}, 29: {answers: {A: Zero,
+                                                                           B: Infinity, C: Undefined, D: One}, correct: Undefined, index: '29', question: 'What
+      is 1/0?'}, 30: {answers: {A: '4', B: '8', C: '16', D: '36'}, correct: '16',
+                      index: '30', question: "What is the discriminant of x^2\u221210x+21?"}, 31: {
+    answers: {A: '2', B: '3', C: '4', D: '6'}, correct: '3', index: '31', question: "What\
+      \ is the larger root of x^2\u22125x+6=0?"}, 32: {answers: {A: '998001', B: '999000',
+                                                                 C: '1000001', D: '997002'}, correct: '998001', index: '32', question: "What\
+      \ is 999\xD7999?"}, 33: {answers: {A: '1', B: '2', C: '3', D: '4'}, correct: '2',
+                               index: '33', question: 'What is 23 mod 7?'}, 34: {answers: {A: '3', B: '5', C: '8',
+                                                                                           D: '10'}, correct: '3', index: '34', question: "What is the smallest positive\
+      \ solution to x\u22613 (mod 5)?"}, 35: {answers: {A: '78125', B: '16807', C: '59049',
+                                                        D: '65536'}, correct: '78125', index: '35', question: 'What is 5^7?'}, 36: {
+    answers: {A: '0', B: '1', C: '2', D: '3'}, correct: '1', index: '36', question: 'What
+      is the remainder when 2^100 is divided by 3?'}, 37: {answers: {A: '22', B: '24',
+                                                                     C: '25', D: '26'}, correct: '24', index: '37', question: 'What is the number
+      of trailing zeros in 100!?'}, 38: {answers: {A: '23', B: '25', C: '26', D: '28'},
+                                         correct: '26', index: '38', question: 'What is the sum of digits of 2^15?'}, 39: {
+    answers: {A: '10', B: '12', C: '14', D: '16'}, correct: '12', index: '39', question: "What\
+      \ is the radius of a circle with area 144\u03C0?"}, 40: {answers: {A: '18',
+                                                                         B: '20', C: '22', D: '24'}, correct: '20', index: '40', question: 'What is the
+      arithmetic mean of 12 and 28?'}, 41: {answers: {A: '125', B: '145', C: '161',
+                                                      D: '225'}, correct: '145', index: '41', question: 'What is 3^4+4^3?'}, 42: {
+    answers: {A: '768', B: '752', C: '1024', D: '640'}, correct: '768', index: '42',
+    question: 'What is 2^8+2^9?'}, 43: {answers: {A: '12', B: '7', C: '19', D: '5'},
+                                        correct: '12', index: '43', question: "What is the product of roots of x^2\u2212\
+      7x+12=0?"}, 44: {answers: {A: '20', B: '30', C: '40', D: '50'}, correct: '40',
+                       index: '44', question: 'What is the coefficient of x^3 in (x+2)^5?'}, 45: {answers: {
+    A: '511', B: '1023', C: '1025', D: '2047'}, correct: '1023', index: '45', question: 'What
+      is 1+2+4+8+...+2^9?'}, 46: {answers: {A: '32', B: '33', C: '34', D: '35'}, correct: '33',
+                                  index: '46', question: "What is \u230A100/3\u230B?"}, 47: {answers: {A: '97',
+                                                                                                       B: '99', C: '101', D: '103'}, correct: '101', index: '47', question: 'What is
+      the smallest prime greater than 100?'}, 48: {answers: {A: '169', B: '181', C: '193',
+                                                             D: '205'}, correct: '169', index: '48', question: 'What is 12^2+5^2?'}, 49: {
+    answers: {A: '4', B: '7', C: '8', D: '9'}, correct: '4', index: '49', question: 'What
+      is the inverse of 3 modulo 11?'}, 50: {answers: {A: '331', B: '341', C: '361',
+                                                       D: '371'}, correct: '361', index: '50', question: 'What is 19^2?'}, 51: {answers: {
+    A: '483', B: '503', C: '529', D: '543'}, correct: '529', index: '51', question: 'What
+      is 23^2?'}, 52: {answers: {A: '831', B: '841', C: '851', D: '861'}, correct: '841',
+                       index: '52', question: 'What is 29^2?'}, 53: {answers: {A: '941', B: '951', C: '961',
+                                                                               D: '971'}, correct: '961', index: '53', question: 'What is 31^2?'}, 54: {answers: {
+    A: '1349', B: '1369', C: '1389', D: '1399'}, correct: '1369', index: '54', question: 'What
+      is 37^2?'}, 55: {answers: {A: '1641', B: '1681', C: '1701', D: '1721'}, correct: '1681',
+                       index: '55', question: 'What is 41^2?'}, 56: {answers: {A: '2209', B: '2219',
+                                                                               C: '2229', D: '2249'}, correct: '2209', index: '56', question: 'What is 47^2?'},
+    57: {answers: {A: '2799', B: '2809', C: '2819', D: '2829'}, correct: '2809', index: '57',
+         question: 'What is 53^2?'}, 58: {answers: {A: '3409', B: '3481', C: '3499', D: '3509'},
+                                          correct: '3481', index: '58', question: 'What is 59^2?'}, 59: {answers: {A: '3701',
+                                                                                                                   B: '3721', C: '3741', D: '3761'}, correct: '3721', index: '59', question: 'What
+      is 61^2?'}, 60: {answers: {A: '4459', B: '4489', C: '4509', D: '4529'}, correct: '4489',
+                       index: '60', question: 'What is 67^2?'}, 61: {answers: {A: '5009', B: '5041',
+                                                                               C: '5081', D: '5101'}, correct: '5041', index: '61', question: 'What is 71^2?'},
+    62: {answers: {A: '5329', B: '5349', C: '5369', D: '5389'}, correct: '5329', index: '62',
+         question: 'What is 73^2?'}, 63: {answers: {A: '6219', B: '6239', C: '6241', D: '6259'},
+                                          correct: '6241', index: '63', question: 'What is 79^2?'}, 64: {answers: {A: '6869',
+                                                                                                                   B: '6889', C: '6899', D: '6909'}, correct: '6889', index: '64', question: 'What
+      is 83^2?'}, 65: {answers: {A: '7901', B: '7921', C: '7939', D: '7951'}, correct: '7921',
+                       index: '65', question: 'What is 89^2?'}, 66: {answers: {A: '9401', B: '9411',
+                                                                               C: '9439', D: '9409'}, correct: '9409', index: '66', question: 'What is 97^2?'},
+    67: {answers: {A: '10101', B: '10201', C: '10301', D: '10401'}, correct: '10201',
+         index: '67', question: 'What is 101^2?'}, 68: {answers: {A: '10409', B: '10501',
+                                                                  C: '10609', D: '10709'}, correct: '10609', index: '68', question: 'What is 103^2?'},
+    69: {answers: {A: '11309', B: '11409', C: '11449', D: '11509'}, correct: '11449',
+         index: '69', question: 'What is 107^2?'}, 70: {answers: {A: '12649', B: '12769',
+                                                                  C: '12809', D: '12849'}, correct: '12769', index: '70', question: 'What is 113^2?'},
+    71: {answers: {A: '16009', B: '16129', C: '16209', D: '16329'}, correct: '16129',
+         index: '71', question: 'What is 127^2?'}, 72: {answers: {A: '17001', B: '17161',
+                                                                  C: '17281', D: '17321'}, correct: '17161', index: '72', question: 'What is 131^2?'},
+    73: {answers: {A: '18769', B: '18869', C: '18969', D: '19069'}, correct: '18769',
+         index: '73', question: 'What is 137^2?'}, 74: {answers: {A: '19101', B: '19201',
+                                                                  C: '19321', D: '19441'}, correct: '19321', index: '74', question: 'What is 139^2?'},
+    75: {answers: {A: '22001', B: '22101', C: '22201', D: '22201'}, correct: '22201',
+         index: '75', question: 'What is 149^2?'}, 76: {answers: {A: '22701', B: '22781',
+                                                                  C: '22801', D: '22901'}, correct: '22801', index: '76', question: 'What is 151^2?'},
+    77: {answers: {A: '24501', B: '24601', C: '24649', D: '24701'}, correct: '24649',
+         index: '77', question: 'What is 157^2?'}, 78: {answers: {A: '26401', B: '26569',
+                                                                  C: '26601', D: '26701'}, correct: '26569', index: '78', question: 'What is 163^2?'},
+    79: {answers: {A: '27701', B: '27889', C: '27901', D: '28001'}, correct: '27889',
+         index: '79', question: 'What is 167^2?'}, 80: {answers: {A: '29701', B: '29809',
+                                                                  C: '29929', D: '30001'}, correct: '29929', index: '80', question: 'What is 173^2?'},
+    81: {answers: {A: '31801', B: '31901', C: '32041', D: '32101'}, correct: '32041',
+         index: '81', question: 'What is 179^2?'}, 82: {answers: {A: '32721', B: '32761',
+                                                                  C: '32801', D: '32841'}, correct: '32761', index: '82', question: 'What is 181^2?'},
+    83: {answers: {A: '36241', B: '36481', C: '36521', D: '36601'}, correct: '36481',
+         index: '83', question: 'What is 191^2?'}, 84: {answers: {A: '37129', B: '37249',
+                                                                  C: '37369', D: '37489'}, correct: '37249', index: '84', question: 'What is 193^2?'},
+    85: {answers: {A: '38569', B: '38701', C: '38809', D: '38929'}, correct: '38809',
+         index: '85', question: 'What is 197^2?'}, 86: {answers: {A: '39601', B: '39701',
+                                                                  C: '39801', D: '39901'}, correct: '39601', index: '86', question: 'What is 199^2?'},
+    87: {answers: {A: '479001600', B: '39916800', C: '6227020800', D: '362880'}, correct: '479001600',
+         index: '87', question: 'What is 12!?'}, 88: {answers: {A: '40320', B: '5040',
+                                                                C: '720', D: '362880'}, correct: '40320', index: '88', question: 'What is 8!?'},
+    89: {answers: {A: '720', B: '5040', C: '362880', D: '3628800'}, correct: '362880',
+         index: '89', question: 'What is 9!?'}, 90: {answers: {A: '362880', B: '3628800',
+                                                               C: '39916800', D: '479001600'}, correct: '3628800', index: '90', question: 'What
+      is 10!?'}, 91: {answers: {A: '3628800', B: '39916800', C: '479001600', D: '6227020800'},
+                      correct: '39916800', index: '91', question: 'What is 11!?'}, 92: {answers: {A: '6227020800',
+                                                                                                  B: '1307674368000', C: '87178291200', D: '2432902008176640000'}, correct: '1307674368000',
+    index: '92', question: 'What is 15!?'}, 93: {answers: {A: '15', B: '25', C: '45',
+                                                           D: '75'}, correct: '45', index: '93', question: 'What is gcd(135,225)?'}, 94: {
+    answers: {A: '18', B: '36', C: '54', D: '72'}, correct: '36', index: '94', question: 'What
+      is gcd(180,324)?'}, 95: {answers: {A: '42', B: '63', C: '84', D: '126'}, correct: '42',
+                               index: '95', question: 'What is gcd(420,378)?'}, 96: {answers: {A: '27', B: '54',
+                                                                                               C: '81', D: '243'}, correct: '81', index: '96', question: 'What is gcd(729,972)?'},
+    97: {answers: {A: '60', B: '90', C: '120', D: '180'}, correct: '90', index: '97',
+         question: 'What is lcm(18,30)?'}, 98: {answers: {A: '42', B: '84', C: '126', D: '168'},
+                                                correct: '84', index: '98', question: 'What is lcm(21,28)?'}, 99: {answers: {
+    A: '100', B: '200', C: '400', D: '800'}, correct: '200', index: '99', question: 'What
+      is lcm(25,40)?'}, 100: {answers: {A: '108', B: '144', C: '162', D: '216'}, correct: '108',
+                              index: '100', question: 'What is lcm(27,36)?'}, 101: {answers: {A: '15625', B: '390625',
+                                                                                              C: '78125', D: '1953125'}, correct: '390625', index: '101', question: 'What
+      is 5^8?'}, 102: {answers: {A: '7776', B: '46656', C: '279936', D: '1679616'},
+                       correct: '46656', index: '102', question: 'What is 6^6?'}, 103: {answers: {A: '16807',
+                                                                                                  B: '117649', C: '823543', D: '78125'}, correct: '16807', index: '103', question: 'What
+      is 7^5?'}, 104: {answers: {A: '4096', B: '8192', C: '16384', D: '32768'}, correct: '4096',
+                       index: '104', question: 'What is 8^4?'}, 105: {answers: {A: '59049', B: '531441',
+                                                                                C: '4782969', D: '43046721'}, correct: '531441', index: '105', question: 'What
+      is 9^6?'}, 106: {answers: {A: '4', B: '8', C: '12', D: '16'}, correct: '8',
+                       index: '106', question: "What is \u03C6(30)?"}, 107: {answers: {A: '12', B: '18',
+                                                                                       C: '24', D: '36'}, correct: '24', index: '107', question: "What is \u03C6(72)?"},
+    108: {answers: {A: '30', B: '40', C: '50', D: '60'}, correct: '40', index: '108',
+          question: "What is \u03C6(100)?"}, 109: {answers: {A: '24', B: '32', C: '36',
+                                                             D: '42'}, correct: '24', index: '109', question: "What is \u03C6(84)?"}, 110: {
+    answers: {A: '8', B: '9', C: '10', D: '11'}, correct: '10', index: '110', question: 'What
+      is log2(1024)?'}, 111: {answers: {A: '4', B: '5', C: '6', D: '7'}, correct: '6',
+                              index: '111', question: 'What is log10(1000000)?'}, 112: {answers: {A: '5', B: '6',
+                                                                                                  C: '7', D: '8'}, correct: '6', index: '112', question: 'What is log3(729)?'},
+    113: {answers: {A: '4', B: '5', C: '6', D: '7'}, correct: '5', index: '113', question: 'What
+      is log5(3125)?'}, 114: {answers: {A: '200', B: '210', C: '220', D: '252'}, correct: '252',
+                              index: '114', question: 'What is C(10,5)?'}, 115: {answers: {A: '91', B: '105',
+                                                                                           C: '120', D: '136'}, correct: '105', index: '115', question: 'What is C(15,2)?'},
+    116: {answers: {A: '184756', B: '24310', C: '167960', D: '92378'}, correct: '184756',
+          index: '116', question: 'What is C(20,10)?'}, 117: {answers: {A: '816', B: '816',
+                                                                        C: '856', D: '918'}, correct: '816', index: '117', question: 'What is C(18,3)?'},
+    118: {answers: {A: '720', B: '840', C: '960', D: '1000'}, correct: '720', index: '118',
+          question: 'What is P(10,3)?'}, 119: {answers: {A: '1680', B: '1720', C: '1740',
+                                                         D: '1760'}, correct: '1680', index: '119', question: 'What is P(8,4)?'}, 120: {
+    answers: {A: '132', B: '132', C: '142', D: '152'}, correct: '132', index: '120',
+    question: 'What is P(12,2)?'}, 121: {answers: {A: '2520', B: '2540', C: '2560',
+                                                   D: '2580'}, correct: '2520', index: '121', question: 'What is P(7,5)?'}, 122: {
+    answers: {A: '4950', B: '5000', C: '5050', D: '5100'}, correct: '5050', index: '122',
+    question: 'What is the sum of first 100 natural numbers?'}, 123: {answers: {A: '19900',
+                                                                                B: '20000', C: '20100', D: '20100'}, correct: '20100', index: '123', question: 'What
+      is the sum of first 200 natural numbers?'}, 124: {answers: {A: '1250', B: '2450',
+                                                                  C: '2550', D: '2650'}, correct: '2550', index: '124', question: 'What is the
+      sum of first 50 even numbers?'}, 125: {answers: {A: '2400', B: '2500', C: '2600',
+                                                       D: '2700'}, correct: '2500', index: '125', question: 'What is the sum of first
+      50 odd numbers?'}, 126: {answers: {A: '1', B: '2', C: '3', D: '9'}, correct: "\u2212\
+      13", index: '126', question: 'What is det([[2,5],[7,11]])?'}, 127: {answers: {
+    A: "\u22122", B: "\u22121", C: '0', D: '1'}, correct: "\u22122", index: '127',
+                                                                          question: 'What is det([[4,3],[2,1]])?'}, 128: {answers: {A: '0', B: '6', C: '12',
+                                                                                                                                    D: '18'}, correct: '0', index: '128', question: 'What is det([[6,2],[9,3]])?'},
+    129: {answers: {A: '2', B: '14', C: '18', D: '36'}, correct: '18', index: '129',
+          question: 'What is det([[10,4],[7,5]])?'}, 130: {answers: {A: '89', B: '144',
+                                                                     C: '233', D: '377'}, correct: '144', index: '130', question: 'What is F12?'},
+    131: {answers: {A: '233', B: '377', C: '610', D: '987'}, correct: '610', index: '131',
+          question: 'What is F15?'}, 132: {answers: {A: '4181', B: '6765', C: '10946', D: '17711'},
+                                           correct: '6765', index: '132', question: 'What is F20?'}, 133: {answers: {A: '121393',
+                                                                                                                     B: '196418', C: '317811', D: '514229'}, correct: '75025', index: '133', question: 'What
+      is F25?'}, 134: {answers: {A: '0', B: '1', C: '2', D: '3'}, correct: '4', index: '134',
+                       question: 'What is the remainder of 2^50 mod 7?'}, 135: {answers: {A: '1', B: '2',
+                                                                                          C: '5', D: '8'}, correct: '5', index: '135', question: 'What is the remainder
+      of 5^25 mod 13?'}, 136: {answers: {A: '1', B: '3', C: '7', D: '9'}, correct: '1',
+                               index: '136', question: 'What is the remainder of 3^40 mod 10?'}, 137: {answers: {
+    A: '0', B: '1', C: '3', D: '7'}, correct: '7', index: '137', question: 'What
+      is the remainder of 7^13 mod 12?'}, 138: {answers: {A: '12121', B: '12321',
+                                                          C: '12421', D: '12521'}, correct: '12321', index: '138', question: "What is\
+      \ 111\xD7111?"}, 139: {answers: {A: '15029', B: '15129', C: '15229', D: '15329'},
+                             correct: '15129', index: '139', question: "What is 123\xD7123?"}, 140: {answers: {
+    A: '102321', B: '102721', C: '103041', D: '103041'}, correct: '103041', index: '140',
+                                                                                                     question: "What is 321\xD7321?"}, 141: {answers: {A: '206116', B: '207936', C: '208936',
+                                                                                                                                                       D: '209936'}, correct: '207936', index: '141', question: "What is 456\xD7456?"},
+    142: {answers: {A: '36', B: '37', C: '38', D: '39'}, correct: '38', index: '142',
+          question: "What is \u221A1444?"}, 143: {answers: {A: '47', B: '48', C: '49', D: '50'},
+                                                  correct: '47', index: '143', question: "What is \u221A2209?"}, 144: {answers: {
+    A: '52', B: '53', C: '54', D: '55'}, correct: '53', index: '144', question: "What\
+      \ is \u221A2809?"}, 145: {answers: {A: '57', B: '58', C: '59', D: '60'}, correct: '59',
+                                index: '145', question: "What is \u221A3481?"}, 146: {answers: {A: '311', B: '312',
+                                                                                                C: '313', D: '314'}, correct: '314', index: '146', question: "What is \u230A\
+      \u03C0\xD7100\u230B?"}, 147: {answers: {A: '2708', B: '2718', C: '2728', D: '2738'},
+                                    correct: '2718', index: '147', question: "What is \u230Ae\xD71000\u230B?"}, 148: {
+    answers: {A: '1407', B: '1414', C: '1417', D: '1421'}, correct: '1414', index: '148',
+    question: "What is \u230A\u221A2\xD71000\u230B?"}, 149: {answers: {A: '1717',
+                                                                       B: '1720', C: '1732', D: '1740'}, correct: '1732', index: '149', question: "What\
+      \ is \u230A\u221A3\xD71000\u230B?"}, 150: {answers: {A: '2048', B: '3072', C: '4096',
+                                                           D: '8192'}, correct: '4096', index: '150', question: 'What is 2^12?'}, 151: {
+    answers: {A: '65536', B: '131072', C: '32768', D: '262144'}, correct: '65536',
+    index: '151', question: 'What is 2^16?'}, 152: {answers: {A: '65536', B: '131072',
+                                                              C: '262144', D: '524288'}, correct: '262144', index: '152', question: 'What
+      is 2^18?'}, 153: {answers: {A: '1048576', B: '2097152', C: '4194304', D: '8388608'},
+                        correct: '16777216', index: '153', question: 'What is 2^24?'}, 154: {answers: {
+    A: '3', B: '4', C: '5', D: '6'}, correct: '6', index: '154', question: 'What
+      is the product of roots of x^2+5x+6=0?'}, 155: {answers: {A: '7', B: '8', C: '15',
+                                                                D: "\u221215"}, correct: '15', index: '155', question: "What is the product\
+      \ of roots of x^2\u22128x+15=0?"}, 156: {answers: {A: '9', B: '18', C: '20',
+                                                         D: '25'}, correct: '20', index: '156', question: "What is the product of roots\
+      \ of x^2\u22129x+20=0?"}, 157: {answers: {A: "\u221235", B: '35', C: "\u22127",
+                                                D: '7'}, correct: "\u221235", index: '157', question: "What is the product of\
+      \ roots of x^2+2x\u221235=0?"}, 158: {answers: {A: '12', B: '13', C: '14', D: '15'},
+                                            correct: '14', index: '158', question: "What is \u230A100/7\u230B?"}, 159: {answers: {
+    A: '21', B: '22', C: '23', D: '24'}, correct: '22', index: '159', question: "What\
+      \ is \u230A200/9\u230B?"}, 160: {answers: {A: '26', B: '27', C: '28', D: '29'},
+                                       correct: '27', index: '160', question: "What is \u230A300/11\u230B?"}, 161: {
+    answers: {A: '29', B: '30', C: '31', D: '32'}, correct: '30', index: '161', question: "What\
+      \ is \u230A400/13\u230B?"}, 162: {answers: {A: '1651', B: '1717', C: '1729',
+                                                  D: '1739'}, correct: '1729', index: '162', question: "What is 7\xD713\xD719?"},
+    163: {answers: {A: '4279', B: '4289', C: '4291', D: '4301'}, correct: '4291', index: '163',
+          question: "What is 11\xD717\xD723?"}, 164: {answers: {A: '7073', B: '7157', C: '7163',
+                                                                D: '7177'}, correct: '7163', index: '164', question: "What is 13\xD719\xD729?"},
+    165: {answers: {A: '12071', B: '12121', C: '12121', D: '12167'}, correct: '12167',
+          index: '165', question: "What is 17\xD723\xD731?"}, 166: {answers: {A: '1', B: '2',
+                                                                              C: '3', D: '4'}, correct: '3', index: '166', question: 'What is the inverse
+      of 2 mod 5?'}, 167: {answers: {A: '1', B: '2', C: '3', D: '4'}, correct: '2',
+                           index: '167', question: 'What is the inverse of 4 mod 7?'}, 168: {answers: {A: '5',
+                                                                                                       B: '7', C: '8', D: '5'}, correct: '5', index: '168', question: 'What is the
+      inverse of 5 mod 12?'}, 169: {answers: {A: '11', B: '13', C: '15', D: '23'},
+                                    correct: '15', index: '169', question: 'What is the inverse of 7 mod 26?'}, 170: {
+    answers: {A: '0', B: '1', C: "\u22121", D: '0.5'}, correct: '1', index: '170',
+    question: "What is sin(90\xB0)?"}, 171: {answers: {A: "\u22121", B: '0', C: '1',
+                                                       D: '0.5'}, correct: "\u22121", index: '171', question: "What is cos(180\xB0\
+      )?"}, 172: {answers: {A: '0', B: '1', C: "\u221A2", D: "\u22121"}, correct: '1',
+                  index: '172', question: "What is tan(45\xB0)?"}, 173: {answers: {A: '0.5', B: '0.707',
+                                                                                   C: '0.866', D: '1'}, correct: '0.5', index: '173', question: "What is sin(30\xB0\
+      )?"}, 174: {answers: {A: '0.5', B: '0.707', C: '0.866', D: '1'}, correct: '0.5',
+                  index: '174', question: "What is cos(60\xB0)?"}, 175: {answers: {A: '0.5', B: '0.707',
+                                                                                   C: '0.866', D: "\u221A3"}, correct: "\u221A3", index: '175', question: "What\
+      \ is tan(60\xB0)?"}}
