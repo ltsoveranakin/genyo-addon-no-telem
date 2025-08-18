@@ -31,10 +31,13 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation 'org.yaml:snakeyaml:2.2' // Use the latest version
 
     // Meteor
     modImplementation "meteordevelopment:meteor-client:${project.minecraft_version}-SNAPSHOT"
+
+    // SnakeYaml
+    implementation 'org.yaml:snakeyaml:2.2'
+    include 'org.yaml:snakeyaml:2.2'
 }
 
 tasks {

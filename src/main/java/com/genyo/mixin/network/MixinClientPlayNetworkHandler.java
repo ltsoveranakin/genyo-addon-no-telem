@@ -21,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler implements IClientPlayNetworkHandler  {
 
@@ -62,7 +65,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
         Einstein einstein = Modules.get().get(Einstein.class);
         if (Modules.get().isActive(Einstein.class)) {
-            if (einstein.isInGame()) {
+            if (einstein.isInGame() && isChoice(message)) {
                 ci.cancel();
 
                 String correct = einstein.getCorrectChoice();
@@ -70,6 +73,12 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
                 einstein.endGame(message.equals(correct));
             }
         }
+    }
+
+    private boolean isChoice(String message) {
+        final List<String> choices = Arrays.asList("A", "B", "C", "D");
+
+        return choices.contains(message.toUpperCase());
     }
 
 }

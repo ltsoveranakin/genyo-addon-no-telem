@@ -39,6 +39,7 @@ public class Einstein extends GenyoModule {
         .defaultValue(5)
         .max(20)
         .sliderRange(1, 20)
+        .onChanged(this::changeCooldown)
         .build()
     );
 
@@ -62,7 +63,7 @@ public class Einstein extends GenyoModule {
     private final Timer answerTimer = new CacheTimer();
     private Entry currentEntry;
     private boolean inGame = false;
-    private int remainingTime = 14;
+    private int remainingTime = 15;
 
     @Override
     public void onActivate() {
@@ -80,7 +81,6 @@ public class Einstein extends GenyoModule {
 
         if (timer.passed(cooldown) && !inGame) {
             startGame();
-            inGame = true;
             resetGame();
         }
 
@@ -95,6 +95,8 @@ public class Einstein extends GenyoModule {
     }
 
     private void startGame() {
+        inGame = true;
+
         currentEntry = entries.get(random.nextInt(entries.size()));
         if (currentEntry == null) return;
 
@@ -227,15 +229,17 @@ public class Einstein extends GenyoModule {
 
     private void resetGame() {
         timer.reset();
-        cooldown = interval.get() * 60000;
     }
 
     private void resetDefaults() {
         timer.reset();
         answerTimer.reset();
-        cooldown = interval.get() * 60000;
         currentEntry = null;
         inGame = false;
         remainingTime = 15;
+    }
+
+    private void changeCooldown(int newValue) {
+        cooldown = newValue * 60000;
     }
 }
