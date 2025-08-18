@@ -1,6 +1,7 @@
 import yaml # type: ignore
+import os
 
-path = "src/main/resources/assets/genyo/einstein/"
+path = os.path.dirname(os.path.abspath(__file__)) + "/"
 questions = dict()
 
 with open(path + "questions.txt", "r", encoding="UTF-8") as file:

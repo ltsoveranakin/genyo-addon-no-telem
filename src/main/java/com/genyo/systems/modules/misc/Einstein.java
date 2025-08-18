@@ -25,7 +25,7 @@ import java.util.Random;
 public class Einstein extends GenyoModule {
 
     public Einstein() {
-        super(GenyoAddon.MISC, "einstein", "natural selection for society");
+        super(GenyoAddon.MISC, "einstein", "natural selection of society");
         readEinstein();
     }
 
