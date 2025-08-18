@@ -44,7 +44,7 @@ public class Einstein extends GenyoModule {
     private final Random random = new Random();
 
     // Cooldown
-    private int cooldown = 5; // default: 300
+    private int cooldown = 300; // default: 300, testing: 5
     private final Timer timer = new CacheTimer();
 
     // Game things
@@ -215,14 +215,14 @@ public class Einstein extends GenyoModule {
 
     private void resetGame() {
         timer.reset();
-        //cooldown = random.nextInt(120, 1800);
-        cooldown = random.nextInt(5, 10);
+        cooldown = random.nextInt(120, 1800); // for real use
+        //cooldown = random.nextInt(5, 10); // for testing
     }
 
     private void resetDefaults() {
         timer.reset();
         answerTimer.reset();
-        cooldown = 5; // default: 300
+        cooldown = 300; // default: 300, testing: 5
         currentEntry = null;
         inGame = false;
         remainingTime = 15;
