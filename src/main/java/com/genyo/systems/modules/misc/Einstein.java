@@ -6,15 +6,14 @@ import com.genyo.utils.GenyoChatUtils;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.IntSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.builder.Diff;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Einstein extends GenyoModule {
 
@@ -43,6 +43,13 @@ public class Einstein extends GenyoModule {
         .build()
     );
 
+    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
+        .name("Difficulty")
+        .description("You can be honest here (beta only includes easy questions)")
+        .defaultValue(Mode.Sigma)
+        .build()
+    );
+
     private final Setting<Boolean> goodbye = sgGeneral.add(new BoolSetting.Builder()
         .name("Say goodbye")
         .description("If you enter an incorrect answer you say something before you can't.")
@@ -56,7 +63,7 @@ public class Einstein extends GenyoModule {
     private final Random random = new Random();
 
     // Cooldown
-    private int cooldown = interval.get() * 60000; // default: 300, testing: 5
+    private int cooldown = interval.get(); // default: 300, testing: 5
     private final Timer timer = new CacheTimer();
 
     // Game things
@@ -79,7 +86,7 @@ public class Einstein extends GenyoModule {
     public void onTick(TickEvent.Pre event) {
         if (mc.world == null && mc.player == null) return;
 
-        if (timer.passed(cooldown) && !inGame) {
+        if (timer.passed(cooldown * 60000) && !inGame) {
             startGame();
             resetGame();
         }
@@ -97,15 +104,33 @@ public class Einstein extends GenyoModule {
     private void startGame() {
         inGame = true;
 
-        currentEntry = entries.get(random.nextInt(entries.size()));
+        if (mode.get() == Mode.Beta) {
+            List<Entry> easyEntries = entries.stream()
+                .filter(e -> e.difficulty.equals(Entry.Difficulty.Easy))
+                .toList();
+
+            GenyoAddon.LOG.info(easyEntries.toString());
+            currentEntry = easyEntries.get(random.nextInt(easyEntries.size()));
+        } else {
+            currentEntry = entries.get(random.nextInt(entries.size()));
+        }
+
         if (currentEntry == null) return;
 
         String question = currentEntry.question;
         List<String> answers = currentEntry.answers;
+        String output = getOutput(question, answers);
+
+        GenyoChatUtils.sendMessage(output);
+        answerTimer.reset();
+    }
+
+    private static @NotNull String getOutput(String question, List<String> answers) {
         String output = "";
 
         output += Formatting.GRAY + "Answer or crash :D" + Formatting.RESET + "\n\n";
 
+        // I don't want to display the difficulty
         output += "" + Formatting.GREEN + Formatting.BOLD + question + "\n";
         output += Formatting.DARK_GRAY + "(A) " + Formatting.GRAY + answers.get(0) + " ";
         output += Formatting.DARK_GRAY + "(B) " + Formatting.GRAY + answers.get(1) + " ";
@@ -113,9 +138,7 @@ public class Einstein extends GenyoModule {
         output += Formatting.DARK_GRAY + "(D) " + Formatting.GRAY + answers.get(3) + "\n\n";
 
         output += Formatting.RESET + "" + Formatting.GRAY + "Answer with the correct letter in chat!\nYou have 15 seconds.";
-
-        GenyoChatUtils.sendMessage(output);
-        answerTimer.reset();
+        return output;
     }
 
     public void endGame(boolean correct) {
@@ -123,7 +146,7 @@ public class Einstein extends GenyoModule {
             inGame = false;
             String output = "";
 
-            output += Formatting.GREEN + " Correct :D";
+            output += Formatting.GREEN + "Correct :D";
 
             GenyoChatUtils.sendMessage(output);
         } else {
@@ -151,10 +174,12 @@ public class Einstein extends GenyoModule {
 
             List<?> keys = yamlMap.keySet().stream().toList();
             for (Object o : keys) {
-                // The things
+
+                // Initialize the things
                 String question;
                 List<String> answers;
                 String correctAnswer;
+                Entry.Difficulty difficulty;
 
                 // The decoding
                 HashMap value = (HashMap) yamlMap.get(o);
@@ -173,11 +198,15 @@ public class Einstein extends GenyoModule {
                 // correct answer
                 correctAnswer = value.get("correct").toString();
 
+                // difficulty
+                difficulty = Entry.Difficulty.valueOf(value.get("difficulty").toString());
+
                 // Entry
-                entries.add(new Entry(question, answers, correctAnswer));
+                Entry entry = new Entry(question, answers, correctAnswer, difficulty);
+                entries.add(entry);
             }
         } catch (Exception exception) {
-            GenyoAddon.LOG.info(exception.getMessage());
+            GenyoAddon.LOG.error(exception.getMessage());
             sendError("Couldn't read file. Send logs to wuritz pls.");
         }
     }
@@ -186,9 +215,10 @@ public class Einstein extends GenyoModule {
         private final String question;
         private final ArrayList<String> answers;
         private final Choices correctChoice;
-        private final String correctAnswer;
+        private final String correctAnswer; // remains here in case i wanna display the correct answer
+        private final Difficulty difficulty;
 
-        public Entry(String question, List<String> answers, String correctAnswer) {
+        public Entry(String question, List<String> answers, String correctAnswer, Difficulty difficulty) {
             this.question = question;
             this.answers = new ArrayList<>(answers);
             this.correctAnswer = correctAnswer;
@@ -200,26 +230,16 @@ public class Einstein extends GenyoModule {
                 case 3 -> Choices.D;
                 default -> null;
             };
-        }
 
-        public String getQuestion() {
-            return question;
-        }
-
-        public List<String> getAnswers() {
-            return answers;
-        }
-
-        public Choices getCorrectChoice() {
-            return correctChoice;
-        }
-
-        public String getCorrectAnswer() {
-            return correctAnswer;
+            this.difficulty = difficulty;
         }
 
         private enum Choices {
             A, B, C, D
+        }
+
+        private enum Difficulty {
+            Easy, Hard
         }
     }
 
@@ -240,6 +260,10 @@ public class Einstein extends GenyoModule {
     }
 
     private void changeCooldown(int newValue) {
-        cooldown = newValue * 60000;
+        cooldown = newValue;
+    }
+
+    private enum Mode {
+        Beta, Sigma
     }
 }

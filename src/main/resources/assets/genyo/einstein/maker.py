@@ -1,3 +1,6 @@
+# i made the questions using chatgpt with this prompt:
+# https://hasteb.in/m3HZvxQplMdDFiU
+
 import yaml # type: ignore
 import os
 
@@ -9,12 +12,21 @@ with open(path + "questions.txt", "r", encoding="UTF-8") as file:
     
     for line in file:
         current = line.strip().split("|")
-                
-        #question, answers, correct
+        
+        if len(current) != 7:
+            print("Line is incorrect.")
+            continue
+        
+        #question, answers, correct, difficulty
         
         question = current[0]
-        answers = [current[1], current[2], current[3], current[4]]
+        answers = [str(current[1]), str(current[2]), str(current[3]), str(current[4])]
         correct = current[5]
+        difficulty = current[6]
+        
+        if difficulty != "Hard" and difficulty != "Easy":
+            print(f"Difficulty is incorrect. ({difficulty})")
+            continue
         
         if correct == None:
             break
@@ -28,7 +40,8 @@ with open(path + "questions.txt", "r", encoding="UTF-8") as file:
                 C = answers[2],
                 D = answers[3]
             ),
-            correct = correct
+            correct = correct,
+            difficulty = difficulty
         )
         
         questions[index] = data
