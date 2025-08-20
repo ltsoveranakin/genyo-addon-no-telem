@@ -39,27 +39,31 @@ public class GenyoAutoSwastika extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        if(MC.player == null || MC.world == null) return;
+        if (MC.player == null || MC.world == null) return;
         genyoTicks++;
 
         int blockSlot = findBlockInHotbar();
-        if(blockSlot == -1) return;
+        if (blockSlot == -1) return;
 
         MC.player.getInventory().setSelectedSlot(blockSlot);
         MC.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(blockSlot));
 
-        if(genyoTicks >= delaySetting.get()){
-            for(BlockPos pos : getSwastika()) {
+        if (genyoTicks >= delaySetting.get()) {
+            List<BlockPos> swastika = getSwastika();
+            for (int i = 0; i < swastika.size(); i++) {
+                BlockPos pos = swastika.get(i);
                 BlockState state = MC.world.getBlockState(pos);
                 if (state.isReplaceable() || !MC.world.getFluidState(pos).isEmpty()) {
                     FindItemResult itemResult = new FindItemResult(blockSlot, 1);
                     BlockUtils.place(pos, itemResult, false, 0);
                     genyoTicks = 0;
+                    if (i == swastika.size() - 1) toggle(); // toggle after last genyoblok
                     return;
                 }
             }
         }
     }
+
 
     private int findBlockInHotbar() {
         for (int i = 36; i <= 44; i++) {
