@@ -1,5 +1,6 @@
 package com.genyo.mixin.network;
 
+import com.genyo.GenyoAddon;
 import com.genyo.mixin.accessor.AccessorClientConnection;
 import com.genyo.imixins.IClientPlayNetworkHandler;
 import com.genyo.systems.modules.misc.Einstein;
@@ -69,12 +70,14 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
                 ci.cancel();
 
                 String correct = einstein.getCorrectChoice();
+                GenyoAddon.LOG.info("Correct is {}", correct);
 
                 einstein.endGame(message.equals(correct));
             }
         }
     }
 
+    @Unique
     private boolean isChoice(String message) {
         final List<String> choices = Arrays.asList("A", "B", "C", "D");
 
