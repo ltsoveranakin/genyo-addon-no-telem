@@ -70,7 +70,6 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
                 ci.cancel();
 
                 String correct = einstein.getCorrectChoice();
-                GenyoAddon.LOG.info("Correct is {}", correct);
 
                 einstein.endGame(message.equals(correct));
             }
