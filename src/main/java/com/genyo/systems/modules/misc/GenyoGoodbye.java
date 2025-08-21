@@ -4,6 +4,8 @@ import com.genyo.GenyoAddon;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
 import com.genyo.systems.settings.playerlist.PlayerListGroup;
+import com.genyo.utils.collection.Message;
+import com.genyo.utils.collection.MessageTickQueue;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
@@ -20,8 +22,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class GenyoGoodbye extends GenyoModule {
 
-    private final List<Message> messageQueue = new LinkedList<>();
-    private int timer;
+    //private final List<Message> messageQueue = new LinkedList<>();
+    //private int timer;
 
     private ArrayList<PlayerListGroup> groupsList = new ArrayList<>();
     private ArrayList<String> namesList = new ArrayList<>();
@@ -45,10 +47,13 @@ public class GenyoGoodbye extends GenyoModule {
         .defaultValue(0)
         .min(0)
         .sliderRange(0, 100)
+        .onChanged(this::refreshTimer)
         .build()
     );
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    private final MessageTickQueue queue = new MessageTickQueue(tickDelay.get());
+
+    /*@EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
 
@@ -62,7 +67,7 @@ public class GenyoGoodbye extends GenyoModule {
             if (msg.kill) messageQueue.clear();
             else messageQueue.removeFirst();
         }
-    }
+    }*/
 
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive event) {
@@ -107,10 +112,11 @@ public class GenyoGoodbye extends GenyoModule {
         toSend = toSend.contains("<NAME>") ? toSend.replace("<NAME>", name) : toSend;
 
         Message msg = new Message(toSend, false);
-        messageQueue.add(msg);
+        queue.addMessage(msg);
     }
 
-    private record Message(String message, boolean kill) {
+    private void refreshTimer(int value) {
+        queue.setDelay(value);
     }
 
 }

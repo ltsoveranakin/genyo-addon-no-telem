@@ -4,6 +4,8 @@ import com.genyo.GenyoAddon;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.incombat.CombatPerson;
 import com.genyo.systems.incombat.InCombatSystem;
+import com.genyo.utils.collection.Message;
+import com.genyo.utils.collection.MessageTickQueue;
 import com.genyo.utils.math.MathUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -42,6 +44,7 @@ public class GenyoAutoEZ extends GenyoModule {
         .defaultValue(10)
         .min(0)
         .max(100)
+        .onChanged(this::refreshTimer)
         .build()
     );
 
@@ -89,9 +92,11 @@ public class GenyoAutoEZ extends GenyoModule {
         .build()
     );
 
+    private final MessageTickQueue queue = new MessageTickQueue(tickDelay.get());
+
     private final Random r = new Random();
     private int lastPop;
-    private final List<Message> messageQueue = new LinkedList<>();
+    //private final List<Message> messageQueue = new LinkedList<>();
     public final HashMap<PlayerEntity, Integer> taggedPlayers = new HashMap<>();
     private int timer = 0;
 
@@ -103,7 +108,7 @@ public class GenyoAutoEZ extends GenyoModule {
         taggedPlayers.clear();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    /*@EventHandler(priority = EventPriority.HIGHEST)
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null && mc.world == null) return;
 
@@ -117,7 +122,7 @@ public class GenyoAutoEZ extends GenyoModule {
             if (msg.kill) messageQueue.clear();
             else messageQueue.removeFirst();
         }
-    }
+    }*/
 
     @EventHandler
     private void onReceive(PacketEvent.Receive event) {
@@ -182,7 +187,7 @@ public class GenyoAutoEZ extends GenyoModule {
         }
 
         Message message = new Message(messageString, false);
-        messageQueue.add(message);
+        queue.addMessage(message);
     }
 
     private void sendDeathMessage(String name, int pops) {
@@ -193,10 +198,11 @@ public class GenyoAutoEZ extends GenyoModule {
         msgString = msgString.replace("<NAME>", name);
 
         Message message = new Message(msgString, false);
-        messageQueue.add(message);
+        queue.addMessage(message);
     }
 
-
-    private record Message(String message, boolean kill) {
+    private void refreshTimer(int value) {
+        queue.setDelay(value);
     }
+
 }
