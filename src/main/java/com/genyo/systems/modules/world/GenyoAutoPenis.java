@@ -1,15 +1,15 @@
 package com.genyo.systems.modules.world;
+
 import com.genyo.GenyoAddon;
+import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
@@ -18,7 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-public class GenyoAutoPenis extends Module{
+
+public class GenyoAutoPenis extends GenyoModule {
 
     private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
     private int genyoTicks = 0;
@@ -40,7 +41,6 @@ public class GenyoAutoPenis extends Module{
     }
 
     private BuildState genyoState = BuildState.genyoPlace;
-    private boolean genyoPenisBuilt = false;
 
     //cba to port simpletimer
     private final Setting<Integer> delaySetting = sgGeneral.add(new IntSetting.Builder()
