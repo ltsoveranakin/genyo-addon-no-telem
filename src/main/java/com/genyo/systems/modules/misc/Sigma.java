@@ -12,12 +12,15 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sigma extends GenyoModule {
 
     public Sigma() {
         super(GenyoAddon.MISC, "sigma", "and i heard em say, nothing's ever promised tomorrow today");
+
+        loadSigmas();
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -47,6 +50,8 @@ public class Sigma extends GenyoModule {
     );
 
     private final Timer timer = new CacheTimer();
+    private final Identifier sigmaFile = Identifier.of(GenyoAddon.MOD_ID, "sigma.txt");
+    private final List<String> sigmas = new ArrayList<>();
 
     @Override
     public void onDeactivate() {
@@ -66,9 +71,9 @@ public class Sigma extends GenyoModule {
         //if (!timer.passed(5000)) return; // for testing
 
         String output = "";
-        String sigma = getSigma();
+        String sigma = getSigmaText();
 
-        if (sigma == null) {
+        if (sigma == null || sigma.isEmpty()) {
             sigmaNotFound();
             return;
         }
@@ -82,26 +87,24 @@ public class Sigma extends GenyoModule {
         timer.reset();
     }
 
+    private String getSigmaText() {
+        return sigmas.get(MathUtil.pickRandom(sigmas));
+    }
+
     private void sigmaNotFound() {
         toggle();
         sendDisableMsg("Sigma text not found.");
     }
 
-    private String getSigma() {
-        String sigma = "";
-        Identifier identifier = Identifier.of(GenyoAddon.MOD_ID, "sigma.txt");
-
+    private void loadSigmas() {
         try {
-            Resource resource = mc.getResourceManager().getResource(identifier).orElseThrow();
-            List<String> messages = resource.getReader().lines().toList();
-            sigma = messages.get(MathUtil.pickRandom(messages));
+            Resource resource = mc.getResourceManager().getResource(sigmaFile).orElseThrow();
+            sigmas.addAll(resource.getReader().lines().toList());
         } catch (Exception e) {
             GenyoAddon.LOG.info(e.getMessage());
             sendError("Couldn't read file. Send logs to wuritz pls.");
+            sigmaNotFound();
         }
-
-        if (sigma.isEmpty()) return null;
-        else return sigma;
     }
 
     private enum NBColor {

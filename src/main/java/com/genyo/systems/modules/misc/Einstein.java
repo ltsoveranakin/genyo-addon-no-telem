@@ -12,7 +12,6 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.apache.commons.lang3.builder.Diff;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Einstein extends GenyoModule {
 
