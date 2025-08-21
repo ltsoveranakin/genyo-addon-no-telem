@@ -3,9 +3,6 @@ package com.genyo;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
-import com.genyo.systems.hud.*;
-import com.genyo.systems.modules.combat.*;
-import com.genyo.systems.modules.misc.*;
 import com.genyo.systems.modules.movement.GenyoPhase;
 import com.genyo.systems.modules.movement.GenyoVelocity;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
@@ -16,7 +13,6 @@ import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.systems.incombat.InCombatSystem;
 import com.genyo.systems.incombat.InCombatTab;
-import com.genyo.systems.modules.world.*;
 import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
@@ -133,7 +129,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoTimer());
         modules.add(new Sigma());
         modules.add(new Einstein());
-        modules.add(new GenyoAutoSwastika());
+        modules.add(new GenyoAutoWindmill());
         modules.add(new GenyoAutoPenis());
     }
 
