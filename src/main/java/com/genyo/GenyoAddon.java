@@ -133,6 +133,8 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoTimer());
         modules.add(new Sigma());
         modules.add(new Einstein());
+        modules.add(new GenyoAutoSwastika());
+        modules.add(new GenyoAutoPenis());
     }
 
     private void initHUD(Hud hud) {
