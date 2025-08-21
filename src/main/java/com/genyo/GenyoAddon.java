@@ -88,12 +88,12 @@ public class GenyoAddon extends MeteorAddon {
 
     private void initTabs() {
         Tabs.add(new EnemiesTab());
-        Tabs.add(new InCombatTab());
+        //Tabs.add(new InCombatTab());
     }
 
     private void initSystems() {
         Systems.add(new Enemies());
-        Systems.add(new InCombatSystem());
+        //Systems.add(new InCombatSystem());
     }
 
     private void initModules(Modules modules) {
@@ -135,7 +135,7 @@ public class GenyoAddon extends MeteorAddon {
 
     private void initHUD(Hud hud) {
         hud.register(PvPNeccessaryHud.INFO);
-        hud.register(InCombatHud.INFO);
+        //hud.register(InCombatHud.INFO);
         hud.register(ActiveGenyoHud.INFO);
         hud.register(PacketsHud.INFO);
         hud.register(WatermarkHud.INFO);

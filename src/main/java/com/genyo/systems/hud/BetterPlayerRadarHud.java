@@ -39,9 +39,9 @@ public class BetterPlayerRadarHud extends HudElement {
         .build()
     );
 
-    private final Setting<Boolean> friends = sgGeneral.add(new BoolSetting.Builder()
-        .name("display-friends")
-        .description("Whether to show friends or not.")
+    private final Setting<Boolean> disableFriends = sgGeneral.add(new BoolSetting.Builder()
+        .name("disable-friends")
+        .description("Don't show friends.")
         .defaultValue(true)
         .build()
     );
@@ -189,7 +189,7 @@ public class BetterPlayerRadarHud extends HudElement {
 
         for (PlayerEntity player : getPlayers()) {
             if (player.equals(mc.player)) continue;
-            if (!friends.get() && Friends.get().isFriend(player)) continue;
+            if (disableFriends.get() && Friends.get().isFriend(player)) continue;
 
             String text = player.getName().getString();
             if (heads.get()) text += "as"; // 2 letter space
@@ -226,7 +226,7 @@ public class BetterPlayerRadarHud extends HudElement {
 
         for (PlayerEntity entity : getPlayers()) {
             if (entity.equals(mc.player)) continue;
-            if (!friends.get() && Friends.get().isFriend(entity)) continue;
+            if (disableFriends.get() && Friends.get().isFriend(entity)) continue;
 
             String text = entity.getName().getString();
             Color color = PlayerUtils.getPlayerColor(entity, primaryColor.get());

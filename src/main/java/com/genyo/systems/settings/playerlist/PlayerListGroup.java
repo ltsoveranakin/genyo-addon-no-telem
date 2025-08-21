@@ -2,14 +2,14 @@ package com.genyo.systems.settings.playerlist;
 
 import java.util.List;
 
-public class PLGroup {
+public class PlayerListGroup {
 
     private volatile String message;
     private volatile List<ListPlayer> players;
     private volatile String name;
     private volatile boolean enabled;
 
-    public PLGroup(String name, String message, List<ListPlayer> players) {
+    public PlayerListGroup(String name, String message, List<ListPlayer> players) {
         this.name = name;
         this.message = message;
         this.players = players;

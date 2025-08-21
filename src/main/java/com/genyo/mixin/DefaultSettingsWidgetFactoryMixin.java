@@ -1,7 +1,7 @@
 package com.genyo.mixin;
 
 import com.genyo.systems.settings.FloatSetting;
-import com.genyo.systems.settings.playerlist.ListGroupSetting;
+import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
 import meteordevelopment.meteorclient.gui.DefaultSettingsWidgetFactory;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.utils.SettingsWidgetFactory;
@@ -31,14 +31,14 @@ public abstract class DefaultSettingsWidgetFactoryMixin extends SettingsWidgetFa
 
     @Inject(method = "<init>", at = @At("TAIL"))
     protected void genyo(CallbackInfo info) {
-        factories.put(ListGroupSetting.class, (table, setting) -> listGroupW(table, (ListGroupSetting) setting));
+        factories.put(PlayerListGroupSetting.class, (table, setting) -> listGroupW(table, (PlayerListGroupSetting) setting));
         factories.put(FloatSetting.class, (table, setting) -> floatW(table, (FloatSetting) setting));
     }
 
     @Unique
-    private void listGroupW(WTable table, ListGroupSetting setting) {
+    private void listGroupW(WTable table, PlayerListGroupSetting setting) {
         WTable wtable = table.add(theme.table()).expandX().widget();
-        ListGroupSetting.fillTable(theme, wtable, setting);
+        PlayerListGroupSetting.fillTable(theme, wtable, setting);
     }
 
     @Unique

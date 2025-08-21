@@ -1,8 +1,8 @@
 package com.genyo.systems.screens;
 
-import com.genyo.systems.settings.playerlist.ListGroupSetting;
+import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
 import com.genyo.systems.settings.playerlist.ListPlayer;
-import com.genyo.systems.settings.playerlist.PLGroup;
+import com.genyo.systems.settings.playerlist.PlayerListGroup;
 import com.genyo.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -21,13 +21,13 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class ListGroupScreen extends WindowScreen {
 
-    protected final ListGroupSetting setting;
+    protected final PlayerListGroupSetting setting;
     private WTable table;
     protected final int index;
-    private PLGroup currentGroup;
+    private PlayerListGroup currentGroup;
     protected final Screen beforeScreen;
 
-    public ListGroupScreen(GuiTheme theme, ListGroupSetting setting, int index, Screen beforeScreen) {
+    public ListGroupScreen(GuiTheme theme, PlayerListGroupSetting setting, int index, Screen beforeScreen) {
         super(theme, "Edit " + setting.get().get(index).getGroupName());
 
         this.index = index;

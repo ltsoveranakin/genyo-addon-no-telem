@@ -2,8 +2,8 @@ package com.genyo.systems.modules.misc;
 
 import com.genyo.GenyoAddon;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.settings.playerlist.ListGroupSetting;
-import com.genyo.systems.settings.playerlist.PLGroup;
+import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
+import com.genyo.systems.settings.playerlist.PlayerListGroup;
 import com.mojang.authlib.GameProfile;
 import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
@@ -26,12 +26,12 @@ public class GenyoWelcome extends GenyoModule {
     private final List<Message> messageQueue = new LinkedList<>();
     private int timer = 0;
 
-    private ArrayList<PLGroup> groupsList = new ArrayList<>();
+    private ArrayList<PlayerListGroup> groupsList = new ArrayList<>();
     private ArrayList<String> namesList = new ArrayList<>();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<List<PLGroup>> groups = sgGeneral.add(new ListGroupSetting.Builder()
+    private final Setting<List<PlayerListGroup>> groups = sgGeneral.add(new PlayerListGroupSetting.Builder()
         .name("Groups")
         .description("sdasdjgewqjhgfjhgewjhfg ew gfjhewgfhjgwehjf gjhwe few")
         .onChanged(this::refreshList)
@@ -126,7 +126,7 @@ public class GenyoWelcome extends GenyoModule {
         messageQueue.add(msg);
     }
 
-    public void refreshList(List<PLGroup> newGroups) {
+    public void refreshList(List<PlayerListGroup> newGroups) {
         groupsList.clear();
         groupsList.addAll(newGroups);
 

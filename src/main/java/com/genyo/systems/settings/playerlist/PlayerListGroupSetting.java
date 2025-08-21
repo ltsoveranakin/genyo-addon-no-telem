@@ -20,20 +20,20 @@ import java.util.function.Consumer;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class ListGroupSetting extends Setting<List<PLGroup>> {
+public class PlayerListGroupSetting extends Setting<List<PlayerListGroup>> {
 
-    public ListGroupSetting(String name, String description, List<PLGroup> defaultValue, Consumer<List<PLGroup>> onChanged, Consumer<Setting<List<PLGroup>>> onModuleActivated, IVisible visible) {
+    public PlayerListGroupSetting(String name, String description, List<PlayerListGroup> defaultValue, Consumer<List<PlayerListGroup>> onChanged, Consumer<Setting<List<PlayerListGroup>>> onModuleActivated, IVisible visible) {
         super(name, description, defaultValue, onChanged, onModuleActivated, visible);
     }
 
-    public static void fillTable(GuiTheme theme, WTable table, ListGroupSetting setting) {
+    public static void fillTable(GuiTheme theme, WTable table, PlayerListGroupSetting setting) {
         table.clear();
 
-        ArrayList<PLGroup> groups = new ArrayList<>(setting.get());
+        ArrayList<PlayerListGroup> groups = new ArrayList<>(setting.get());
 
         for (int i = 0; i < setting.get().size(); i++) {
             int currentIndex = i;
-            PLGroup currentGroup = groups.get(currentIndex);
+            PlayerListGroup currentGroup = groups.get(currentIndex);
 
             WCheckbox toggle = table.add(theme.checkbox(currentGroup.isEnabled())).widget();
             toggle.action = () -> {
@@ -71,7 +71,7 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
         add.action = () -> {
             int currentNew = groups.size() + 1;
             String newName = "Group " + currentNew;
-            groups.add(new PLGroup(newName, "asd <NAME>", new ArrayList<ListPlayer>()));
+            groups.add(new PlayerListGroup(newName, "asd <NAME>", new ArrayList<ListPlayer>()));
             setting.set(groups);
 
             fillTable(theme, table, setting);
@@ -86,13 +86,13 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
     }
 
     @Override
-    protected List<PLGroup> parseImpl(String s) {
+    protected List<PlayerListGroup> parseImpl(String s) {
         String[] values = s.split(",");
         return List.of();
     }
 
     @Override
-    protected boolean isValueValid(List<PLGroup> plGroups) {
+    protected boolean isValueValid(List<PlayerListGroup> plGroups) {
         return true;
     }
 
@@ -134,7 +134,7 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
     }
 
     @Override
-    protected List<PLGroup> load(NbtCompound tag) {
+    protected List<PlayerListGroup> load(NbtCompound tag) {
         get().clear();
         NbtList nbtIndexes = (NbtList) tag.get("indexes");
         if (nbtIndexes != null && nbtIndexes.isEmpty()) {
@@ -165,25 +165,25 @@ public class ListGroupSetting extends Setting<List<PLGroup>> {
                 });
             }
 
-            PLGroup newGroup = new PLGroup(groupName, msg, players);
+            PlayerListGroup newGroup = new PlayerListGroup(groupName, msg, players);
             get().add(newGroup);
         }
 
         return get();
     }
 
-    public static class Builder extends SettingBuilder<Builder, List<PLGroup>, ListGroupSetting> {
+    public static class Builder extends SettingBuilder<Builder, List<PlayerListGroup>, PlayerListGroupSetting> {
         public Builder() {
             super(new ArrayList<>(0));
         }
 
-        public Builder defaultValue(PLGroup... defaults) {
+        public Builder defaultValue(PlayerListGroup... defaults) {
             return defaultValue(defaults != null ? Arrays.asList(defaults) : new ArrayList<>());
         }
 
         @Override
-        public ListGroupSetting build() {
-            return new ListGroupSetting(name, description, defaultValue, onChanged, onModuleActivated, visible);
+        public PlayerListGroupSetting build() {
+            return new PlayerListGroupSetting(name, description, defaultValue, onChanged, onModuleActivated, visible);
         }
     }
 

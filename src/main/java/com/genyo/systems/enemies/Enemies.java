@@ -55,7 +55,7 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
 
     private final Setting<Boolean> message = sgMessage.add(new BoolSetting.Builder()
         .name("send-message")
-        .description("Megüzeni a kiválasztott emberpajtásunknak, hogy mi a téma.")
+        .description("Send a message when adding an enemy")
         .defaultValue(false)
         .build()
     );
@@ -64,13 +64,15 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
         .name("message-mode")
         .description("Shabala babala /whisper oder /msg")
         .defaultValue(MessageMode.Whisper)
+        .visible(message::get)
         .build()
     );
 
     private final Setting<String> customMessage = sgMessage.add(new StringSetting.Builder()
         .name("custom-message")
-        .description("Hajrá Mezőkövesd! :D :D :D")
+        .description("To send")
         .defaultValue("shabala babala niger biger.")
+        .visible(message::get)
         .build()
     );
 
