@@ -9,8 +9,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MiningToolItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.ShearsItem;
+import net.minecraft.registry.tag.ItemTags;
 
 public class GenyoAutoTool extends GenyoModule {
 
@@ -27,7 +27,7 @@ public class GenyoAutoTool extends GenyoModule {
         final int blockSlot = getBestToolNoFallback(state);
         if (blockSlot != -1)
         {
-            mc.player.getInventory().selectedSlot = blockSlot;
+            mc.player.getInventory().setSelectedSlot(blockSlot);
         }
     }
 
@@ -38,7 +38,7 @@ public class GenyoAutoTool extends GenyoModule {
         {
             return slot;
         }
-        return mc.player.getInventory().selectedSlot;
+        return mc.player.getInventory().getSelectedSlot();
     }
 
     public int getBestToolNoFallback(final BlockState state)
@@ -48,7 +48,7 @@ public class GenyoAutoTool extends GenyoModule {
             for (int i = 0; i < 9; i++)
             {
                 final ItemStack stack = mc.player.getInventory().getStack(i);
-                if (stack.isEmpty() || !(stack.getItem() instanceof SwordItem))
+                if (stack.isEmpty() || !(stack.isIn(ItemTags.SWORDS)))
                 {
                     continue;
                 }
@@ -60,7 +60,7 @@ public class GenyoAutoTool extends GenyoModule {
         for (int i = 0; i < 9; i++)
         {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isEmpty() || !(stack.getItem() instanceof MiningToolItem))
+            if (stack.isEmpty() || !isTool(stack))
             {
                 continue;
             }
@@ -77,6 +77,10 @@ public class GenyoAutoTool extends GenyoModule {
             }
         }
         return slot;
+    }
+
+    public static boolean isTool(ItemStack itemStack) {
+        return itemStack.isIn(ItemTags.AXES) || itemStack.isIn(ItemTags.HOES) || itemStack.isIn(ItemTags.PICKAXES) || itemStack.isIn(ItemTags.SHOVELS) || itemStack.getItem() instanceof ShearsItem;
     }
 
 }

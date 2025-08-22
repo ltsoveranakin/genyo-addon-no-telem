@@ -26,6 +26,7 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -40,6 +41,7 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.thrown.ExperienceBottleEntity;
 import net.minecraft.item.*;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -411,7 +413,7 @@ public class KFCSpawnKill extends GenyoModule {
         int slot = getSwordSlot();
         // END PRE
         boolean silentSwapped = false;
-        if (!(mc.player.getMainHandStack().getItem() instanceof SwordItem) && slot != -1)
+        if (!(mc.player.getMainHandStack().isIn(ItemTags.SWORDS)) && slot != -1)
         {
             switch (autoSwapConfig.get())
             {
@@ -484,7 +486,7 @@ public class KFCSpawnKill extends GenyoModule {
         if (attackDelayConfig.get())
         {
             PlayerInventory inventory = mc.player.getInventory();
-            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().selectedSlot : slot);
+            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().getSelectedSlot() : slot);
 
             MutableDouble attackSpeed = new MutableDouble(
                 mc.player.getAttributeBaseValue(EntityAttributes.ATTACK_SPEED));
@@ -634,11 +636,11 @@ public class KFCSpawnKill extends GenyoModule {
         for (int i = 0; i < 9; i++)
         {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.getItem() instanceof SwordItem swordItem)
+            if (stack.isIn(ItemTags.SWORDS))
             {
                 float sharpness = EnchantmentUtil.getLevel(stack,
                     Enchantments.SHARPNESS) * 0.5f + 0.5f;
-                float dmg = swordItem.getDefaultStack().getDamage() + sharpness;
+                float dmg = stack.getDamage() + sharpness;
                 if (dmg > sharp)
                 {
                     sharp = dmg;
@@ -787,7 +789,7 @@ public class KFCSpawnKill extends GenyoModule {
             }
             if (armorCheckConfig.get()
                 && entity instanceof LivingEntity livingEntity
-                && !livingEntity.getArmorItems().iterator().hasNext())
+                && livingEntity.getArmor() == 0)
             {
                 continue;
             }
@@ -842,8 +844,9 @@ public class KFCSpawnKill extends GenyoModule {
     {
         float edmg = 0.0f;
         float emax = 0.0f;
-        for (ItemStack armor : e.getArmorItems())
+        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
         {
+            ItemStack armor = e.getEquippedStack(slot);
             if (armor != null && !armor.isEmpty())
             {
                 edmg += armor.getDamage();
@@ -895,7 +898,7 @@ public class KFCSpawnKill extends GenyoModule {
 
     public boolean isHoldingSword()
     {
-        return !swordCheckConfig.get() || mc.player.getMainHandStack().getItem() instanceof SwordItem
+        return !swordCheckConfig.get() || mc.player.getMainHandStack().isIn(ItemTags.SWORDS)
             || mc.player.getMainHandStack().getItem() instanceof AxeItem
             || mc.player.getMainHandStack().getItem() instanceof TridentItem
             || mc.player.getMainHandStack().getItem() instanceof MaceItem;

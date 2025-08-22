@@ -28,9 +28,9 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     private Runnable postAction;
 
     @Shadow
-    private float lastYaw;
+    private float lastYawClient;
     @Shadow
-    private float lastPitch;
+    private float lastPitchClient;
 
     @Shadow
     protected abstract void sendMovementPackets();
@@ -58,7 +58,7 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     @Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
     private void hookSendMovementPackets(CallbackInfo ci) {
         //if (fullNullCheck()) return;
-        SyncEvent.Pre event = SyncEvent.Pre.get(getYaw(mc.getRenderTickCounter().getTickDelta(true)), getPitch(mc.getRenderTickCounter().getTickDelta(true)));
+        SyncEvent.Pre event = SyncEvent.Pre.get(getYaw(mc.getRenderTickCounter().getTickProgress(true)), getPitch(mc.getRenderTickCounter().getTickProgress(true)));
         MeteorClient.EVENT_BUS.post(event);
         postAction = event.postAction;
 
@@ -120,13 +120,13 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     @Override
     public float genyo_addon$getLastSpoofedYaw()
     {
-        return lastYaw;
+        return lastYawClient;
     }
 
     @Override
     public float genyo_addon$getLastSpoofedPitch()
     {
-        return lastPitch;
+        return lastPitchClient;
     }
 
 }

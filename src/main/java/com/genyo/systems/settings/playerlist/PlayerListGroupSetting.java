@@ -151,8 +151,8 @@ public class PlayerListGroupSetting extends Setting<List<PlayerListGroup>> {
         NbtList groupNames = (NbtList) tag.get("group_names");
         NbtList messages = (NbtList) tag.get("messages");
         for (int i = 0; i < indexes.size(); i++) {
-            String msg = messages.get(i).asString();
-            String groupName = groupNames.get(i).asString();
+            String msg = String.valueOf(messages.get(i).asString());
+            String groupName = String.valueOf(groupNames.get(i).asString());
 
             List<ListPlayer> players = new ArrayList<>();
             NbtList playersList = (NbtList) tag.get("players");
@@ -160,7 +160,7 @@ public class PlayerListGroupSetting extends Setting<List<PlayerListGroup>> {
             for (NbtElement val : playersList) {
                 NbtList currentPlayers = (NbtList) playersList.get(i);
                 currentPlayers.forEach(player -> {
-                    ListPlayer listPlayer = new ListPlayer(player.asString());
+                    ListPlayer listPlayer = new ListPlayer(String.valueOf(player.asString()));
                     players.add(listPlayer);
                 });
             }

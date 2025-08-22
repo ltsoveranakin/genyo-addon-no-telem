@@ -11,8 +11,8 @@ public class MovementUtil {
     public static void applySneak()
     {
         final float modifier = MathHelper.clamp(0.3f + (EnchantmentUtil.getLevel(mc.player.getEquippedStack(EquipmentSlot.FEET), Enchantments.SWIFT_SNEAK) * 0.15F), 0.0f, 1.0f);
-        mc.player.input.movementForward *= modifier;
-        mc.player.input.movementSideways *= modifier;
+        mc.player.forwardSpeed *= modifier;
+        mc.player.sidewaysSpeed *= modifier;
     }
 
     /**
@@ -45,8 +45,8 @@ public class MovementUtil {
     }
 
     public static double[] forward(final double d) {
-        float f = mc.player.input.movementForward;
-        float f2 = mc.player.input.movementSideways;
+        float f = mc.player.forwardSpeed;
+        float f2 = mc.player.sidewaysSpeed;
         float f3 = mc.player.getYaw();
         if (f != 0.0f) {
             if (f2 > 0.0f) {
@@ -73,8 +73,8 @@ public class MovementUtil {
      */
     public static boolean isMovingInput()
     {
-        return mc.player.input.movementForward != 0.0f
-            || mc.player.input.movementSideways != 0.0f;
+        return mc.player.forwardSpeed != 0.0f
+            || mc.player.sidewaysSpeed != 0.0f;
     }
 
 }

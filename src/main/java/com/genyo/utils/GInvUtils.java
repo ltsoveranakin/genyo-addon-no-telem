@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import net.minecraft.block.Block;
 import net.minecraft.item.*;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.registry.tag.ItemTags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -61,9 +62,9 @@ public class GInvUtils {
 
     public static void switchTo(int slot) {
         if (mc.player == null || mc.getNetworkHandler() == null) return;
-        if (mc.player.getInventory().selectedSlot == slot && Managers.INVENTORY.getServerSlot() == slot)
+        if (mc.player.getInventory().getSelectedSlot() == slot && Managers.INVENTORY.getServerSlot() == slot)
             return;
-        mc.player.getInventory().selectedSlot = slot;
+        mc.player.getInventory().setSelectedSlot(slot);
         Managers.INVENTORY.syncToClient();
     }
 
@@ -76,16 +77,16 @@ public class GInvUtils {
         if (mc.player == null) return SearchInvResult.notFound();
 
         Item mainHand = mc.player.getMainHandStack().getItem();
-        if ((mainHand instanceof SwordItem)
-            || (mainHand instanceof PickaxeItem)
+        if ((mainHand.getDefaultStack().isIn(ItemTags.SWORDS))
+            || (mainHand.getDefaultStack().isIn(ItemTags.PICKAXES))
             || (mainHand instanceof AxeItem)
             || (mainHand instanceof ShovelItem)) {
-            return new SearchInvResult(mc.player.getInventory().selectedSlot, true, mc.player.getMainHandStack());
+            return new SearchInvResult(mc.player.getInventory().getSelectedSlot(), true, mc.player.getMainHandStack());
         }
 
         return findInHotBar(
-            itemStack -> itemStack.getItem() instanceof SwordItem
-                || itemStack.getItem() instanceof PickaxeItem
+            itemStack -> itemStack.isIn(ItemTags.SWORDS)
+                || itemStack.isIn(ItemTags.PICKAXES)
                 || itemStack.getItem() instanceof AxeItem
                 || itemStack.getItem() instanceof ShovelItem
         );

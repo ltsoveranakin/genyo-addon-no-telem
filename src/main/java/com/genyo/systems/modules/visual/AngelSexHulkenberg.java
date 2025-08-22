@@ -9,15 +9,14 @@ import com.genyo.render.Render3DEngine;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.utils.math.MathUtil;
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -123,16 +122,7 @@ public final class AngelSexHulkenberg extends GenyoModule {
     public void onRender(Render3DEvent event) {
         MatrixStack stack = event.matrices;
 
-        RenderSystem.enableBlend();
-        RenderSystem.disableDepthTest();
-
-        if (mode.get().equals(Mode.Simple)) RenderSystem.defaultBlendFunc();
-        else RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
-
         popList.forEach(person -> renderEntity(stack, person.player, person.getTexture(), person.getAlpha()));
-
-        RenderSystem.enableDepthTest();
-        RenderSystem.disableBlend();
     }
 
     @EventHandler
@@ -156,7 +146,6 @@ public final class AngelSexHulkenberg extends GenyoModule {
         entity.handSwingTicks = e.entity.handSwingTicks;
         entity.setSneaking(e.entity.isSneaking());
         entity.limbAnimator.setSpeed(e.entity.limbAnimator.getSpeed());
-        entity.limbAnimator.pos = e.entity.limbAnimator.getPos();
 
         Identifier skin = ((AbstractClientPlayerEntity) e.entity).getSkinTextures().texture();
 
@@ -191,18 +180,15 @@ public final class AngelSexHulkenberg extends GenyoModule {
         float limbSpeed = Math.min(entity.limbAnimator.getSpeed(), 1f);
 
         entityRenderer.updateRenderState((AbstractClientPlayerEntity) entity, renderState, limbSpeed);
-        renderState.limbFrequency = limbSpeed;
+        renderState.limbSwingAmplitude = limbSpeed;
         renderState.age = entity.age;
-        renderState.yawDegrees = entity.headYaw - entity.bodyYaw;
+        renderState.bodyYaw = entity.headYaw - entity.bodyYaw;
         renderState.pitch = entity.getPitch();
 
         BufferBuilder buffer;
         if (mode.get().equals(Mode.Textured)) {
-            RenderSystem.setShaderTexture(0, texture);
-            RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
         } else {
-            RenderSystem.setShader(ShaderProgramKeys.POSITION);
             buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
         }
 

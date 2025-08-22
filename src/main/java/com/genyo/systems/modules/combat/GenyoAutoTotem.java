@@ -23,6 +23,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.*;
 import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.hit.BlockHitResult;
 
@@ -219,7 +220,7 @@ public class GenyoAutoTotem extends GenyoModule {
             // If offhand gap is enabled & the use key is pressed down, equip a golden apple.
             final Item mainHandItem = mc.player.getMainHandStack().getItem();
             if (gappleConfig.get() && mc.options.useKey.isPressed()
-                && (mainHandItem instanceof SwordItem
+                && (mainHandItem.getDefaultStack().isIn(ItemTags.SWORDS)
                 || mainHandItem instanceof TridentItem
                 || mainHandItem instanceof AxeItem)
                 && PlayerUtil.getLocalPlayerHealth() >= healthConfig.get())
@@ -349,7 +350,7 @@ public class GenyoAutoTotem extends GenyoModule {
         // If the player's health (+absorption) falls below the "safe" amount, equip a totem
         final float health = PlayerUtil.getLocalPlayerHealth();
         return health <= healthConfig.get() || lethalConfig.get() && checkLethalCrystal(health) ||
-            PlayerUtil.computeFallDamage(mc.player.fallDistance, 1.0f) + 0.5f > mc.player.getHealth();
+            PlayerUtil.computeFallDamage((float) mc.player.fallDistance, 1.0f) + 0.5f > mc.player.getHealth();
     }
 
     private boolean checkLethalCrystal(float health)

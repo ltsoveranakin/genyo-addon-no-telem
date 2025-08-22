@@ -10,6 +10,8 @@ import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ExperienceBottleItem;
 import net.minecraft.item.ItemStack;
@@ -137,8 +139,9 @@ public class GenyoAutoXP extends GenyoModule {
             return false;
         }
 
-        for (ItemStack stack : player.getArmorItems())
+        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
         {
+            ItemStack stack = player.getEquippedStack(slot);
             if (!isItemFullDura(stack))
             {
                 return false;

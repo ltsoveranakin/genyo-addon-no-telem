@@ -12,13 +12,15 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ArmorItem;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.ItemTags;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -96,7 +98,7 @@ public class GenyoAutoArmor extends GenyoModule {
         for (int j = 0; j < 36; j++)
         {
             ItemStack stack = mc.player.getInventory().getStack(j);
-            if (stack.isEmpty() || !(stack.getItem() instanceof ArmorItem armor))
+            if (stack.isEmpty() || !isArmor(stack))
             {
                 continue;
             }
@@ -119,9 +121,9 @@ public class GenyoAutoArmor extends GenyoModule {
                 case 3 -> boots.add(data);
             }
         }
-        for (int i = 0; i < 4; i++)
+        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
         {
-            ItemStack armorStack = mc.player.getInventory().getArmorStack(i);
+            ItemStack armorStack = mc.player.getEquippedStack(slot);
             if (elytraPriorityConfig.get() && armorStack.getItem() == Items.ELYTRA)
             {
                 continue;
@@ -131,47 +133,47 @@ public class GenyoAutoArmor extends GenyoModule {
             {
                 continue;
             }
-            switch (i)
+            switch (slot)
             {
-                case 0 ->
+                case HEAD ->
                 {
                     if (!helmet.isEmpty())
                     {
                         ArmorSlot helmetSlot = helmet.poll();
-                        swapArmor(helmetSlot.getType(), helmetSlot.getSlot());
+                        swapArmor(helmetSlot.getType(), EquipmentSlot.HEAD, helmetSlot.getSlot());
                     }
                 }
-                case 1 ->
+                case CHEST ->
                 {
                     if (!chestplate.isEmpty())
                     {
                         ArmorSlot chestSlot = chestplate.poll();
-                        swapArmor(chestSlot.getType(), chestSlot.getSlot());
+                        swapArmor(chestSlot.getType(), EquipmentSlot.CHEST, chestSlot.getSlot());
                     }
                 }
-                case 2 ->
+                case LEGS ->
                 {
                     if (!leggings.isEmpty())
                     {
                         ArmorSlot leggingsSlot = leggings.poll();
-                        swapArmor(leggingsSlot.getType(), leggingsSlot.getSlot());
+                        swapArmor(leggingsSlot.getType(), EquipmentSlot.LEGS, leggingsSlot.getSlot());
                     }
                 }
-                case 3 ->
+                case FEET ->
                 {
                     if (!boots.isEmpty())
                     {
                         ArmorSlot bootsSlot = boots.poll();
-                        swapArmor(bootsSlot.getType(), bootsSlot.getSlot());
+                        swapArmor(bootsSlot.getType(), EquipmentSlot.FEET, bootsSlot.getSlot());
                     }
                 }
             }
         }
     }
 
-    public void swapArmor(int armorSlot, int slot)
+    public void swapArmor(int armorSlot, EquipmentSlot equipmentSlot, int slot)
     {
-        ItemStack stack = mc.player.getInventory().getArmorStack(armorSlot);
+        ItemStack stack = mc.player.getEquippedStack(equipmentSlot);
         //
         armorSlot = 8 - armorSlot;
         Managers.INVENTORY.pickupSlot(slot < 9 ? slot + 36 : slot);
@@ -281,6 +283,10 @@ public class GenyoAutoArmor extends GenyoModule {
         {
             return slot;
         }
+    }
+
+    private boolean isArmor(ItemStack itemStack) {
+        return itemStack.isIn(ItemTags.FOOT_ARMOR) || itemStack.isIn(ItemTags.LEG_ARMOR) || itemStack.isIn(ItemTags.CHEST_ARMOR) || itemStack.isIn(ItemTags.HEAD_ARMOR);
     }
 
 }

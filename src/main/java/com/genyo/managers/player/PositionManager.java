@@ -102,10 +102,10 @@ public class PositionManager {
      */
     public final Vec3d getCameraPosVec(float tickDelta)
     {
-        double d = MathHelper.lerp(tickDelta, mc.player.prevX, getX());
-        double e = MathHelper.lerp(tickDelta, mc.player.prevY, getY())
+        double d = MathHelper.lerp(tickDelta, mc.player.lastX, getX());
+        double e = MathHelper.lerp(tickDelta, mc.player.lastY, getY())
             + (double) mc.player.getStandingEyeHeight();
-        double f = MathHelper.lerp(tickDelta, mc.player.prevZ, getZ());
+        double f = MathHelper.lerp(tickDelta, mc.player.lastZ, getZ());
         return new Vec3d(d, e, f);
     }
 

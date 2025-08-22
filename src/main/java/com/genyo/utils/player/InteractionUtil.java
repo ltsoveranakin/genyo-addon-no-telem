@@ -255,7 +255,7 @@ public class InteractionUtil {
     }
 
     public static boolean placeBlock(BlockPos bp, Rotate rotate, Interact interact, PlaceMode mode, int slot, boolean returnSlot, boolean ignoreEntities) {
-        int prevItem = mc.player.getInventory().selectedSlot;
+        int prevItem = mc.player.getInventory().getSelectedSlot();
         if (slot != -1) GInvUtils.switchTo(slot);
         else return false;
 
@@ -266,7 +266,7 @@ public class InteractionUtil {
     }
 
     public static boolean placeBlock(BlockPos bp, Rotate rotate, Interact interact, PlaceMode mode, @NotNull SearchInvResult invResult, boolean returnSlot, boolean ignoreEntities) {
-        int prevItem = mc.player.getInventory().selectedSlot;
+        int prevItem = mc.player.getInventory().getSelectedSlot();
         invResult.switchTo();
         boolean result = placeBlock(bp, rotate, interact, mode, ignoreEntities);
         if (returnSlot) GInvUtils.switchTo(prevItem);

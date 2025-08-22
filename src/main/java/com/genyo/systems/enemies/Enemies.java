@@ -166,16 +166,16 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
     @Override
     public Enemies fromTag(NbtCompound tag) {
         enemies.clear();
-        if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
+        if (tag.contains("settings")) settings.fromTag(tag.getCompoundOrEmpty("settings"));
 
-        for (NbtElement itemTag : tag.getList("enemies", 10)) {
+        for (NbtElement itemTag : tag.getListOrEmpty("enemies")) {
             NbtCompound enemyTag = (NbtCompound) itemTag;
             if (!enemyTag.contains("name")) continue;
 
-            String name = enemyTag.getString("name");
+            String name = enemyTag.getString("name", "");
             if (get(name) != null) continue;
 
-            String uuid = enemyTag.getString("id");
+            String uuid = enemyTag.getString("id", "");
             Enemy enemy = !uuid.isBlank()
                 ? new Enemy(name, UndashedUuid.fromStringLenient(uuid))
                 : new Enemy(name);

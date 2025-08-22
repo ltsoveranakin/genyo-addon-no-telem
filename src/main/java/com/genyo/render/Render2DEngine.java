@@ -1,7 +1,6 @@
 package com.genyo.render;
 
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.BuiltBuffer;
 
 public class Render2DEngine {
@@ -16,8 +15,6 @@ public class Render2DEngine {
 
     public static void endBuilding(BufferBuilder bb) {
         BuiltBuffer builtBuffer = bb.endNullable();
-        if (builtBuffer != null)
-            BufferRenderer.drawWithGlobalProgram(builtBuffer);
     }
 
 }

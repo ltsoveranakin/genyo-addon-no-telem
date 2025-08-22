@@ -49,7 +49,7 @@ public class FloatSetting extends Setting<Float> {
 
     @Override
     public Float load(NbtCompound tag) {
-        set(tag.getFloat("value"));
+        set(tag.getFloat("value", 0f));
 
         return get();
     }

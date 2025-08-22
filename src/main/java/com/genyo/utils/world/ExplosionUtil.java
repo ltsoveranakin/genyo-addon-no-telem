@@ -3,12 +3,10 @@ package com.genyo.utils.world;
 import com.genyo.utils.player.EnchantmentUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.DamageUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -27,6 +25,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -100,9 +100,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastX) * extrapolationTicks;
+            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -153,9 +153,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastX) * extrapolationTicks;
+            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -196,9 +196,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastX) * extrapolationTicks;
+            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -234,9 +234,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastX) * extrapolationTicks;
+            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -317,10 +317,22 @@ public class ExplosionUtil {
     {
         if (player instanceof LivingEntity livingEntity)
         {
-            float protLevel = getProtectionAmount(livingEntity.getArmorItems(), assumeBestArmor);
+            float protLevel = getProtectionAmount(getArmorItems(livingEntity), assumeBestArmor);
             return DamageUtil.getInflictedDamage((float) damage, protLevel);
         }
         return 0.0f;
+    }
+
+    private static Iterable<ItemStack> getArmorItems(LivingEntity entity) {
+        List<ItemStack> output = new ArrayList<>();
+
+        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
+            ItemStack stack = entity.getEquippedStack(slot);
+
+            if (stack != null) output.add(stack);
+        }
+
+        return output;
     }
 
     private static float getProtectionAmount(Iterable<ItemStack> equipment, boolean assumeBestArmor)

@@ -268,7 +268,7 @@ public class GenyoPhase extends PlacerModule {
             if (swapAltConfig.get())
             {
                 mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
-                mc.interactionManager.clickSlot(0, mc.player.getInventory().selectedSlot + 36, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, mc.player.getInventory().getSelectedSlot() + 36, 0, SlotActionType.PICKUP, mc.player);
                 mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
             }
             else if (pearlSlot < 9)
@@ -291,7 +291,7 @@ public class GenyoPhase extends PlacerModule {
             if (swapAltConfig.get())
             {
                 mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
-                mc.interactionManager.clickSlot(0, mc.player.getInventory().selectedSlot + 36, 0, SlotActionType.PICKUP, mc.player);
+                mc.interactionManager.clickSlot(0, mc.player.getInventory().getSelectedSlot() + 36, 0, SlotActionType.PICKUP, mc.player);
                 mc.interactionManager.clickSlot(0, pearlSlot < 9 ? pearlSlot + 36 : pearlSlot, 0, SlotActionType.PICKUP, mc.player);
             }
             else if (pearlSlot < 9)
