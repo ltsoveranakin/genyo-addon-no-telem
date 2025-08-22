@@ -32,6 +32,7 @@
     "entity.MixinEntity",
     "entity.player.MixinPlayerEntity",
     "game.MixinMinecraftClient",
+    "network.MixinDecoderHandler",
     "network.MixinServerPlayerEntity",
     "world.MixinBlockCollisionSpliterator"
   ]

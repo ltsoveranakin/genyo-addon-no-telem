@@ -131,6 +131,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new Einstein());
         modules.add(new GenyoAutoWindmill());
         modules.add(new GenyoAutoPenis());
+        modules.add(new GenyoNoPacketKick());
     }
 
     private void initHUD(Hud hud) {
