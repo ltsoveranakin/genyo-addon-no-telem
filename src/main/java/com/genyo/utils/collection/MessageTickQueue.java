@@ -53,4 +53,8 @@ public class MessageTickQueue {
         this.delay = newDelay;
     }
 
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
+
 }

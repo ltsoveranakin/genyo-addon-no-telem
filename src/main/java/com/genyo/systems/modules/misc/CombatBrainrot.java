@@ -3,11 +3,14 @@ package com.genyo.systems.modules.misc;
 import com.genyo.GenyoAddon;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.settings.FloatSetting;
+import com.genyo.utils.collection.Message;
+import com.genyo.utils.collection.MessageTickQueue;
 import com.genyo.utils.math.MathUtil;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringListSetting;
@@ -35,47 +38,25 @@ public class CombatBrainrot extends GenyoModule {
         .build()
     );
 
-    private final Setting<Float> delay = sgGeneral.add(new FloatSetting.Builder()
-        .name("Delay")
-        .description("to maybe not get kicked or smth idk (in seconds)")
-        .min(0.1f)
-        .defaultValue(0.2f)
-        .max(1f)
+    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
+        .name("Tick Delay")
+        .description("to maybe not get kicked or smth idk")
+        .min(1)
+        .defaultValue(10)
+        .max(20)
+        .range(1, 20)
+        .onChanged(this::refreshTimer)
         .build()
     );
 
     //TODO: whisper
-    private final Timer timer = new CacheTimer();
-    private final List<String> queue = new ArrayList<>();
+    private final MessageTickQueue queue = new MessageTickQueue(delay.get());
 
     @Override
     public void onActivate() {
-        timer.reset();
-        queue.clear();
-
         if (brainrots.get().isEmpty()) {
             toggle();
             sendDisableMsg("No brainrots available.");
-        }
-    }
-
-    @Override
-    public void onDeactivate() {
-        timer.reset();
-        queue.clear();
-    }
-
-    @EventHandler
-    public void onTick(TickEvent.Pre event) {
-        if (mc.player == null || mc.world == null) return;
-        if (queue.isEmpty()) return;
-
-        if (timer.passed(delay.get() * 1000)) {
-            String message = queue.getFirst();
-
-            ChatUtils.sendPlayerMsg(message);
-            queue.removeFirst();
-            timer.reset();
         }
     }
 
@@ -95,8 +76,14 @@ public class CombatBrainrot extends GenyoModule {
     }
 
     private void queueNext() {
-        queue.add(brainrots.get().get(MathUtil.pickRandom(brainrots.get())));
-        timer.reset();
+        if (!queue.isEmpty()) return;
+
+        Message message = new Message(brainrots.get().get(MathUtil.pickRandom(brainrots.get())), false);
+        queue.addMessage(message);
+    }
+
+    private void refreshTimer(int value) {
+        queue.setDelay(value);
     }
 
 }
