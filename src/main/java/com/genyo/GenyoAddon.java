@@ -3,6 +3,7 @@ package com.genyo;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
+import com.genyo.systems.modules.movement.GenyoAntiLadder;
 import com.genyo.systems.modules.movement.GenyoPhase;
 import com.genyo.systems.modules.movement.GenyoVelocity;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
@@ -132,6 +133,7 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new GenyoAutoWindmill());
         modules.add(new GenyoAutoPenis());
         modules.add(new GenyoNoPacketKick());
+        modules.add(new GenyoAntiLadder());
     }
 
     private void initHUD(Hud hud) {
