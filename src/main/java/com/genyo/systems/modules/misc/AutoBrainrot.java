@@ -7,10 +7,10 @@ import com.genyo.utils.math.MathUtil;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.utils.entity.fakeplayer.FakePlayerEntity;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -40,16 +40,17 @@ public class AutoBrainrot extends GenyoModule {
         .build()
     );
 
-    private final Setting<Range> mode = sgGeneral.add(new EnumSetting.Builder<Range>()
+    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
         .description("Either tell the whole server or players in a radius")
-        .defaultValue(Range.Radius)
+        .defaultValue(Mode.Radius)
         .build()
     );
 
     private final Setting<ChatMode> chatMode = sgGeneral.add(new EnumSetting.Builder<ChatMode>()
         .name("9b9t chat color")
         .description("Only works on 9b9t")
+        .visible(() -> mode.get().equals(Mode.Server))
         .defaultValue(ChatMode.Default)
         .build()
     );
@@ -58,10 +59,10 @@ public class AutoBrainrot extends GenyoModule {
         .name("Radius")
         .description("The radius of the circle to send message to")
         .min(10f)
-        .defaultValue(10f)
-        .max(50f)
-        .sliderRange(10f, 50f)
-        .visible(() -> mode.get().equals(Range.Radius))
+        .defaultValue(50f)
+        .max(150f)
+        .sliderRange(10f, 150f)
+        .visible(() -> mode.get().equals(Mode.Radius))
         .build()
     );
 
@@ -118,7 +119,7 @@ public class AutoBrainrot extends GenyoModule {
 
     private List<PlayerEntity> getPlayersInRadius() {
         return mc.world.getPlayers().stream()
-            .filter(e -> !(e instanceof ClientPlayerEntity) && !e.isSpectator())
+            .filter(e -> !(e instanceof ClientPlayerEntity) && !(e instanceof FakePlayerEntity) && !e.isSpectator()) // have to filter out fake players too
             .filter(e -> mc.player.squaredDistanceTo(e) <= radius.get() * radius.get())
             .collect(Collectors.toList());
     }
@@ -152,7 +153,7 @@ public class AutoBrainrot extends GenyoModule {
         }
     }
 
-    private enum Range {
+    private enum Mode {
         Server, Radius
     }
 
