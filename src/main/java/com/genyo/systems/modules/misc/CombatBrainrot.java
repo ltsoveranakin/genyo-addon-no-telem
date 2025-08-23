@@ -38,7 +38,7 @@ public class CombatBrainrot extends GenyoModule {
         .min(5)
         .defaultValue(10)
         .max(20)
-        .range(1, 20)
+        .range(5, 20)
         .onChanged(this::refreshTimer)
         .build()
     );
