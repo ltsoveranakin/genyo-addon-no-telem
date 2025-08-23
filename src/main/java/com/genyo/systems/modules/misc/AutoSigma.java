@@ -15,10 +15,10 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sigma extends GenyoModule {
+public class AutoSigma extends GenyoModule {
 
-    public Sigma() {
-        super(Genyo.MISC, "sigma", "and i heard em say, nothing's ever promised tomorrow today");
+    public AutoSigma() {
+        super(Genyo.MISC, "auto-sigma", "and i heard em say, nothing's ever promised tomorrow today");
 
         loadSigmas();
     }
@@ -50,7 +50,7 @@ public class Sigma extends GenyoModule {
     );
 
     private final Timer timer = new CacheTimer();
-    private final Identifier sigmaFile = Identifier.of(Genyo.MOD_ID, "sigma.txt");
+    private final Identifier sigmaFile = Identifier.of(Genyo.MOD_ID, "txtfiles/sigma.txt");
     private final List<String> sigmas = new ArrayList<>();
 
     @Override
@@ -101,7 +101,7 @@ public class Sigma extends GenyoModule {
             Resource resource = mc.getResourceManager().getResource(sigmaFile).orElseThrow();
             sigmas.addAll(resource.getReader().lines().toList());
         } catch (Exception e) {
-            Genyo.LOG.info(e.getMessage());
+            Genyo.LOG.error(e.getMessage());
             sendError("Couldn't read file. Send logs to wuritz pls.");
             sigmaNotFound();
         }

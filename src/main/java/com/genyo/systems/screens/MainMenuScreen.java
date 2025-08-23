@@ -79,7 +79,7 @@ public class MainMenuScreen extends Screen {
 
     private String getSplashText() {
         String splash = "";
-        Identifier identifier = Identifier.of(Genyo.MOD_ID, "splash.txt");
+        Identifier identifier = Identifier.of(Genyo.MOD_ID, "txtfiles/splash.txt");
 
         try {
             Resource resource = mc.getResourceManager().getResource(identifier).orElseThrow();

@@ -190,7 +190,6 @@ public class GenyoModule extends Module {
     public PlayerEntity getClosestPlayer(double range) {
         return mc.world.getPlayers().stream().filter(e -> !(e instanceof ClientPlayerEntity) && !e.isSpectator())
             .filter(e -> mc.player.squaredDistanceTo(e) <= range * range)
-            //.filter(e -> !Managers.SOCIAL.isFriend(e.getName().getString()))
             .filter(e -> !Friends.get().isFriend(e))
             .min(Comparator.comparingDouble(e -> mc.player.squaredDistanceTo(e))).orElse(null);
     }

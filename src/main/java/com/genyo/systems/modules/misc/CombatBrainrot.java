@@ -35,7 +35,7 @@ public class CombatBrainrot extends GenyoModule {
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
         .name("Tick Delay")
         .description("to maybe not get kicked or smth idk")
-        .min(1)
+        .min(5)
         .defaultValue(10)
         .max(20)
         .range(1, 20)

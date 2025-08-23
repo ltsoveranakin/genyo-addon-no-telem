@@ -126,12 +126,13 @@ public class Genyo extends MeteorAddon {
         modules.add(new GenyoPhase());
         //modules.add(new GenyoMainMenu());
         modules.add(new GenyoTimer());
-        modules.add(new Sigma());
+        modules.add(new AutoSigma());
         modules.add(new Einstein());
         modules.add(new GenyoAutoWindmill());
         modules.add(new GenyoAutoPenis());
         modules.add(new NoPacketKick());
         modules.add(new AntiLadder());
+        modules.add(new AutoBrainrot());
     }
 
     private void initHUD(Hud hud) {
