@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.PlacerModule;
@@ -40,7 +40,7 @@ import java.util.*;
 public class GenyoAutoTrap extends PlacerModule {
 
     public GenyoAutoTrap() {
-        super(GenyoAddon.COMBAT, "genyo-auto-trap", "Fully traps enemies with blocks.");
+        super(Genyo.COMBAT, "genyo-auto-trap", "Fully traps enemies with blocks.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

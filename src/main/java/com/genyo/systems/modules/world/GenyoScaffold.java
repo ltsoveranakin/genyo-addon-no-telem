@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.PlacerModule;
@@ -31,7 +31,7 @@ import java.util.Map;
 public class GenyoScaffold extends PlacerModule {
 
     public GenyoScaffold() {
-        super(GenyoAddon.WORLD, "genyo-scaffold", "i shit the bed regularly");
+        super(Genyo.WORLD, "genyo-scaffold", "i shit the bed regularly");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

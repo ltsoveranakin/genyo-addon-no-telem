@@ -1,6 +1,6 @@
 package com.genyo.mixin.network;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.mixin.accessor.AccessorClientConnection;
 import com.genyo.imixins.IClientPlayNetworkHandler;
 import com.genyo.systems.modules.misc.Einstein;
@@ -66,12 +66,14 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
         Einstein einstein = Modules.get().get(Einstein.class);
         if (Modules.get().isActive(Einstein.class)) {
-            if (einstein.isInGame() && isChoice(message)) {
+            String answer = message.toUpperCase();
+
+            if (einstein.isInGame() && isChoice(answer)) {
                 ci.cancel();
 
                 String correct = einstein.getCorrectChoice();
 
-                einstein.endGame(message.equals(correct));
+                einstein.endGame(answer.equals(correct));
             }
         }
     }
@@ -80,7 +82,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     private boolean isChoice(String message) {
         final List<String> choices = Arrays.asList("A", "B", "C", "D");
 
-        return choices.contains(message.toUpperCase());
+        return choices.contains(message);
     }
 
 }

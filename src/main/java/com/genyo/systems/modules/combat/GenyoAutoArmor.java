@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
@@ -28,7 +28,7 @@ import java.util.Queue;
 public class GenyoAutoArmor extends GenyoModule {
 
     public GenyoAutoArmor() {
-        super(GenyoAddon.COMBAT, "genyo-auto-armor", "Automatically replaces armor pieces.");
+        super(Genyo.COMBAT, "genyo-auto-armor", "Automatically replaces armor pieces.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

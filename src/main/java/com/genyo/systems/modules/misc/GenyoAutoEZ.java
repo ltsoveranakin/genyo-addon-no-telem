@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.incombat.CombatPerson;
 import com.genyo.systems.incombat.InCombatSystem;
@@ -8,11 +8,8 @@ import com.genyo.utils.collection.Message;
 import com.genyo.utils.collection.MessageTickQueue;
 import com.genyo.utils.math.MathUtil;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import meteordevelopment.orbit.EventPriority;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
@@ -22,7 +19,7 @@ import java.util.*;
 public class GenyoAutoEZ extends GenyoModule {
 
     public GenyoAutoEZ() {
-        super(GenyoAddon.MISC, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.-----------------------------------------------------------------");
+        super(Genyo.MISC, "genyo-auto-ez", "igen igen igen, dikta mamo tyibori.-----------------------------------------------------------------");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

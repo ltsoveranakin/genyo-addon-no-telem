@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.modules.world.GenyoAutoMine;
@@ -34,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 public class GenyoCriticals extends GenyoModule {
 
     public GenyoCriticals() {
-        super(GenyoAddon.COMBAT, "genyo-criticals", "crrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+        super(Genyo.COMBAT, "genyo-criticals", "crrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

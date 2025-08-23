@@ -1,6 +1,6 @@
 package com.genyo.mixin;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.DecodePacketEvent;
 import com.genyo.events.network.DisconnectEvent;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +32,7 @@ public class MixinClientConnection {
         MeteorClient.EVENT_BUS.post(decodePacketEvent);
         if (decodePacketEvent.isCancelled())
         {
-            GenyoAddon.LOG.error("Exception caught on network thread:", ex);
+            Genyo.LOG.error("Exception caught on network thread:", ex);
             ci.cancel();
         }
     }

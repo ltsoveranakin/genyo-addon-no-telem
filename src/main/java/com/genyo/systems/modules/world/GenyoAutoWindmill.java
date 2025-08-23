@@ -1,5 +1,5 @@
 package com.genyo.systems.modules.world;
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
@@ -9,7 +9,6 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
@@ -33,7 +32,7 @@ public class GenyoAutoWindmill extends GenyoModule {
     );
 
     public GenyoAutoWindmill() {
-        super(GenyoAddon.WORLD, "genyo-auto-windmill", "Slam Genyo's windmill");
+        super(Genyo.WORLD, "genyo-auto-windmill", "Slam Genyo's windmill");
     }
 
     @EventHandler

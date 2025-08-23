@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
@@ -21,7 +21,7 @@ import net.minecraft.util.Hand;
 public class GenyoAutoXP extends GenyoModule {
 
     public GenyoAutoXP() {
-        super(GenyoAddon.COMBAT, "Genyo AutoXP", "better than blackout");
+        super(Genyo.COMBAT, "Genyo AutoXP", "better than blackout");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

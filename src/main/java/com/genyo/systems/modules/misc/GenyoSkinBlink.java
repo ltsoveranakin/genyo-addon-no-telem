@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.mixin.accessor.AccessorGameOptions;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -33,7 +33,7 @@ public class GenyoSkinBlink extends GenyoModule {
     );
 
     public GenyoSkinBlink() {
-        super(GenyoAddon.MISC, "genyo-skin-blink", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. ");
+        super(Genyo.MISC, "genyo-skin-blink", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. ");
     }
 
     private int timer = 0;

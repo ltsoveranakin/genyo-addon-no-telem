@@ -1,19 +1,16 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
 import com.genyo.systems.settings.playerlist.PlayerListGroup;
 import com.genyo.utils.collection.Message;
 import com.genyo.utils.collection.MessageTickQueue;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import meteordevelopment.orbit.EventPriority;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 
@@ -29,7 +26,7 @@ public class GenyoGoodbye extends GenyoModule {
     private ArrayList<String> namesList = new ArrayList<>();
 
     public GenyoGoodbye() {
-        super(GenyoAddon.MISC, "genyo-goodbye", "i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. ");
+        super(Genyo.MISC, "genyo-goodbye", "i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. i hate kiwi. ");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

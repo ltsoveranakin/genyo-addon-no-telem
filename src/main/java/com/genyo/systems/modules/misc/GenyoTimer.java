@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.render.TickCounterEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
@@ -14,7 +14,7 @@ import meteordevelopment.orbit.EventHandler;
 public class GenyoTimer extends GenyoModule {
 
     public GenyoTimer() {
-        super(GenyoAddon.MISC, "genyo-timer", "Changes the change to the change and change.");
+        super(Genyo.MISC, "genyo-timer", "Changes the change to the change and change.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

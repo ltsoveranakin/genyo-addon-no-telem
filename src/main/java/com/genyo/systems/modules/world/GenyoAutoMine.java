@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.AttackBlockEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
@@ -47,7 +47,7 @@ import java.util.*;
 public class GenyoAutoMine extends GenyoModule {
 
     public GenyoAutoMine() {
-        super(GenyoAddon.WORLD, "Genyo AutoMine", "fasz");
+        super(Genyo.WORLD, "Genyo AutoMine", "fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

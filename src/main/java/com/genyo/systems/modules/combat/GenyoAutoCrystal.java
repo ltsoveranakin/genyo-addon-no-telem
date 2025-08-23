@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.DisconnectEvent;
 import com.genyo.events.world.AddEntityEvent;
 import com.genyo.systems.modules.PlacerModule;
@@ -68,7 +68,7 @@ import java.util.concurrent.*;
 public class GenyoAutoCrystal extends PlacerModule {
 
     public GenyoAutoCrystal() {
-        super(GenyoAddon.COMBAT, "Genyo AutoCrystal", "asd");
+        super(Genyo.COMBAT, "Genyo AutoCrystal", "asd");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

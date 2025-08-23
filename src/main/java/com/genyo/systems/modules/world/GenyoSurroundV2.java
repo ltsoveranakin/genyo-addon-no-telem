@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.PlacerModule;
 import com.genyo.render.animation.Animation;
@@ -45,7 +45,7 @@ import java.util.*;
 public class GenyoSurroundV2 extends PlacerModule {
 
     public GenyoSurroundV2() {
-        super(GenyoAddon.WORLD, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
+        super(Genyo.WORLD, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

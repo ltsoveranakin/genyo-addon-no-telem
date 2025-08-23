@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.Hud;
@@ -12,7 +12,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
 public class PacketsHud extends HudElement {
 
-    public static final HudElementInfo<PacketsHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "packets", "Displays the amount of incoming and outgoing packets. (out <- in)", PacketsHud::new);
+    public static final HudElementInfo<PacketsHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "packets", "Displays the amount of incoming and outgoing packets. (out <- in)", PacketsHud::new);
     public PacketsHud() { super(INFO); }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.settings.FloatSetting;
 import meteordevelopment.meteorclient.settings.*;
@@ -45,7 +45,7 @@ import java.util.Map;
 public class GenyoSpeedmine extends GenyoModule {
 
     public GenyoSpeedmine() {
-        super(GenyoAddon.WORLD, "Genyo Speedmine", "fasz fasz fsaz fasz");
+        super(Genyo.WORLD, "Genyo Speedmine", "fasz fasz fsaz fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

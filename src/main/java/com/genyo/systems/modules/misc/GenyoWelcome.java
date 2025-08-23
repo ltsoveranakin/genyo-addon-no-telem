@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.systems.settings.playerlist.PlayerListGroupSetting;
 import com.genyo.systems.settings.playerlist.PlayerListGroup;
@@ -10,13 +10,10 @@ import com.mojang.authlib.GameProfile;
 import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import meteordevelopment.orbit.EventPriority;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 
 import java.util.*;
@@ -58,7 +55,7 @@ public class GenyoWelcome extends GenyoModule {
     }
 
     public GenyoWelcome() {
-        super(GenyoAddon.MISC, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
+        super(Genyo.MISC, "genyo-welcome", "i love kiwi. i love kiwi. i love kiwi. i love kiwi. i love kiwi.");
     }
 
     @EventHandler

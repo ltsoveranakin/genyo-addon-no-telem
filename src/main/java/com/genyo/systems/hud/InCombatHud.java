@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.incombat.CombatPerson;
 import com.genyo.systems.incombat.InCombatSystem;
 import meteordevelopment.meteorclient.settings.*;
@@ -12,7 +12,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class InCombatHud extends HudElement {
 
-    public static final HudElementInfo<InCombatHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "combat-stats", "Fasz fasz fasz fasz fasz fasz.", InCombatHud::new);
+    public static final HudElementInfo<InCombatHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "combat-stats", "Fasz fasz fasz fasz fasz fasz.", InCombatHud::new);
 
     private static final InCombatSystem inCombatSystem = InCombatSystem.get();
 

@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.*;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ActiveGenyoHud extends HudElement {
 
-    public static final HudElementInfo<ActiveGenyoHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "active-genyo", "Displays your active GENYO modules.", ActiveGenyoHud::new);
+    public static final HudElementInfo<ActiveGenyoHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "active-genyo", "Displays your active GENYO modules.", ActiveGenyoHud::new);
 
     private static final Color WHITE = new Color();
 

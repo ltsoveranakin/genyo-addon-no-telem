@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.movement;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.PlayerUpdateEvent;
 import com.genyo.events.network.PushOutOfBlocksEvent;
 import com.genyo.events.world.BlockCollisionEvent;
@@ -37,7 +37,7 @@ import java.util.List;
 public class GenyoPhase extends PlacerModule {
 
     public GenyoPhase() {
-        super(GenyoAddon.MOVEMENT, "genyo-phase", "asd");
+        super(Genyo.MOVEMENT, "genyo-phase", "asd");
     }
 
     private static final List<Block> RESISTANT_BLOCKS = new LinkedList<>()

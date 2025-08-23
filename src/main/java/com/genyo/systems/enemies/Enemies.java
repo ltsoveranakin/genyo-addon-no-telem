@@ -1,6 +1,6 @@
 package com.genyo.systems.enemies;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.mojang.util.UndashedUuid;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.System;
@@ -203,7 +203,7 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
                 switch (getMessageMode()) {
                     case MessageMode.Whisper:
                         ChatUtils.sendPlayerMsg("/whisper " + player.getName().getString() + " " + message);
-                        GenyoAddon.LOG.info("/whisper " + player.getName().getString() + " " + message);
+                        Genyo.LOG.info("/whisper " + player.getName().getString() + " " + message);
                     case MessageMode.Msg:
                         ChatUtils.sendPlayerMsg("/msg " + player.getName().getString() + " " + message);
                 }

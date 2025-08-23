@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class PacketDebug extends GenyoModule {
 
     public PacketDebug() {
-        super(GenyoAddon.MISC, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
+        super(Genyo.MISC, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -85,7 +85,7 @@ public class PacketDebug extends GenyoModule {
                 if (toChat.get()) {
                     sendInfo("Sent packets (" + currentAmount + ") in the last " + logTicks.get().toString() + " ticks: " + queue.toString());
                 } else {
-                    GenyoAddon.LOG.info("Sent packets (" + currentAmount + ") in the last " + logTicks.get().toString() + " ticks: " + queue.toString());
+                    Genyo.LOG.info("Sent packets (" + currentAmount + ") in the last " + logTicks.get().toString() + " ticks: " + queue.toString());
                 }
 
                 tickTimer = 0;
@@ -93,7 +93,7 @@ public class PacketDebug extends GenyoModule {
                 if (toChat.get()) {
                     sendInfo("Sent packets (" + currentAmount + ") in the last tick: " + queue.toString());
                 } else {
-                    GenyoAddon.LOG.info("Sent packets (" + currentAmount + ") in the last tick: " + queue.toString());
+                    Genyo.LOG.info("Sent packets (" + currentAmount + ") in the last tick: " + queue.toString());
                 }
             }
 
@@ -114,7 +114,7 @@ public class PacketDebug extends GenyoModule {
                 if (toChat.get()) {
                     sendInfo("Sent packet: " + event.packet.getClass().getSimpleName());
                 } else {
-                    GenyoAddon.LOG.info("Sent packet: " + event.packet.getClass().getSimpleName());
+                    Genyo.LOG.info("Sent packet: " + event.packet.getClass().getSimpleName());
                 }
             }
         }

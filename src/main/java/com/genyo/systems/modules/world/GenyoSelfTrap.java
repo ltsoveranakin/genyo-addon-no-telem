@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.PlacerModule;
 import com.genyo.render.animation.Animation;
@@ -46,7 +46,7 @@ import java.util.*;
 public class GenyoSelfTrap extends PlacerModule {
 
     public GenyoSelfTrap() {
-        super(GenyoAddon.WORLD, "Genyo SelfTrap", "a funny one for sure.");
+        super(Genyo.WORLD, "Genyo SelfTrap", "a funny one for sure.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

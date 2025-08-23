@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.movement;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.entity.player.PushEntityEvent;
 import com.genyo.events.entity.player.PushFluidsEvent;
 import com.genyo.events.network.PlayerTickEvent;
@@ -35,7 +35,7 @@ import java.util.List;
 public class GenyoVelocity extends GenyoModule {
 
     public GenyoVelocity() {
-        super(GenyoAddon.MOVEMENT, "genyo-velocity", "efhewhfjkhewfjhkewfh jekw");
+        super(Genyo.MOVEMENT, "genyo-velocity", "efhewhfjkhewfjhkewfh jekw");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

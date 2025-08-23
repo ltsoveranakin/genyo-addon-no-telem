@@ -1,32 +1,26 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.collection.Message;
 import com.genyo.utils.collection.MessageTickQueue;
 import com.genyo.utils.math.MathUtil;
-import com.genyo.utils.math.timer.CacheTimer;
-import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringListSetting;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CombatBrainrot extends GenyoModule {
 
     public CombatBrainrot() {
-        super(GenyoAddon.MISC, "combat-brainrot", "says something sigma while in crystal pvp.");
+        super(Genyo.MISC, "combat-brainrot", "says something sigma while in crystal pvp.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

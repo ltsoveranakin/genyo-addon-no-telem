@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.discordipc.DiscordIPC;
 import meteordevelopment.discordipc.RichPresence;
@@ -116,7 +116,7 @@ public class GenyoDiscord extends GenyoModule {
     }
 
     public GenyoDiscord() {
-        super(GenyoAddon.MISC, "genyo-discord", "this one is superior to the original module because its genyo");
+        super(Genyo.MISC, "genyo-discord", "this one is superior to the original module because its genyo");
 
         runInMainMenu = true;
     }
@@ -143,16 +143,16 @@ public class GenyoDiscord extends GenyoModule {
         if (Modules.get().isActive(DiscordPresence.class)) Modules.get().get(DiscordPresence.class).toggle();
 
         DiscordIPC.start(1398651352933994607L, () -> {
-            GenyoAddon.LOG.info("DRPC redy");
-            GenyoAddon.LOG.info(DiscordIPC.getUser().username);
+            Genyo.LOG.info("DRPC redy");
+            Genyo.LOG.info(DiscordIPC.getUser().username);
         });
 
         rpc.setStart(System.currentTimeMillis() / 1000L);
 
-        GenyoAddon.LOG.info("Discord IPC started");
-        GenyoAddon.LOG.info(String.valueOf(DiscordIPC.isConnected()));
+        Genyo.LOG.info("Discord IPC started");
+        Genyo.LOG.info(String.valueOf(DiscordIPC.isConnected()));
 
-        String largeText = "%s".formatted(GenyoAddon.NAME);
+        String largeText = "%s".formatted(Genyo.NAME);
         rpc.setLargeImage("genyo", largeText);
 
         currentSmallImage = SmallImage.Hulkenberg;

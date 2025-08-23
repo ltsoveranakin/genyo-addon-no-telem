@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.world.LoadWorldEvent;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
@@ -34,7 +34,7 @@ import java.util.Set;
 public class GenyoAutoTotem extends GenyoModule {
 
     public GenyoAutoTotem() {
-        super(GenyoAddon.COMBAT, "genyo-auto-totem", "Automatically replenishes the totem in your offhand");
+        super(Genyo.COMBAT, "genyo-auto-totem", "Automatically replenishes the totem in your offhand");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.GenyoChatUtils;
 import com.genyo.utils.math.timer.CacheTimer;
@@ -24,7 +24,7 @@ import java.util.Random;
 public class Einstein extends GenyoModule {
 
     public Einstein() {
-        super(GenyoAddon.MISC, "einstein", "natural selection of society");
+        super(Genyo.MISC, "einstein", "natural selection of society");
         readEinstein();
     }
 
@@ -56,7 +56,7 @@ public class Einstein extends GenyoModule {
     );
 
     // Things
-    private final Identifier file = Identifier.of(GenyoAddon.MOD_ID, "einstein/einstein.yml");
+    private final Identifier file = Identifier.of(Genyo.MOD_ID, "einstein/einstein.yml");
     private final List<Entry> entries = new ArrayList<>();
     private final Random random = new Random();
 
@@ -107,7 +107,6 @@ public class Einstein extends GenyoModule {
                 .filter(e -> e.difficulty.equals(Entry.Difficulty.Easy))
                 .toList();
 
-            GenyoAddon.LOG.info(easyEntries.toString());
             currentEntry = easyEntries.get(random.nextInt(easyEntries.size()));
         } else {
             currentEntry = entries.get(random.nextInt(entries.size()));
@@ -204,7 +203,7 @@ public class Einstein extends GenyoModule {
                 entries.add(entry);
             }
         } catch (Exception exception) {
-            GenyoAddon.LOG.error(exception.getMessage());
+            Genyo.LOG.error(exception.getMessage());
             sendError("Couldn't read file. Send logs to wuritz pls.");
         }
     }

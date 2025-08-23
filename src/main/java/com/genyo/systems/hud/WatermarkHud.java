@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.Hud;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
@@ -11,7 +11,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
 public class WatermarkHud extends HudElement {
 
-    public static final HudElementInfo<WatermarkHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "watermark", "The best thing in the entire addon.", WatermarkHud::new);
+    public static final HudElementInfo<WatermarkHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "watermark", "The best thing in the entire addon.", WatermarkHud::new);
     public WatermarkHud() {
         super(INFO);
     }
@@ -63,7 +63,7 @@ public class WatermarkHud extends HudElement {
     private String renderText = "Genyo";
 
     private void updateRenderText(boolean version) {
-        if (version) renderText = "Genyo " + GenyoAddon.VERSION;
+        if (version) renderText = "Genyo " + Genyo.VERSION;
         else renderText = "Genyo";
     }
 

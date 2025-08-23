@@ -1,6 +1,6 @@
 package com.genyo.systems.settings.playerlist;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.screens.ListGroupScreen;
 import com.genyo.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.gui.GuiTheme;
@@ -138,7 +138,7 @@ public class PlayerListGroupSetting extends Setting<List<PlayerListGroup>> {
         get().clear();
         NbtList nbtIndexes = (NbtList) tag.get("indexes");
         if (nbtIndexes != null && nbtIndexes.isEmpty()) {
-            GenyoAddon.LOG.info("nem jo");
+            Genyo.LOG.info("nem jo");
             return get();
         }
 

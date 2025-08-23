@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.math.GPositionUtils;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
@@ -96,7 +96,7 @@ public class GenyoSurround extends GenyoModule {
     private final Map<BlockPos, Long> espBlocks = new ConcurrentHashMap<>();
 
     public GenyoSurround() {
-        super(GenyoAddon.WORLD, "genyo-surround", "haaaaaaaaaaaaaa");
+        super(Genyo.WORLD, "genyo-surround", "haaaaaaaaaaaaaa");
     }
 
     public void onActivate() {

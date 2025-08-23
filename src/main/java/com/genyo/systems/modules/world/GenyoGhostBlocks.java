@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.entity.player.BreakBlockEvent;
@@ -19,7 +19,7 @@ import org.lwjgl.glfw.GLFW;
 public class GenyoGhostBlocks extends GenyoModule {
 
     public GenyoGhostBlocks() {
-        super(GenyoAddon.WORLD, "genyo-ghost-blocks", "maybe");
+        super(Genyo.WORLD, "genyo-ghost-blocks", "maybe");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

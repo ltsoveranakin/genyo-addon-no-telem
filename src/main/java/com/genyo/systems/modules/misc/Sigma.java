@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.misc;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.math.MathUtil;
 import com.genyo.utils.math.timer.CacheTimer;
@@ -18,7 +18,7 @@ import java.util.List;
 public class Sigma extends GenyoModule {
 
     public Sigma() {
-        super(GenyoAddon.MISC, "sigma", "and i heard em say, nothing's ever promised tomorrow today");
+        super(Genyo.MISC, "sigma", "and i heard em say, nothing's ever promised tomorrow today");
 
         loadSigmas();
     }
@@ -50,7 +50,7 @@ public class Sigma extends GenyoModule {
     );
 
     private final Timer timer = new CacheTimer();
-    private final Identifier sigmaFile = Identifier.of(GenyoAddon.MOD_ID, "sigma.txt");
+    private final Identifier sigmaFile = Identifier.of(Genyo.MOD_ID, "sigma.txt");
     private final List<String> sigmas = new ArrayList<>();
 
     @Override
@@ -101,7 +101,7 @@ public class Sigma extends GenyoModule {
             Resource resource = mc.getResourceManager().getResource(sigmaFile).orElseThrow();
             sigmas.addAll(resource.getReader().lines().toList());
         } catch (Exception e) {
-            GenyoAddon.LOG.info(e.getMessage());
+            Genyo.LOG.info(e.getMessage());
             sendError("Couldn't read file. Send logs to wuritz pls.");
             sigmaNotFound();
         }

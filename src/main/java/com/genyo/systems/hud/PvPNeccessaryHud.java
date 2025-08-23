@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.utils.HudUtils;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class PvPNeccessaryHud extends HudElement {
 
-    public static final HudElementInfo<PvPNeccessaryHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "pvp-neccessary", "Fasz fasz fasz fasz fasz fasz.", PvPNeccessaryHud::new);
+    public static final HudElementInfo<PvPNeccessaryHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "pvp-neccessary", "Fasz fasz fasz fasz fasz fasz.", PvPNeccessaryHud::new);
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScale = settings.createGroup("Scale");

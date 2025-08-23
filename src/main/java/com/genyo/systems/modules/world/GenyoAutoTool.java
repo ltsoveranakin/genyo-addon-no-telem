@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.AttackBlockEvent;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.player.EnchantmentUtil;
@@ -15,7 +15,7 @@ import net.minecraft.registry.tag.ItemTags;
 public class GenyoAutoTool extends GenyoModule {
 
     public GenyoAutoTool() {
-        super(GenyoAddon.WORLD, "genyo-auto-tool", "Yés");
+        super(Genyo.WORLD, "genyo-auto-tool", "Yés");
     }
 
     @EventHandler

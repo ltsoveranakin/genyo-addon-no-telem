@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.visual;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.TotemPopEvent;
 import com.genyo.mixin.entity.IEntity;
 import com.genyo.systems.modules.GenyoModule;
@@ -34,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class AngelSexHulkenberg extends GenyoModule {
 
     public AngelSexHulkenberg() {
-        super(GenyoAddon.VISUAL, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");
+        super(Genyo.VISUAL, "angel-sex-hulkenberg", "jön a verstappen, nekiütközött a verstappen, kiesik a verstappen");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

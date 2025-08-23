@@ -1,15 +1,15 @@
 package com.genyo.systems.modules.movement;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.Vec3d;
 
-public class GenyoAntiLadder extends GenyoModule {
+public class AntiLadder extends GenyoModule {
 
-    public GenyoAntiLadder() {
-        super(GenyoAddon.MOVEMENT, "genyo-anti-ladder", "Prevents you from climbing ladders.");
+    public AntiLadder() {
+        super(Genyo.MOVEMENT, "anti-ladder", "Prevents you from climbing ladders.");
     }
 
     @EventHandler

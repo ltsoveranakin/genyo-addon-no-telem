@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.network.DisconnectEvent;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.events.world.RemoveEntityEvent;
@@ -57,7 +57,7 @@ import java.util.stream.Stream;
 public class KFCSpawnKill extends GenyoModule {
 
     public KFCSpawnKill() {
-        super(GenyoAddon.COMBAT, "KFC Spawn Kill", "ask about the name, i won't tell you.");
+        super(Genyo.COMBAT, "KFC Spawn Kill", "ask about the name, i won't tell you.");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -1,6 +1,6 @@
 package com.genyo.systems.hud;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.hud.*;
@@ -21,7 +21,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class BetterPlayerRadarHud extends HudElement {
 
-    public static final HudElementInfo<BetterPlayerRadarHud> INFO = new HudElementInfo<>(GenyoAddon.HUD_GROUP, "better-player-radar", "Displays players in your visual range.", BetterPlayerRadarHud::new);
+    public static final HudElementInfo<BetterPlayerRadarHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "better-player-radar", "Displays players in your visual range.", BetterPlayerRadarHud::new);
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgFeatures = settings.createGroup("Features");

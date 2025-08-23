@@ -1,6 +1,6 @@
 package com.genyo.systems.screens;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.utils.math.MathUtil;
 import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
@@ -21,7 +21,7 @@ public class MainMenuScreen extends Screen {
     private final int buttonWidth = 80, buttonHeight = 16;
 
     public MainMenuScreen() {
-        super(Text.literal(GenyoAddon.MOD_ID + "-menu"));
+        super(Text.literal(Genyo.MOD_ID + "-menu"));
 
         splashText = getSplashText();
     }
@@ -79,7 +79,7 @@ public class MainMenuScreen extends Screen {
 
     private String getSplashText() {
         String splash = "";
-        Identifier identifier = Identifier.of(GenyoAddon.MOD_ID, "splash.txt");
+        Identifier identifier = Identifier.of(Genyo.MOD_ID, "splash.txt");
 
         try {
             Resource resource = mc.getResourceManager().getResource(identifier).orElseThrow();

@@ -3,7 +3,7 @@ package com.genyo;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
-import com.genyo.systems.modules.movement.GenyoAntiLadder;
+import com.genyo.systems.modules.movement.AntiLadder;
 import com.genyo.systems.modules.movement.GenyoPhase;
 import com.genyo.systems.modules.movement.GenyoVelocity;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
@@ -12,8 +12,6 @@ import com.genyo.systems.modules.visual.GenyoPenisESP;
 import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
-import com.genyo.systems.incombat.InCombatSystem;
-import com.genyo.systems.incombat.InCombatTab;
 import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
@@ -31,7 +29,7 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 
-public class GenyoAddon extends MeteorAddon {
+public class Genyo extends MeteorAddon {
 
     public static final Logger LOG = LogUtils.getLogger();
 
@@ -132,8 +130,8 @@ public class GenyoAddon extends MeteorAddon {
         modules.add(new Einstein());
         modules.add(new GenyoAutoWindmill());
         modules.add(new GenyoAutoPenis());
-        modules.add(new GenyoNoPacketKick());
-        modules.add(new GenyoAntiLadder());
+        modules.add(new NoPacketKick());
+        modules.add(new AntiLadder());
     }
 
     private void initHUD(Hud hud) {

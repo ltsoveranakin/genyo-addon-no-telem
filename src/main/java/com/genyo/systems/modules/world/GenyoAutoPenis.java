@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.world;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
@@ -52,7 +52,7 @@ public class GenyoAutoPenis extends GenyoModule {
     );
 
     public GenyoAutoPenis() {
-        super(GenyoAddon.WORLD, "genyo-auto-penis", "show genyo's bbc");
+        super(Genyo.WORLD, "genyo-auto-penis", "show genyo's bbc");
     }
 
     @EventHandler

@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.combat;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.events.entity.EntityDeathEvent;
 import com.genyo.events.network.DisconnectEvent;
 import com.genyo.events.network.PlayerTickEvent;
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GenyoReplenish extends GenyoModule {
 
     public GenyoReplenish() {
-        super(GenyoAddon.COMBAT, "genyo-replenish", "fwejhfkljwefklwejfklkwlefjlwefl");
+        super(Genyo.COMBAT, "genyo-replenish", "fwejhfkljwefklwejfklkwlefjlwefl");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

@@ -1,6 +1,6 @@
 package com.genyo.systems.modules.visual;
 
-import com.genyo.GenyoAddon;
+import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.render.Render3DEngine;
 import com.genyo.systems.settings.FloatSetting;
@@ -21,7 +21,7 @@ import java.util.List;
 public class GenyoPenisESP extends GenyoModule {
 
     public GenyoPenisESP() {
-        super(GenyoAddon.VISUAL, "Genyo PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
+        super(Genyo.VISUAL, "Genyo PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
