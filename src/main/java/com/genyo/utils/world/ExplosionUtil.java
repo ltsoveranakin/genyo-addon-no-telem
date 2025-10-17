@@ -100,9 +100,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.lastX) * extrapolationTicks;
-            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.lastZ) * extrapolationTicks;
+            double ox = (x - entity.prevX) * extrapolationTicks;
+            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.prevZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -153,9 +153,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.lastX) * extrapolationTicks;
-            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.lastZ) * extrapolationTicks;
+            double ox = (x - entity.prevX) * extrapolationTicks;
+            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.prevZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -196,9 +196,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.lastX) * extrapolationTicks;
-            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.lastZ) * extrapolationTicks;
+            double ox = (x - entity.prevX) * extrapolationTicks;
+            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.prevZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -234,9 +234,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.lastX) * extrapolationTicks;
-            double oy = (y - entity.lastY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.lastZ) * extrapolationTicks;
+            double ox = (x - entity.prevX) * extrapolationTicks;
+            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.prevZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -313,26 +313,12 @@ public class ExplosionUtil {
         return (float) Math.floor(entity.getAttributeValue(EntityAttributes.ARMOR));
     }
 
-    private static float getProtectionReduction(Entity player, double damage, DamageSource source, boolean assumeBestArmor)
-    {
-        if (player instanceof LivingEntity livingEntity)
-        {
-            float protLevel = getProtectionAmount(getArmorItems(livingEntity), assumeBestArmor);
+    private static float getProtectionReduction(Entity player, double damage, DamageSource source, boolean assumeBestArmor) {
+        if (player instanceof LivingEntity livingEntity) {
+            float protLevel = getProtectionAmount(livingEntity.getArmorItems(), assumeBestArmor);
             return DamageUtil.getInflictedDamage((float) damage, protLevel);
         }
         return 0.0f;
-    }
-
-    private static Iterable<ItemStack> getArmorItems(LivingEntity entity) {
-        List<ItemStack> output = new ArrayList<>();
-
-        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
-            ItemStack stack = entity.getEquippedStack(slot);
-
-            if (stack != null) output.add(stack);
-        }
-
-        return output;
     }
 
     private static float getProtectionAmount(Iterable<ItemStack> equipment, boolean assumeBestArmor)

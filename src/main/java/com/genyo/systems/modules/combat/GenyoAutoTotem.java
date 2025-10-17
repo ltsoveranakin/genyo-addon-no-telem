@@ -220,7 +220,7 @@ public class GenyoAutoTotem extends GenyoModule {
             // If offhand gap is enabled & the use key is pressed down, equip a golden apple.
             final Item mainHandItem = mc.player.getMainHandStack().getItem();
             if (gappleConfig.get() && mc.options.useKey.isPressed()
-                && (mainHandItem.getDefaultStack().isIn(ItemTags.SWORDS)
+                && (mainHandItem instanceof SwordItem
                 || mainHandItem instanceof TridentItem
                 || mainHandItem instanceof AxeItem)
                 && PlayerUtil.getLocalPlayerHealth() >= healthConfig.get())

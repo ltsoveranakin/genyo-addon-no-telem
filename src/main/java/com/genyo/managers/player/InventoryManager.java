@@ -7,7 +7,6 @@ import com.genyo.mixin.accessor.AccessorBundlePacket;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -24,7 +23,6 @@ import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.screen.sync.ItemStackHash;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
@@ -178,7 +176,7 @@ public class InventoryManager {
      */
     public void setClientSlot(final int barSlot)
     {
-        if (mc.player.getInventory().getSelectedSlot() != barSlot
+        if (mc.player.getInventory().selectedSlot != barSlot
             && PlayerInventory.isValidHotbarIndex(barSlot))
         {
             mc.player.getInventory().setSelectedSlot(barSlot);
@@ -203,7 +201,7 @@ public class InventoryManager {
     {
         if (isDesynced())
         {
-            setSlotForced(mc.player.getInventory().getSelectedSlot());
+            setSlotForced(mc.player.getInventory().selectedSlot);
 
             for (PreSwapData swapData : swapData)
             {
@@ -214,7 +212,7 @@ public class InventoryManager {
 
     public boolean isDesynced()
     {
-        return mc.player.getInventory().getSelectedSlot() != slot;
+        return mc.player.getInventory().selectedSlot != slot;
     }
 
     //
@@ -277,15 +275,15 @@ public class InventoryManager {
             list.add(slot1.getStack().copy());
         }
         screenHandler.onSlotClick(slot, button, type, mc.player);
-        Int2ObjectMap<ItemStackHash> map = new Int2ObjectOpenHashMap<>();
+        Int2ObjectOpenHashMap<ItemStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
         for (int j = 0; j < i; ++j)
         {
             ItemStack itemStack2;
             ItemStack itemStack = list.get(j);
             if (ItemStack.areEqual(itemStack, itemStack2 = defaultedList.get(j).getStack())) continue;
-            map.put(j, ItemStackHash.fromItemStack(itemStack2.copy(), mc.getNetworkHandler().method_68823()));
+            int2ObjectMap.put(j, itemStack2.copy());
         }
-        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), (short) slot, (byte) button, type, map, ItemStackHash.fromItemStack(screenHandler.getCursorStack().copy(), mc.getNetworkHandler().method_68823())));
+        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), slot, button, type, screenHandler.getCursorStack().copy(), int2ObjectMap));
         return screenHandler.getRevision();
     }
 
@@ -304,15 +302,15 @@ public class InventoryManager {
             list.add(slot1.getStack().copy());
         }
         // screenHandler.onSlotClick(slot, button, type, mc.player);
-        Int2ObjectMap<ItemStackHash> map = new Int2ObjectOpenHashMap<>();
+        Int2ObjectOpenHashMap<ItemStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
         for (int j = 0; j < i; ++j)
         {
             ItemStack itemStack2;
             ItemStack itemStack = list.get(j);
             if (ItemStack.areEqual(itemStack, itemStack2 = defaultedList.get(j).getStack())) continue;
-            map.put(j, ItemStackHash.fromItemStack(itemStack2.copy(), mc.getNetworkHandler().method_68823()));
+            int2ObjectMap.put(j, itemStack2.copy());
         }
-        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), (short) slot, (byte) button, type, map, ItemStackHash.fromItemStack(screenHandler.getCursorStack().copy(), mc.getNetworkHandler().method_68823())));
+        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), slot, button, type, screenHandler.getCursorStack().copy(), int2ObjectMap));
         return screenHandler.getRevision();
     }
 
@@ -326,7 +324,7 @@ public class InventoryManager {
 
     public int getClientSlot()
     {
-        return mc.player.getInventory().getSelectedSlot();
+        return mc.player.getInventory().selectedSlot;
     }
 
     /**

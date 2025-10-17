@@ -486,7 +486,7 @@ public class KFCSpawnKill extends GenyoModule {
         if (attackDelayConfig.get())
         {
             PlayerInventory inventory = mc.player.getInventory();
-            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().getSelectedSlot() : slot);
+            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().selectedSlot : slot);
 
             MutableDouble attackSpeed = new MutableDouble(
                 mc.player.getAttributeBaseValue(EntityAttributes.ATTACK_SPEED));
@@ -636,11 +636,11 @@ public class KFCSpawnKill extends GenyoModule {
         for (int i = 0; i < 9; i++)
         {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isIn(ItemTags.SWORDS))
+            if (stack.getItem() instanceof SwordItem swordItem)
             {
                 float sharpness = EnchantmentUtil.getLevel(stack,
                     Enchantments.SHARPNESS) * 0.5f + 0.5f;
-                float dmg = stack.getDamage() + sharpness;
+                float dmg = swordItem.getDefaultStack().getDamage() + sharpness;
                 if (dmg > sharp)
                 {
                     sharp = dmg;
@@ -789,7 +789,7 @@ public class KFCSpawnKill extends GenyoModule {
             }
             if (armorCheckConfig.get()
                 && entity instanceof LivingEntity livingEntity
-                && livingEntity.getArmor() == 0)
+                && !livingEntity.getArmorItems().iterator().hasNext())
             {
                 continue;
             }
@@ -844,9 +844,8 @@ public class KFCSpawnKill extends GenyoModule {
     {
         float edmg = 0.0f;
         float emax = 0.0f;
-        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
+        for (ItemStack armor : e.getArmorItems())
         {
-            ItemStack armor = e.getEquippedStack(slot);
             if (armor != null && !armor.isEmpty())
             {
                 edmg += armor.getDamage();
@@ -898,7 +897,7 @@ public class KFCSpawnKill extends GenyoModule {
 
     public boolean isHoldingSword()
     {
-        return !swordCheckConfig.get() || mc.player.getMainHandStack().isIn(ItemTags.SWORDS)
+        return !swordCheckConfig.get() || mc.player.getMainHandStack().getItem() instanceof SwordItem
             || mc.player.getMainHandStack().getItem() instanceof AxeItem
             || mc.player.getMainHandStack().getItem() instanceof TridentItem
             || mc.player.getMainHandStack().getItem() instanceof MaceItem;

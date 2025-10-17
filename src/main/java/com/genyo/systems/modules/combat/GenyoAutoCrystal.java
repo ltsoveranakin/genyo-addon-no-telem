@@ -1149,9 +1149,9 @@ public class GenyoAutoCrystal extends PlacerModule {
             for (int i = 0; i < 9; ++i)
             {
                 ItemStack stack = mc.player.getInventory().getStack(i);
-                if (!stack.isEmpty() && (stack.isIn(ItemTags.SWORDS)
+                if (!stack.isEmpty() && (stack.getItem() instanceof SwordItem
                     || stack.getItem() instanceof AxeItem
-                    || stack.isIn(ItemTags.PICKAXES)))
+                    || stack.getItem() instanceof PickaxeItem))
                 {
                     slot = i;
                     break;
@@ -1165,7 +1165,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (antiWeakness.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            slot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
+                            slot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
                     }
                     else if (antiWeakness.get() == Swap.SILENT)
                     {
@@ -1182,7 +1182,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (antiWeakness.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            slot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
+                            slot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
                     }
                     else if (antiWeakness.get() == Swap.SILENT)
                     {
@@ -1292,7 +1292,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (autoSwap.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            crystalSlot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
+                            crystalSlot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
                     }
                     else if (autoSwap.get() == Swap.SILENT)
                     {
@@ -1310,7 +1310,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (autoSwap.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            crystalSlot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
+                            crystalSlot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
                     }
                     else if (autoSwap.get() == Swap.SILENT)
                     {
@@ -1825,9 +1825,8 @@ public class GenyoAutoCrystal extends PlacerModule {
         }
         if (armorBreaker.get())
         {
-            for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
+            for (ItemStack armorStack : entity.getArmorItems())
             {
-                ItemStack armorStack = entity.getEquippedStack(slot);
                 int n = armorStack.getDamage();
                 int n1 = armorStack.getMaxDamage();
                 float durability = ((n1 - n) / (float) n1) * 100.0f;

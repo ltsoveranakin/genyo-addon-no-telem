@@ -62,7 +62,7 @@ public class GInvUtils {
 
     public static void switchTo(int slot) {
         if (mc.player == null || mc.getNetworkHandler() == null) return;
-        if (mc.player.getInventory().getSelectedSlot() == slot && Managers.INVENTORY.getServerSlot() == slot)
+        if (mc.player.getInventory().selectedSlot == slot && Managers.INVENTORY.getServerSlot() == slot)
             return;
         mc.player.getInventory().setSelectedSlot(slot);
         Managers.INVENTORY.syncToClient();
@@ -77,16 +77,16 @@ public class GInvUtils {
         if (mc.player == null) return SearchInvResult.notFound();
 
         Item mainHand = mc.player.getMainHandStack().getItem();
-        if ((mainHand.getDefaultStack().isIn(ItemTags.SWORDS))
-            || (mainHand.getDefaultStack().isIn(ItemTags.PICKAXES))
+        if ((mainHand instanceof SwordItem)
+            || (mainHand instanceof PickaxeItem)
             || (mainHand instanceof AxeItem)
             || (mainHand instanceof ShovelItem)) {
-            return new SearchInvResult(mc.player.getInventory().getSelectedSlot(), true, mc.player.getMainHandStack());
+            return new SearchInvResult(mc.player.getInventory().selectedSlot, true, mc.player.getMainHandStack());
         }
 
         return findInHotBar(
-            itemStack -> itemStack.isIn(ItemTags.SWORDS)
-                || itemStack.isIn(ItemTags.PICKAXES)
+            itemStack -> itemStack.getItem() instanceof SwordItem
+                || itemStack.getItem() instanceof PickaxeItem
                 || itemStack.getItem() instanceof AxeItem
                 || itemStack.getItem() instanceof ShovelItem
         );

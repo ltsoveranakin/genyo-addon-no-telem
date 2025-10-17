@@ -14,13 +14,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinRenderTickCounter {
 
     @Shadow
-    private float tickProgressBeforePause;
+    private float lastFrameDuration;
 
     @Shadow
-    private float tickProgress;
+    private float tickDelta;
 
     @Shadow
-    private long lastTimeMillis;
+    private long prevTimeMillis;
 
     @Final
     @Shadow
@@ -37,11 +37,11 @@ public abstract class MixinRenderTickCounter {
         MeteorClient.EVENT_BUS.post(tickCounterEvent);
         if (tickCounterEvent.isCancelled())
         {
-            tickProgressBeforePause = ((timeMillis - lastTimeMillis) / tickTime) * tickCounterEvent.ticks;
-            lastTimeMillis = timeMillis;
-            tickProgress += tickProgressBeforePause;
-            int i = (int) tickProgress;
-            tickProgress -= i;
+            lastFrameDuration = ((timeMillis - prevTimeMillis) / tickTime) * tickCounterEvent.ticks;
+            prevTimeMillis = timeMillis;
+            tickDelta += lastFrameDuration;
+            int i = (int) tickDelta;
+            tickDelta -= i;
             cir.setReturnValue(i);
         }
     }

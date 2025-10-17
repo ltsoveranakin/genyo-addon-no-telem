@@ -139,9 +139,8 @@ public class GenyoAutoXP extends GenyoModule {
             return false;
         }
 
-        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
+        for (ItemStack stack : player.getArmorItems())
         {
-            ItemStack stack = player.getEquippedStack(slot);
             if (!isItemFullDura(stack))
             {
                 return false;

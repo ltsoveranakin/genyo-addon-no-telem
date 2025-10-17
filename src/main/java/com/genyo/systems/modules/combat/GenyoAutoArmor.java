@@ -121,9 +121,9 @@ public class GenyoAutoArmor extends GenyoModule {
                 case 3 -> boots.add(data);
             }
         }
-        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR)
+        for (int i = 0; i < 4; i++)
         {
-            ItemStack armorStack = mc.player.getEquippedStack(slot);
+            ItemStack armorStack = mc.player.getInventory().getArmorStack(i);
             if (elytraPriorityConfig.get() && armorStack.getItem() == Items.ELYTRA)
             {
                 continue;
@@ -133,9 +133,9 @@ public class GenyoAutoArmor extends GenyoModule {
             {
                 continue;
             }
-            switch (slot)
+            switch (i)
             {
-                case HEAD ->
+                case 0 ->
                 {
                     if (!helmet.isEmpty())
                     {
@@ -143,7 +143,7 @@ public class GenyoAutoArmor extends GenyoModule {
                         swapArmor(helmetSlot.getType(), EquipmentSlot.HEAD, helmetSlot.getSlot());
                     }
                 }
-                case CHEST ->
+                case 1 ->
                 {
                     if (!chestplate.isEmpty())
                     {
@@ -151,7 +151,7 @@ public class GenyoAutoArmor extends GenyoModule {
                         swapArmor(chestSlot.getType(), EquipmentSlot.CHEST, chestSlot.getSlot());
                     }
                 }
-                case LEGS ->
+                case 2 ->
                 {
                     if (!leggings.isEmpty())
                     {
@@ -159,7 +159,7 @@ public class GenyoAutoArmor extends GenyoModule {
                         swapArmor(leggingsSlot.getType(), EquipmentSlot.LEGS, leggingsSlot.getSlot());
                     }
                 }
-                case FEET ->
+                case 3 ->
                 {
                     if (!boots.isEmpty())
                     {

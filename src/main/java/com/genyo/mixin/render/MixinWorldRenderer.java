@@ -24,7 +24,7 @@ public abstract class MixinWorldRenderer {
         RenderSystem.getModelViewStack().pushMatrix().mul(matrixStack.peek().getPositionMatrix());
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0f));
-        final RenderWorldEvent renderWorldEvent = RenderWorldEvent.get(matrixStack, tickCounter.getTickProgress(true));
+        final RenderWorldEvent renderWorldEvent = RenderWorldEvent.get(matrixStack, tickCounter.getTickDelta(true));
         MeteorClient.EVENT_BUS.post(renderWorldEvent);
         RenderSystem.getModelViewStack().popMatrix();
     }
@@ -35,7 +35,7 @@ public abstract class MixinWorldRenderer {
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0f));
-        MeteorClient.EVENT_BUS.post(RenderShaderEvent.get(matrixStack, tickCounter.getTickProgress(true)));
+        MeteorClient.EVENT_BUS.post(RenderShaderEvent.get(matrixStack, tickCounter.getTickDelta(true)));
     }
 
 }
