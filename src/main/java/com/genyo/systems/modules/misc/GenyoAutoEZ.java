@@ -2,8 +2,6 @@ package com.genyo.systems.modules.misc;
 
 import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.incombat.CombatPerson;
-import com.genyo.systems.incombat.InCombatSystem;
 import com.genyo.utils.collection.Message;
 import com.genyo.utils.collection.MessageTickQueue;
 import com.genyo.utils.math.MathUtil;
@@ -47,21 +45,14 @@ public class GenyoAutoEZ extends GenyoModule {
 
     private final Setting<Boolean> trackPlayers = sgGeneral.add(new BoolSetting.Builder()
         .name("Track Players")
-        .description("követi, hogy kit öltél meg ewkgnwekjghhewjkfhew")
+        .description("Track the pops")
         .defaultValue(true)
-        .build()
-    );
-
-    private final Setting<Boolean> combatFocus = sgGeneral.add(new BoolSetting.Builder()
-        .name("Combat Focus")
-        .description("csak akivel combatban vagy (elvileg)")
-        .defaultValue(false)
         .build()
     );
 
     private final Setting<List<String>> popMessages = sgGeneral.add(new StringListSetting.Builder()
         .name("Pop Messages")
-        .description("van egy ped0fil a szobában")
+        .description("Send messages on pops.")
         .defaultValue(List.of("ez pop <NAME> <COUNT>", "pop <NAME> <COUNT>", "i love kiwi pop <NAME> <COUNT>"))
         .build()
     );
@@ -83,7 +74,7 @@ public class GenyoAutoEZ extends GenyoModule {
 
     private final Setting<List<String>> deathMessages = sgDeath.add(new StringListSetting.Builder()
         .name("Death Messages")
-        .description("itt is <NAME> <COUNT> van")
+        .description("Use with <NAME> and <COUNT>")
         .visible(enableDeath::get)
         .defaultValue(List.of("<NAME> needed Hulkenberg's nut only <COUNT> times to get Hulkenberg'd", "nemtom <NAME> <COUNT>"))
         .build()
@@ -91,11 +82,7 @@ public class GenyoAutoEZ extends GenyoModule {
 
     private final MessageTickQueue queue = new MessageTickQueue(tickDelay.get());
 
-    private final Random r = new Random();
-    private int lastPop;
-    //private final List<Message> messageQueue = new LinkedList<>();
     public final HashMap<PlayerEntity, Integer> taggedPlayers = new HashMap<>();
-    private int timer = 0;
 
     @Override
     public void onDeactivate() { taggedPlayers.clear(); }
@@ -105,22 +92,6 @@ public class GenyoAutoEZ extends GenyoModule {
         taggedPlayers.clear();
     }
 
-    /*@EventHandler(priority = EventPriority.HIGHEST)
-    private void onTick(TickEvent.Pre event) {
-        if (mc.player == null && mc.world == null) return;
-
-        if (!messageQueue.isEmpty()) timer++;
-
-        if (timer >= tickDelay.get() && !messageQueue.isEmpty()) {
-            Message msg = messageQueue.get(0);
-            ChatUtils.sendPlayerMsg(msg.message);
-            timer = 0;
-
-            if (msg.kill) messageQueue.clear();
-            else messageQueue.removeFirst();
-        }
-    }*/
-
     @EventHandler
     private void onReceive(PacketEvent.Receive event) {
         if (event.packet instanceof EntityStatusS2CPacket packet) {
@@ -128,11 +99,6 @@ public class GenyoAutoEZ extends GenyoModule {
                 Entity entity = packet.getEntity(mc.world);
                 if (mc.player != null && mc.world != null && entity instanceof PlayerEntity playerEntity) {
                     if (entity != mc.player && mc.player.getPos().distanceTo(entity.getPos()) <= range.get()) {
-
-                        // Combat Focus
-                        if (combatFocus.get()) {
-                            if (!InCombatSystem.get().contains(new CombatPerson(playerEntity))) return;
-                        }
 
                         if (trackPlayers.get()) {
                             if (taggedPlayers.containsKey(playerEntity)) {

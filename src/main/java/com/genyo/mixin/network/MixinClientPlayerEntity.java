@@ -6,6 +6,7 @@ import com.genyo.events.sync.SyncEvent;
 import com.genyo.events.network.*;
 import com.genyo.imixins.IClientPlayerEntity;
 import meteordevelopment.meteorclient.MeteorClient;
+import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,6 +41,9 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
 
     @Shadow
     public abstract float getPitch(float tickDelta);
+
+    @Shadow
+    public Input input;
 
     /**
      * @param ci
@@ -115,6 +119,15 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
         {
             ci.cancel();
         }
+    }
+
+    /**
+     * @param ci
+     */
+    @Inject(method = "tickMovement", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/input/Input;tick()V", shift = At.Shift.AFTER))
+    private void hookTickMovementPost(CallbackInfo ci) {
+        MeteorClient.EVENT_BUS.post(MovementSlowdownEvent.get(input));
     }
 
     @Override

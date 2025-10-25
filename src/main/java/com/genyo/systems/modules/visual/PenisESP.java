@@ -18,10 +18,10 @@ import net.minecraft.util.math.Vec3d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenyoPenisESP extends GenyoModule {
+public class PenisESP extends GenyoModule {
 
-    public GenyoPenisESP() {
-        super(Genyo.VISUAL, "Genyo PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
+    public PenisESP() {
+        super(Genyo.VISUAL, "PenisESP", "faszfasz fasz fasz fasz fasz fsaz fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

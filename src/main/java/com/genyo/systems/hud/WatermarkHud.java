@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.systems.hud.Hud;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
+import meteordevelopment.meteorclient.systems.hud.elements.ModuleInfosHud;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
@@ -34,10 +35,12 @@ public class WatermarkHud extends HudElement {
         .build()
     );
 
+    // Color
+
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
-        .name("Color")
+        .name("color")
         .description("The")
-        .defaultValue(Color.WHITE)
+        .defaultValue(new SettingColor(255, 255, 255))
         .build()
     );
 

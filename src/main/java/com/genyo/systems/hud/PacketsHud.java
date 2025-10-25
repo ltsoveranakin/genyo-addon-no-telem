@@ -16,6 +16,7 @@ public class PacketsHud extends HudElement {
     public PacketsHud() { super(INFO); }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgColor = settings.createGroup("Color");
     private final SettingGroup sgScale = settings.createGroup("Scale");
     private final SettingGroup sgBackground = settings.createGroup("Background");
 
@@ -36,10 +37,19 @@ public class PacketsHud extends HudElement {
         .build()
     );
 
-    private final Setting<Boolean> invertColors = sgGeneral.add(new BoolSetting.Builder()
-        .name("Invert Colors")
-        .description("Invert the colors")
-        .defaultValue(true)
+    // Color
+
+    private final Setting<SettingColor> packetsColor = sgGeneral.add(new ColorSetting.Builder()
+        .name("Color 1")
+        .description("Color of 'Packets'")
+        .defaultValue(new SettingColor(255, 255, 255))
+        .build()
+    );
+
+    private final Setting<SettingColor> valueColor = sgGeneral.add(new ColorSetting.Builder()
+        .name("Color 2")
+        .description("Color of the value")
+        .defaultValue(new SettingColor(132, 55, 234))
         .build()
     );
 
@@ -101,10 +111,10 @@ public class PacketsHud extends HudElement {
         double y = this.y + border.get();
 
         String packetsString = "Packets: ";
-        renderer.text(packetsString, x, y, invertColors.get() ? Color.GRAY : Color.WHITE, shadow.get(), getScale());
+        renderer.text(packetsString, x, y, packetsColor.get(), shadow.get(), getScale());
 
         String thing = String.format("%s <- %s", Managers.NETWORK.getOutgoingPPS(), Managers.NETWORK.getIncomingPPS());
-        renderer.text(thing, x + renderer.textWidth(packetsString, shadow.get(), getScale()) + (renderer.textWidth(" ") * getScale()), y, invertColors.get() ? Color.WHITE : Color.GRAY, shadow.get(), getScale());
+        renderer.text(thing, x + renderer.textWidth(packetsString, shadow.get(), getScale()) + (renderer.textWidth(" ") * getScale()), y, valueColor.get(), shadow.get(), getScale());
 
         setSize(renderer.textWidth(packetsString + thing), renderer.textHeight(shadow.get(), getScale()));
 

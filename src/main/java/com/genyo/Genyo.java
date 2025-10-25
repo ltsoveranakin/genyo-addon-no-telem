@@ -1,14 +1,16 @@
 package com.genyo;
 
+import com.genyo.commands.EnemiesCommand;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
 import com.genyo.systems.modules.movement.AntiLadder;
+import com.genyo.systems.modules.movement.GenyoNoSlow;
 import com.genyo.systems.modules.movement.GenyoPhase;
 import com.genyo.systems.modules.movement.GenyoVelocity;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
 import com.genyo.systems.modules.visual.GenyoCapes;
-import com.genyo.systems.modules.visual.GenyoPenisESP;
+import com.genyo.systems.modules.visual.PenisESP;
 import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
@@ -16,6 +18,7 @@ import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
+import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
 import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.hud.Hud;
@@ -73,13 +76,16 @@ public class Genyo extends MeteorAddon {
         // Tabs
         initTabs();
 
+        // Commands
+        Commands.add(new EnemiesCommand());
+
         // Systems
         initSystems();
 
         initModules(Modules.get());
 
         // Managers mert ez menőn néz ki
-        Managers.subscribe();
+        Managers.init();
 
         // HUD
         initHUD(Hud.get());
@@ -87,12 +93,10 @@ public class Genyo extends MeteorAddon {
 
     private void initTabs() {
         Tabs.add(new EnemiesTab());
-        //Tabs.add(new InCombatTab());
     }
 
     private void initSystems() {
         Systems.add(new Enemies());
-        //Systems.add(new InCombatSystem());
     }
 
     private void initModules(Modules modules) {
@@ -109,7 +113,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new GenyoAutoTool());
         modules.add(new GenyoReplenish());
         modules.add(new GenyoScaffold());
-        modules.add(new GenyoPenisESP());
+        modules.add(new PenisESP());
         modules.add(new GenyoAutoTotem());
         modules.add(new GenyoVelocity());
         modules.add(new KFCSpawnKill());
@@ -133,11 +137,13 @@ public class Genyo extends MeteorAddon {
         modules.add(new NoPacketKick());
         modules.add(new AntiLadder());
         modules.add(new AutoBrainrot());
+        modules.add(new AutoRename());
+        modules.add(new GenyoNoSlow());
+        //modules.add(new GenyoSounds());
     }
 
     private void initHUD(Hud hud) {
         hud.register(PvPNeccessaryHud.INFO);
-        //hud.register(InCombatHud.INFO);
         hud.register(ActiveGenyoHud.INFO);
         hud.register(PacketsHud.INFO);
         hud.register(WatermarkHud.INFO);

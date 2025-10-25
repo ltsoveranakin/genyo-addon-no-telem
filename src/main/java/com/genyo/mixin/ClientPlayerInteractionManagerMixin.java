@@ -3,15 +3,25 @@ package com.genyo.mixin;
 import com.genyo.events.AttackBlockEvent;
 import com.genyo.events.network.ItemDesyncEvent;
 import com.genyo.events.network.PacketSneakingEvent;
+import com.genyo.events.network.StrafeFixEvent;
+import com.genyo.managers.Managers;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.client.network.SequencedPacketCreator;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.GameMode;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -20,7 +30,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(ClientPlayerInteractionManager.class)
-public class ClientPlayerInteractionManagerMixin {
+public abstract class ClientPlayerInteractionManagerMixin {
+
+    @Shadow
+    private GameMode gameMode;
+
+    @Shadow
+    protected abstract void syncSelectedSlot();
+
+    @Shadow
+    protected abstract void sendSequencedPacket(ClientWorld world, SequencedPacketCreator packetCreator);
 
     /**
      * @param pos
@@ -70,6 +89,53 @@ public class ClientPlayerInteractionManagerMixin {
         PacketSneakingEvent packetSneakingEvent = new PacketSneakingEvent();
         MeteorClient.EVENT_BUS.post(packetSneakingEvent);
         return player.isSneaking() || packetSneakingEvent.isCancelled();
+    }
+
+    /**
+     * @param player
+     * @param hand
+     * @param cir
+     */
+    @Inject(method = "interactItem", at = @At(value = "HEAD"), cancellable = true)
+    public void hookInteractItem(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+        StrafeFixEvent strafeFixEvent = new StrafeFixEvent();
+        MeteorClient.EVENT_BUS.post(strafeFixEvent);
+
+        if (strafeFixEvent.isCancelled()) {
+            cir.cancel();
+            if (this.gameMode == GameMode.SPECTATOR)
+            {
+                cir.setReturnValue(ActionResult.PASS);
+                return;
+            }
+            syncSelectedSlot();
+            MutableObject<ActionResult> mutableObject = new MutableObject();
+            this.sendSequencedPacket(mc.world, (sequence) ->
+            {
+                PlayerInteractItemC2SPacket playerInteractItemC2SPacket = new PlayerInteractItemC2SPacket(
+                    hand, sequence, Managers.ROTATION.isRotating() ? Managers.ROTATION.getRotationYaw() : player.getYaw(),
+                    Managers.ROTATION.isRotating() ? Managers.ROTATION.getRotationPitch() : player.getPitch());
+                ItemStack itemStack = player.getStackInHand(hand);
+                if (player.getItemCooldownManager().isCoolingDown(itemStack)) {
+                    mutableObject.setValue(ActionResult.PASS);
+                    return playerInteractItemC2SPacket;
+                } else {
+                    ActionResult actionResult = itemStack.use(mc.world, player, hand);
+                    if (actionResult.isAccepted()) {
+                        ItemStack itemStack2 = ActionResult.SUCCESS.getNewHandStack();
+                        if (itemStack2 != itemStack) {
+                            player.setStackInHand(hand, itemStack2);
+                        }
+
+                        mutableObject.setValue(actionResult);
+                        return playerInteractItemC2SPacket;
+                    } else {
+                        return playerInteractItemC2SPacket;
+                    }
+                }
+            });
+            cir.setReturnValue(mutableObject.getValue());
+        }
     }
 
 }

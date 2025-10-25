@@ -20,3 +20,4 @@ accessible field net/minecraft/network/packet/s2c/play/GameMessageS2CPacket cont
 accessible class net/minecraft/client/gui/hud/InGameHud$HeartType
 accessible method net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket write (Lnet/minecraft/network/PacketByteBuf;)V
 accessible method net/minecraft/client/world/ClientWorld getPendingUpdateManager ()Lnet/minecraft/client/network/PendingUpdateManager;
+accessible field net/minecraft/client/gui/screen/ingame/AnvilScreen nameField Lnet/minecraft/client/gui/widget/TextFieldWidget;

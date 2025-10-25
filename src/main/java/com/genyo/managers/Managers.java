@@ -13,6 +13,7 @@ import com.genyo.managers.player.PositionManager;
 import com.genyo.managers.player.rotation.RotationManager;
 import com.genyo.managers.world.BlockManager;
 import com.genyo.managers.world.SocialManager;
+import com.genyo.managers.world.sound.SoundManager;
 import com.genyo.managers.world.tick.TickManager;
 import com.genyo.render.Render3DEngine;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -33,6 +34,7 @@ public class Managers {
     public static final TickManager TICK = new TickManager();
     public static final SocialManager SOCIAL = new SocialManager();
     public static final PearlManager PEARL = new PearlManager();
+    public static final SoundManager SOUND = new SoundManager();
 
     public static void subscribe() {
         MeteorClient.EVENT_BUS.subscribe(COMBAT);
@@ -49,6 +51,11 @@ public class Managers {
         MeteorClient.EVENT_BUS.subscribe(ANTICHEAT);
         MeteorClient.EVENT_BUS.subscribe(TICK);
         MeteorClient.EVENT_BUS.subscribe(PEARL);
+        MeteorClient.EVENT_BUS.subscribe(SOCIAL);
+    }
+
+    public static void init() {
+        subscribe();
     }
 
 }
