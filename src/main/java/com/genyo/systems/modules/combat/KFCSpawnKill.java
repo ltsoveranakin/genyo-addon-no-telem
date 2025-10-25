@@ -79,6 +79,13 @@ public class KFCSpawnKill extends GenyoModule {
         .build()
     );
 
+    private final Setting<Boolean> ignoreNametags = sgGeneral.add(new BoolSetting.Builder()
+        .name("Ignore Nametags")
+        .description("Ignore entities that have nametags equipped")
+        .defaultValue(true)
+        .build()
+    );
+
     private final Setting<TargetMode> modeConfig = sgGeneral.add(new EnumSetting.Builder<TargetMode>()
         .name("Mode")
         .description("The mode for targeting entities to attack")
@@ -783,7 +790,8 @@ public class KFCSpawnKill extends GenyoModule {
                 || entity instanceof EndCrystalEntity
                 || entity instanceof ItemEntity
                 || entity instanceof ArrowEntity
-                || entity instanceof ExperienceBottleEntity)
+                || entity instanceof ExperienceBottleEntity
+                || (ignoreNametags.get() && entity.hasCustomName()))
             {
                 continue;
             }

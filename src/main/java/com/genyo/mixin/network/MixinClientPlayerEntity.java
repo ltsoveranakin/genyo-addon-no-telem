@@ -1,6 +1,7 @@
 package com.genyo.mixin.network;
 
 import com.genyo.events.StageEvent;
+import com.genyo.events.entity.SwingEvent;
 import com.genyo.events.network.*;
 import com.genyo.events.sync.SyncEvent;
 import com.genyo.events.network.*;
@@ -119,6 +120,16 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
         {
             ci.cancel();
         }
+    }
+
+    /**
+     * @param hand
+     * @param ci
+     */
+    @Inject(method = "swingHand", at = @At(value = "RETURN"))
+    private void hookSwingHand(Hand hand, CallbackInfo ci)
+    {
+        MeteorClient.EVENT_BUS.post(SwingEvent.get(hand));
     }
 
     /**

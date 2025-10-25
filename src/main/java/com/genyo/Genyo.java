@@ -4,10 +4,7 @@ import com.genyo.commands.EnemiesCommand;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
-import com.genyo.systems.modules.movement.AntiLadder;
-import com.genyo.systems.modules.movement.GenyoNoSlow;
-import com.genyo.systems.modules.movement.GenyoPhase;
-import com.genyo.systems.modules.movement.GenyoVelocity;
+import com.genyo.systems.modules.movement.*;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
 import com.genyo.systems.modules.visual.GenyoCapes;
 import com.genyo.systems.modules.visual.PenisESP;
@@ -140,6 +137,8 @@ public class Genyo extends MeteorAddon {
         modules.add(new AutoRename());
         modules.add(new GenyoNoSlow());
         //modules.add(new GenyoSounds());
+        modules.add(new TsunodaBlinker());
+        modules.add(new GenyoSwing());
     }
 
     private void initHUD(Hud hud) {
