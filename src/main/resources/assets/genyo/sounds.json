@@ -1,0 +1,27 @@
+{
+  "vine": {
+    "sounds": [
+      "genyo:vine"
+    ]
+  },
+  "scream": {
+    "sounds": [
+      "genyo:scream"
+    ]
+  },
+  "verstappen": {
+    "sounds": [
+      "genyo:verstappen"
+    ]
+  },
+  "hamburger": {
+    "sounds": [
+      "genyo:hamburger"
+    ]
+  },
+  "blackperson": {
+    "sounds": [
+      "genyo:blackperson"
+    ]
+  }
+}

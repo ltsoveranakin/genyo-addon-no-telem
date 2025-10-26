@@ -7,7 +7,7 @@ public class SoundLoader implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        //SoundManager.init();
+        SoundManager.init();
     }
 
 }

@@ -52,6 +52,7 @@ public class Managers {
         MeteorClient.EVENT_BUS.subscribe(TICK);
         MeteorClient.EVENT_BUS.subscribe(PEARL);
         MeteorClient.EVENT_BUS.subscribe(SOCIAL);
+        MeteorClient.EVENT_BUS.subscribe(SOUND);
     }
 
     public static void init() {

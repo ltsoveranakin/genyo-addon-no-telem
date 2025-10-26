@@ -137,7 +137,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new AutoBrainrot());
         modules.add(new AutoRename());
         modules.add(new GenyoNoSlow());
-        //modules.add(new GenyoSounds());
+        modules.add(new GenyoSounds());
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
         //modules.add(new AutoOminous());

@@ -5,6 +5,7 @@
 
 <h1 align="center">Genyo Addon</h1>
     <p align="center">I have brain damge</p>
+    <p align="center" style="font-size: 13px;">Shoreline port into Meteor plus other GENYO magic :D</p>
 
 <div align="center">
     <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
@@ -17,7 +18,7 @@
     </div>
 </div>
 
-> Shoreline port into 1.21.4 Meteor plus other GENYO magic :D
+# Best addon ever
 
 International version: Genyo Addon
 
