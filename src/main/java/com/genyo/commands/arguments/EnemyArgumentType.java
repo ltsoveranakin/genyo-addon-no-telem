@@ -12,6 +12,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static net.minecraft.command.CommandSource.suggestMatching;
@@ -38,7 +39,9 @@ public class EnemyArgumentType implements ArgumentType<String> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return suggestMatching(Streams.stream(Enemies.get()).map(Enemy::getName), builder);
+        return suggestMatching(Streams.stream(Enemies.get())
+            .filter(Objects::nonNull)
+            .map(Enemy::getName), builder);
     }
 
     @Override
