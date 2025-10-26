@@ -1,18 +1,24 @@
-![banner](https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png)
+<p align="center">
+<img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png">
+</p>
 
-# Genyo Addon
+<h1 align="center">Genyo Addon</h1>
+<p align="center">I have brain damge</p>
 
-![Version](https://img.shields.io/github/v/tag/wuritz/genyo-addon?style=flat-square)
-[![Discord](https://img.shields.io/discord/1398445342827085884?style=flat-square
-)](https://discord.gg/5nrEVnm6zJ)
-[![GitHub](https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat-square
-)](https://github.com/wuritz/genyo-addon/releases)
+<div align="center">
+    <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
+    <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc" href="https://discord.gg/5nrEVnm6zJ">
+    <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat" href="https://github.com/wuritz/genyo-addon/releases">
+</div>
 
 > Shoreline port into 1.21.4 Meteor plus other GENYO magic :D
 
 International version: Genyo Addon
 
 written for Meteor 1.21.4
+
+### Listen to the anthem of Genyo:
+[Best music ever](assets/)
 
 ## How to use
 
@@ -26,7 +32,7 @@ Join Discord
 ### Credits
 Credit to "John Genyo", the founder of Genyo Corporations
 
-### License
+## License
 
 YOLO License
 
