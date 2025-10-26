@@ -23,7 +23,7 @@ written for Meteor 1.21.4
 
 ### Listen to the anthem of Genyo:
 <audio controls>
-  <source src="https://wuritz.github.io/genyo-addon/assets/vine.ogg" type="audio/ogg">
+  <source src="https://github.com/wuritz/genyo-addon/blob/1.21.4/assets/vine.ogg" type="audio/ogg">
 </audio>
 
 ## How to use
