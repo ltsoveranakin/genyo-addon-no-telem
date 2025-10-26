@@ -7,6 +7,7 @@ import com.genyo.systems.modules.misc.*;
 import com.genyo.systems.modules.movement.*;
 import com.genyo.systems.modules.visual.AngelSexHulkenberg;
 import com.genyo.systems.modules.visual.GenyoCapes;
+import com.genyo.systems.modules.visual.GenyoNametags;
 import com.genyo.systems.modules.visual.PenisESP;
 import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
@@ -24,7 +25,6 @@ import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.misc.DiscordPresence;
 import meteordevelopment.meteorclient.utils.misc.Version;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
@@ -135,12 +135,13 @@ public class Genyo extends MeteorAddon {
         modules.add(new NoPacketKick());
         modules.add(new AntiLadder());
         modules.add(new AutoBrainrot());
-        modules.add(new AutoRename());
+        //modules.add(new AutoRename());
         modules.add(new GenyoNoSlow());
         modules.add(new GenyoSounds());
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
         //modules.add(new AutoOminous());
+        modules.add(new GenyoNametags());
     }
 
     private void initHUD(Hud hud) {

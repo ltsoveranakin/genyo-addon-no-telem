@@ -18,6 +18,7 @@
     "entity.player.MixinPlayerListEntry",
     "network.MixinClientPlayerEntity",
     "network.MixinClientPlayNetworkHandler",
+    "render.MixinEntityRenderer",
     "render.MixinRenderTickCounter",
     "render.MixinWorldRenderer",
     "world.MixinClientWorld"
