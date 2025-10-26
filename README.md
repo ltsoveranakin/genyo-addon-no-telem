@@ -1,9 +1,9 @@
-<div style="max-width: 750px; display: flex; justify-content: center; align-items: center; margin: auto; padding: 50px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<div style="max-width: 750px; display: inline-block; align-items: first baseline; justify-content: center; padding: 50px; font-family: 'Courier New', Courier, monospace;">
 <p align="center">
 <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
 </p>
 
-<div style="display: inline-block;">
+<div>
 <h1 align="center">Genyo Addon</h1>
 <p align="center">I have brain damge</p>
 
