@@ -15,6 +15,9 @@
   "accessWidener": "genyo.accesswidener",
   "environment": "client",
   "entrypoints": {
+    "main": [
+      "com.genyo.api.sound.SoundLoader"
+    ],
     "meteor": [
       "com.genyo.Genyo"
     ]

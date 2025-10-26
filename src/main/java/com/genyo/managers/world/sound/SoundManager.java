@@ -15,15 +15,16 @@ public class SoundManager {
 
     //public static final SoundEvent VINE = registerSound("vine", ".ogg");
 
+    public static final Identifier VINE_ID = Identifier.of(Genyo.MOD_ID, "sounds/vine.ogg");
+    public static final SoundEvent VINE = SoundEvent.of(VINE_ID);
+
     public void playSound(SoundEvent sound) {
         if (mc.player != null && mc.world != null)
             mc.world.playSound(mc.player, mc.player.getBlockPos(), sound, SoundCategory.BLOCKS, (float) Modules.get().get(GenyoSounds.class).volume.get() / 100f, 1f);
     }
 
-    private static SoundEvent registerSound(String name, String extension)
-    {
-        Identifier id = Identifier.of(Genyo.MOD_ID, "sounds/" + name + extension);
-        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
+    public static void init() {
+        Registry.register(Registries.SOUND_EVENT, VINE_ID, VINE);
     }
 
 }

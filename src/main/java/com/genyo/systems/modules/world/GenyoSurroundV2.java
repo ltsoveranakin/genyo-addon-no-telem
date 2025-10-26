@@ -45,7 +45,7 @@ import java.util.*;
 public class GenyoSurroundV2 extends PlacerModule {
 
     public GenyoSurroundV2() {
-        super(Genyo.WORLD, "genyo-surround-v2", "ma reggel befostam aztán felkeltem");
+        super(Genyo.WORLD, "genyo-surround-v2", "Today I am the shit after I wake the shit is Yes");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

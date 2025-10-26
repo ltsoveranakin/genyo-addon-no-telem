@@ -24,6 +24,7 @@ import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.misc.DiscordPresence;
 import meteordevelopment.meteorclient.utils.misc.Version;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
@@ -139,6 +140,7 @@ public class Genyo extends MeteorAddon {
         //modules.add(new GenyoSounds());
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
+        //modules.add(new AutoOminous());
     }
 
     private void initHUD(Hud hud) {

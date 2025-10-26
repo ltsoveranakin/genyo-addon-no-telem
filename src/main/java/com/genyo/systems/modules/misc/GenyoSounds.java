@@ -1,7 +1,6 @@
 package com.genyo.systems.modules.misc;
 
 import com.genyo.Genyo;
-import com.genyo.managers.Managers;
 import com.genyo.managers.world.sound.SoundManager;
 import com.genyo.systems.modules.GenyoModule;
 import meteordevelopment.meteorclient.settings.BoolSetting;
@@ -35,6 +34,6 @@ public class GenyoSounds extends GenyoModule {
     );
 
     private void epic() {
-        //SOUND.playSound(SoundManager.VINE);
+        SOUND.playSound(SoundManager.VINE);
     }
 }

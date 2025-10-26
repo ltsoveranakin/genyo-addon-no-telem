@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TsunodaBlinker extends GenyoModule {
 
     public TsunodaBlinker() {
-        super(Genyo.MOVEMENT, "tsunoda-blinker", "Whitness the magic of Yuki's eyes.");
+        super(Genyo.MOVEMENT, "tsunoda-blinker", "Yuki's short as fuck");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
