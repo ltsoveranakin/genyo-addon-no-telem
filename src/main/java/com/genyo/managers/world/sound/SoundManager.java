@@ -1,10 +1,8 @@
 package com.genyo.managers.world.sound;
 
-import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.misc.GenyoSounds;
 import com.genyo.utils.math.timer.CacheTimer;
-import com.genyo.utils.math.timer.TickTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
 import meteordevelopment.meteorclient.systems.modules.Modules;

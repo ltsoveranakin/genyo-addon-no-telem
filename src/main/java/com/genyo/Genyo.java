@@ -64,7 +64,7 @@ public class Genyo extends MeteorAddon {
 
     @Override
     public void onInitialize() {
-        LOG.info("Genyo fasz indul genyo");
+        LOG.info("Welcome to Genyo :D");
 
         if (Modules.get().isActive(DiscordPresence.class)) {
             Modules.get().get(DiscordPresence.class).toggle();
