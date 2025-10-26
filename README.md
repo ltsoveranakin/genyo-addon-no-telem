@@ -7,8 +7,12 @@
 
 <div align="center">
     <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
-    <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc" href="https://discord.gg/5nrEVnm6zJ">
-    <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat" href="https://github.com/wuritz/genyo-addon/releases">
+    <a href="https://discord.gg/5nrEVnm6zJ">
+        <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
+    </a>
+    <a href="https://github.com/wuritz/genyo-addon/releases">
+        <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat">
+    </a>
 </div>
 
 > Shoreline port into 1.21.4 Meteor plus other GENYO magic :D
@@ -18,7 +22,7 @@ International version: Genyo Addon
 written for Meteor 1.21.4
 
 ### Listen to the anthem of Genyo:
-[Best music ever](assets/)
+[Best music ever](assets/vine.ogg)
 
 ## How to use
 
