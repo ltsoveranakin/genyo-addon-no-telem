@@ -1,4 +1,4 @@
-<div style="background-color: #707070; align: center; ">
+<div style="align-content: center;">
     <p align="center">
         <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
     </p>
@@ -7,7 +7,7 @@
     <p align="center">I have brain damge</p>
 
 <div align="center">
-        <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
+    <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
         <a href="https://discord.gg/dwuAuXKQ">
             <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
         </a>
