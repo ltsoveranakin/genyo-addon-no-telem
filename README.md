@@ -1,22 +1,20 @@
-<div style="max-width: 750px; display: inline-block; align-items: first baseline; justify-content: center; padding: 50px; font-family: 'Courier New', Courier, monospace;">
-<p align="center">
-<img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
-</p>
+<div style="background-color: #707070; align: center; ">
+    <p align="center">
+        <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
+    </p>
 
-<div>
 <h1 align="center">Genyo Addon</h1>
-<p align="center">I have brain damge</p>
+    <p align="center">I have brain damge</p>
 
-<div style="display: inline-block; inline-size: 100%; margin: auto;">
-<img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
-<a href="https://discord.gg/dwuAuXKQ">
-<img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
-</a>
-<a href="https://github.com/wuritz/genyo-addon/releases">
-<img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat">
-</a>
-</div>
-</div>
+<div align="center">
+        <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
+        <a href="https://discord.gg/dwuAuXKQ">
+            <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
+        </a>
+        <a href="https://github.com/wuritz/genyo-addon/releases">
+            <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat">
+        </a>
+    </div>
 </div>
 
 > Shoreline port into 1.21.4 Meteor plus other GENYO magic :D
