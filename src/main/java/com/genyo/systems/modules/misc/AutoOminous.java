@@ -4,7 +4,6 @@ import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.player.InventoryUtil;
-import meteordevelopment.meteorclient.events.entity.player.AttackEntityEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -40,8 +39,10 @@ public class AutoOminous extends GenyoModule {
         if (currentRaid.hasWon()) {
             if (mc.player.getActiveStatusEffects().containsKey(StatusEffects.HERO_OF_THE_VILLAGE)) {
                 if (!mc.player.getActiveStatusEffects().containsKey(StatusEffects.BAD_OMEN)) {
-                    if (!drinking) drinkPotion();
-                    lookForEffect = true;
+                    if (!drinking) {
+                        drinkPotion();
+                        lookForEffect = true;
+                    }
                 } else if (lookForEffect) {
                     stopDrinking();
                 }
@@ -54,20 +55,18 @@ public class AutoOminous extends GenyoModule {
             sendError("No Ominous Bottle found in hotbar!");
             return;
         }
+
         FindItemResult result = InvUtils.find(Items.OMINOUS_BOTTLE);
         if (!result.found()) {
             sendError("Couldn't find Ominous Bottle.");
             return;
         }
 
-        Genyo.LOG.info("drink potion");
-
         selectedSlot = mc.player.getInventory().selectedSlot;
         itemSlot = result.slot();
         wasHeld = result.isMainHand();
 
         if (!wasHeld) {
-            //Managers.INVENTORY.setSlot(itemSlot);
             InvUtils.swap(itemSlot, false);
             Managers.INVENTORY.syncToClient();
         }

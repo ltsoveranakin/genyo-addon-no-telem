@@ -16,7 +16,8 @@ import com.genyo.managers.world.SocialManager;
 import com.genyo.managers.world.sound.SoundManager;
 import com.genyo.managers.world.tick.TickManager;
 import com.genyo.render.Render3DEngine;
-import meteordevelopment.meteorclient.MeteorClient;
+
+import static meteordevelopment.meteorclient.MeteorClient.*;
 
 public class Managers {
 
@@ -37,22 +38,22 @@ public class Managers {
     public static final SoundManager SOUND = new SoundManager();
 
     public static void subscribe() {
-        MeteorClient.EVENT_BUS.subscribe(COMBAT);
-        MeteorClient.EVENT_BUS.subscribe(ENGINE3D);
-        MeteorClient.EVENT_BUS.subscribe(BLOCK);
-        MeteorClient.EVENT_BUS.subscribe(INVENTORY);
-        MeteorClient.EVENT_BUS.subscribe(NETWORK);
-        MeteorClient.EVENT_BUS.subscribe(TOTEM);
-        MeteorClient.EVENT_BUS.subscribe(MOVEMENT);
-        MeteorClient.EVENT_BUS.subscribe(INTERACT);
-        MeteorClient.EVENT_BUS.subscribe(new GDTogglerManager());
-        MeteorClient.EVENT_BUS.subscribe(ROTATION);
-        MeteorClient.EVENT_BUS.subscribe(POSITION);
-        MeteorClient.EVENT_BUS.subscribe(ANTICHEAT);
-        MeteorClient.EVENT_BUS.subscribe(TICK);
-        MeteorClient.EVENT_BUS.subscribe(PEARL);
-        MeteorClient.EVENT_BUS.subscribe(SOCIAL);
-        MeteorClient.EVENT_BUS.subscribe(SOUND);
+        EVENT_BUS.subscribe(COMBAT);
+        EVENT_BUS.subscribe(ENGINE3D);
+        EVENT_BUS.subscribe(BLOCK);
+        EVENT_BUS.subscribe(INVENTORY);
+        EVENT_BUS.subscribe(NETWORK);
+        EVENT_BUS.subscribe(TOTEM);
+        EVENT_BUS.subscribe(MOVEMENT);
+        EVENT_BUS.subscribe(INTERACT);
+        EVENT_BUS.subscribe(new GDTogglerManager());
+        EVENT_BUS.subscribe(ROTATION);
+        EVENT_BUS.subscribe(POSITION);
+        EVENT_BUS.subscribe(ANTICHEAT);
+        EVENT_BUS.subscribe(TICK);
+        EVENT_BUS.subscribe(PEARL);
+        EVENT_BUS.subscribe(SOCIAL);
+        EVENT_BUS.subscribe(SOUND);
     }
 
     public static void init() {

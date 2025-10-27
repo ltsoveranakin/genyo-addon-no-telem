@@ -13,7 +13,7 @@ public class FriendsInjector {
 
     @Inject(at = @At("RETURN"), method = "add*")
     private void injected(Friend friend, CallbackInfoReturnable<Boolean> cir) {
-        if (Enemies.get().get(friend.getName()) != null) {
+        if (Enemies.get().isEnemy(friend.getName())) {
             Enemies.get().remove(Enemies.get().get(friend.getName()));
         }
     }

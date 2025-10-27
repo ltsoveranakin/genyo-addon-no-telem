@@ -16,6 +16,7 @@
     "accessor.AccessorGameOptions",
     "accessor.AccessorKeyBinding",
     "entity.player.MixinPlayerListEntry",
+    "game.MixinSplashTextResourceSupplier",
     "network.MixinClientPlayerEntity",
     "network.MixinClientPlayNetworkHandler",
     "render.MixinEntityRenderer",
@@ -36,6 +37,7 @@
     "entity.MixinEntity",
     "entity.player.MixinPlayerEntity",
     "game.MixinMinecraftClient",
+    "meteor.MixinBetterTab",
     "network.MixinDecoderHandler",
     "network.MixinServerPlayerEntity",
     "world.MixinBlockCollisionSpliterator"

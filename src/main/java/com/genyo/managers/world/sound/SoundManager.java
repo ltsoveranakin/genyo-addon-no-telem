@@ -1,11 +1,10 @@
 package com.genyo.managers.world.sound;
 
 import com.genyo.managers.Managers;
-import com.genyo.systems.modules.misc.GenyoSounds;
+import com.genyo.systems.config.GenyoConfig;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
-import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -33,8 +32,8 @@ public class SoundManager {
     private final Timer timer = new CacheTimer();
 
     public void playSound(SoundEvent sound) {
-        if (mc.player != null && mc.world != null) {
-            mc.player.playSound(sound, (float) Modules.get().get(GenyoSounds.class).volume.get() / 100f, 1f);
+        if (mc.player != null && mc.world != null && GenyoConfig.get() != null) {
+            mc.player.playSound(sound, (float) GenyoConfig.get().globalVolume.get() / 100f, 1f);
         }
     }
 
@@ -60,7 +59,8 @@ public class SoundManager {
             Managers.SOUND.playSound(VINE);
         } else if (message.contains("verstappen")) {
             Managers.SOUND.playSound(VERSTAPPEN);
-        } else if ((message.contains("nigga") || message.contains("nigger")) && Modules.get().get(GenyoSounds.class).blackPerson.get()) {
+        } else if ((message.contains("nigga") || message.contains("nigger")) &&
+            (GenyoConfig.get().blackPerson.get()) && GenyoConfig.get() != null) {
             if (timer.passed(6000)) {
                 Managers.SOUND.playSound(BLACK, 0.1f);
                 timer.reset();

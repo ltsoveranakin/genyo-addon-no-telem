@@ -132,6 +132,10 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
         return player != null && get(player) != null;
     }
 
+    public boolean isEnemy(String name) {
+        return get(name) != null;
+    }
+
     public boolean isEnemy(PlayerListEntry player) {
         return get(player) != null;
     }

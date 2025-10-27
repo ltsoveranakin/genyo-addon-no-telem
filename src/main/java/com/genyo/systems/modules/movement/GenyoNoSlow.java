@@ -88,8 +88,8 @@ public class GenyoNoSlow extends GenyoModule {
 
     private final Setting<Boolean> inventoryMove = sgGeneral.add(new BoolSetting.Builder()
         .name("Inventory Move")
-        .description("Allows the player to move while in inventories or screens")
-        .defaultValue(true)
+        .description("Allows the player to move while in inventories or screens (gay)")
+        .defaultValue(false)
         .build()
     );
 

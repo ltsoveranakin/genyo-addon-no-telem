@@ -1,6 +1,8 @@
 package com.genyo;
 
 import com.genyo.commands.EnemiesCommand;
+import com.genyo.systems.config.GenyoConfig;
+import com.genyo.systems.config.GenyoTab;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
@@ -91,10 +93,12 @@ public class Genyo extends MeteorAddon {
 
     private void initTabs() {
         Tabs.add(new EnemiesTab());
+        Tabs.add(new GenyoTab());
     }
 
     private void initSystems() {
         Systems.add(new Enemies());
+        Systems.add(new GenyoConfig());
     }
 
     private void initModules(Modules modules) {
@@ -137,7 +141,6 @@ public class Genyo extends MeteorAddon {
         modules.add(new AutoBrainrot());
         //modules.add(new AutoRename());
         modules.add(new GenyoNoSlow());
-        modules.add(new GenyoSounds());
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
         modules.add(new GenyoNametags());
