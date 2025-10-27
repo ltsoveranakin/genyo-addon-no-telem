@@ -29,6 +29,10 @@ public class SoundManager {
 
     public static final Identifier BLACK_ID = Identifier.of("genyo:blackperson");
     public static final SoundEvent BLACK = SoundEvent.of(BLACK_ID);
+
+    public static final Identifier KEYPRESS_ID = Identifier.of("genyo:keypress");
+    public static final SoundEvent KEYPRESS = SoundEvent.of(KEYPRESS_ID);
+
     private final Timer timer = new CacheTimer();
 
     public void playSound(SoundEvent sound) {
@@ -39,7 +43,7 @@ public class SoundManager {
 
     public void playSound(SoundEvent sound, float volume) {
         if (mc.player != null && mc.world != null) {
-            mc.player.playSound(sound, volume, 1f);
+            mc.player.playSound(sound, volume / 100f, 1f);
         }
     }
 
@@ -49,6 +53,7 @@ public class SoundManager {
         Registry.register(Registries.SOUND_EVENT, VERSTAPPEN_ID, VERSTAPPEN);
         Registry.register(Registries.SOUND_EVENT, HAMBURGER_ID, HAMBURGER);
         Registry.register(Registries.SOUND_EVENT, BLACK_ID, BLACK);
+        Registry.register(Registries.SOUND_EVENT, KEYPRESS_ID, KEYPRESS);
     }
 
     @EventHandler
@@ -62,7 +67,7 @@ public class SoundManager {
         } else if ((message.contains("nigga") || message.contains("nigger")) &&
             (GenyoConfig.get().blackPerson.get()) && GenyoConfig.get() != null) {
             if (timer.passed(6000)) {
-                Managers.SOUND.playSound(BLACK, 0.1f);
+                Managers.SOUND.playSound(BLACK, 10);
                 timer.reset();
             }
         }

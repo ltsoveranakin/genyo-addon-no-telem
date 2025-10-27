@@ -30,6 +30,22 @@ public class GenyoConfig extends System<GenyoConfig> {
         .build()
     );
 
+    public final Setting<Boolean> typing = sgSounds.add(new BoolSetting.Builder()
+        .name("typing")
+        .description("Typing sound in chat")
+        .defaultValue(false)
+        .build()
+    );
+
+    public final Setting<Integer> typingVolume = sgSounds.add(new IntSetting.Builder()
+        .name("typing-volume")
+        .description("Adjust the volume of the typing sounds")
+        .min(1).defaultValue(50).max(100)
+        .sliderRange(1, 100)
+        .visible(typing::get)
+        .build()
+    );
+
     // Visual
 
     public final Setting<Boolean> useGenyoSplashes = sgVisual.add(new BoolSetting.Builder()

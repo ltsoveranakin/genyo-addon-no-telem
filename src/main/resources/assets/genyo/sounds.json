@@ -23,5 +23,10 @@
     "sounds": [
       "genyo:blackperson"
     ]
+  },
+  "keypress": {
+    "sounds": [
+      "genyo:keypress"
+    ]
   }
 }
