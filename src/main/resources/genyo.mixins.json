@@ -16,7 +16,6 @@
     "accessor.AccessorGameOptions",
     "accessor.AccessorKeyBinding",
     "entity.player.MixinPlayerListEntry",
-    "game.MixinKeyboard",
     "game.MixinSplashTextResourceSupplier",
     "network.MixinClientPlayerEntity",
     "network.MixinClientPlayNetworkHandler",
