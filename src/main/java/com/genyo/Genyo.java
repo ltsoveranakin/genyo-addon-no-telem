@@ -140,8 +140,8 @@ public class Genyo extends MeteorAddon {
         modules.add(new GenyoSounds());
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
-        //modules.add(new AutoOminous());
         modules.add(new GenyoNametags());
+        modules.add(new AutoOminous());
     }
 
     private void initHUD(Hud hud) {
