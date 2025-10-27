@@ -153,6 +153,7 @@ public class Genyo extends MeteorAddon {
         hud.register(PacketsHud.INFO);
         hud.register(WatermarkHud.INFO);
         hud.register(BetterPlayerRadarHud.INFO);
+        hud.register(LogoHud.INFO);
     }
 
     @Override
