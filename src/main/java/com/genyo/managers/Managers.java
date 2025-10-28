@@ -1,5 +1,6 @@
 package com.genyo.managers;
 
+import com.genyo.core.sound.SoundManager;
 import com.genyo.managers.anticheat.AntiCheatManager;
 import com.genyo.managers.combat.CombatManager;
 import com.genyo.managers.combat.PearlManager;

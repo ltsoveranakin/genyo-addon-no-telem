@@ -3,7 +3,7 @@
   "id": "genyo",
   "version": "${version}",
   "name": "Genyo",
-  "description": "This is very genyo genyo genyo genyo genyo.",
+  "description": "Utility Meteor addon powered by special people's special minds.",
   "authors": [
     "wuritz",
     "Barnika18ASDASDASDBLACKMAN"
@@ -16,7 +16,7 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "com.genyo.api.sound.SoundLoader"
+      "com.genyo.core.sound.SoundLoader"
     ],
     "meteor": [
       "com.genyo.Genyo"

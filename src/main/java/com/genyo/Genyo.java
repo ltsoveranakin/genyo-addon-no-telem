@@ -1,6 +1,6 @@
 package com.genyo;
 
-import com.genyo.api.Core;
+import com.genyo.core.Core;
 import com.genyo.commands.EnemiesCommand;
 import com.genyo.systems.config.GenyoConfig;
 import com.genyo.systems.config.GenyoTab;
@@ -17,7 +17,6 @@ import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
-import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.commands.Commands;

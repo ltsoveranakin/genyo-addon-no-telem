@@ -1,6 +1,5 @@
-package com.genyo.api.sound;
+package com.genyo.core.sound;
 
-import com.genyo.managers.SoundManager;
 import net.fabricmc.api.ModInitializer;
 
 public class SoundLoader implements ModInitializer {

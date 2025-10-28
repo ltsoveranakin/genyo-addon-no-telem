@@ -1,4 +1,4 @@
-package com.genyo.api.render;
+package com.genyo.core.render;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;

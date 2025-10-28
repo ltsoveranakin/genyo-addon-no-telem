@@ -47,8 +47,8 @@ public class GenyoConfig extends System<GenyoConfig> {
 
     public final Setting<Integer> typingVolume = sgSounds.add(new IntSetting.Builder()
         .name("typing-volume")
-        .description("Adjust the volume of the typing sounds")
-        .min(1).defaultValue(50).max(100)
+        .description("Adjust the volume of the typing sound")
+        .min(1).defaultValue(100).max(100)
         .sliderRange(1, 100)
         .visible(typing::get)
         .build()

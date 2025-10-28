@@ -1,7 +1,7 @@
-package com.genyo.api;
+package com.genyo.core;
 
 import com.genyo.managers.Managers;
-import com.genyo.managers.SoundManager;
+import com.genyo.core.sound.SoundManager;
 import com.genyo.systems.config.GenyoConfig;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
@@ -11,12 +11,15 @@ import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.orbit.EventHandler;
 
-import static com.genyo.managers.SoundManager.*;
+import java.util.Random;
+
+import static com.genyo.core.sound.SoundManager.*;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public final class Core {
 
     private final Timer soundTimer = new CacheTimer();
+    private final Random r = new Random();
 
     public Core() {
         MeteorClient.EVENT_BUS.subscribe(this);
@@ -25,12 +28,27 @@ public final class Core {
     @EventHandler
     public void onKey(KeyEvent event) {
         if (!mc.inGameHud.getChatHud().isChatFocused()) return;
+
         if (event.action == KeyAction.Press && GenyoConfig.get().typing.get()) {
             switch (GenyoConfig.get().typingFile.get()) {
-                case Genyo -> Managers.SOUND.playSound(KEYPRESS_GENYO, GenyoConfig.get().typingVolume.get());
-                case ThunderHack -> Managers.SOUND.playSound(SoundManager.KEYPRESS_TH, GenyoConfig.get().typingVolume.get());
+                case Genyo -> Managers.SOUND.playSound(KEYPRESS_GENYO, (int) humanizeVolume(0.8f, 1f), humanizePitch(0.8f, 1.2f));
+                case ThunderHack -> Managers.SOUND.playSound(SoundManager.KEYPRESS_TH, (int) humanizeVolume(0.8f, 1f), humanizePitch(0.8f, 1.2f));
             }
         }
+    }
+
+    // these make 'typing' sound more realistic because of random values
+
+    private float humanizePitch(float min, float max) {
+        return min + r.nextFloat() * (max - min);
+    }
+
+    private float humanizeVolume(float min, float max) {
+        float globalTypingVolume = (float) GenyoConfig.get().typingVolume.get() / 100f;
+        float randomed = (min + r.nextFloat() * (max - min));
+        float returnValue = ((randomed * globalTypingVolume) * 100f);
+
+        return returnValue;
     }
 
     @EventHandler

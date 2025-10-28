@@ -1,4 +1,4 @@
-package com.genyo.managers;
+package com.genyo.core.sound;
 
 import com.genyo.systems.config.GenyoConfig;
 import net.minecraft.registry.Registries;
@@ -40,6 +40,12 @@ public class SoundManager {
     public void playSound(SoundEvent sound, int volume) {
         if (mc.player != null && mc.world != null) {
             mc.player.playSound(sound, volume / 100f, 1f);
+        }
+    }
+
+    public void playSound(SoundEvent sound, int volume, float pitch) {
+        if (mc.player != null && mc.world != null) {
+            mc.player.playSound(sound, volume / 100f, pitch);
         }
     }
 

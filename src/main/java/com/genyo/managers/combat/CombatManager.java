@@ -3,7 +3,7 @@ package com.genyo.managers.combat;
 import com.genyo.events.TotemPopEvent;
 import com.genyo.events.UnderCombatEvent;
 import com.genyo.managers.Managers;
-import com.genyo.managers.SoundManager;
+import com.genyo.core.sound.SoundManager;
 import com.genyo.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.entity.player.AttackEntityEvent;
