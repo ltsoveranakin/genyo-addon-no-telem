@@ -61,7 +61,7 @@ public class CombatManager {
                     "\n\nReason: " + Formatting.GREEN + "ewrhjfkjerkjfhrejkgkregr" + Formatting.GRAY +
                     "\nConclusion: " + Formatting.GREEN + "Skill issue. :(");
 
-                Managers.SOUND.playSound(SoundManager.SCREAM, 50);
+                Managers.SOUND.playSound(SoundManager.SCREAM, 80);
             }
         }
     }
