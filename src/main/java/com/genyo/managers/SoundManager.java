@@ -1,11 +1,6 @@
-package com.genyo.managers.world.sound;
+package com.genyo.managers;
 
-import com.genyo.managers.Managers;
 import com.genyo.systems.config.GenyoConfig;
-import com.genyo.utils.math.timer.CacheTimer;
-import com.genyo.utils.math.timer.Timer;
-import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
-import meteordevelopment.orbit.EventHandler;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
@@ -30,10 +25,11 @@ public class SoundManager {
     public static final Identifier BLACK_ID = Identifier.of("genyo:blackperson");
     public static final SoundEvent BLACK = SoundEvent.of(BLACK_ID);
 
-    public static final Identifier KEYPRESS_ID = Identifier.of("genyo:keypress");
-    public static final SoundEvent KEYPRESS = SoundEvent.of(KEYPRESS_ID);
+    public static final Identifier KEYPRESS_TH_ID = Identifier.of("genyo:keypress_th");
+    public static final SoundEvent KEYPRESS_TH = SoundEvent.of(KEYPRESS_TH_ID);
 
-    private final Timer timer = new CacheTimer();
+    public static final Identifier KEYPRESS_GENYO_ID = Identifier.of("genyo:keypress_genyo");
+    public static final SoundEvent KEYPRESS_GENYO = SoundEvent.of(KEYPRESS_GENYO_ID);
 
     public void playSound(SoundEvent sound) {
         if (mc.player != null && mc.world != null && GenyoConfig.get() != null) {
@@ -41,7 +37,7 @@ public class SoundManager {
         }
     }
 
-    public void playSound(SoundEvent sound, float volume) {
+    public void playSound(SoundEvent sound, int volume) {
         if (mc.player != null && mc.world != null) {
             mc.player.playSound(sound, volume / 100f, 1f);
         }
@@ -53,24 +49,8 @@ public class SoundManager {
         Registry.register(Registries.SOUND_EVENT, VERSTAPPEN_ID, VERSTAPPEN);
         Registry.register(Registries.SOUND_EVENT, HAMBURGER_ID, HAMBURGER);
         Registry.register(Registries.SOUND_EVENT, BLACK_ID, BLACK);
-        Registry.register(Registries.SOUND_EVENT, KEYPRESS_ID, KEYPRESS);
-    }
-
-    @EventHandler
-    public void onMessageReceive(ReceiveMessageEvent event) {
-        String message = event.getMessage().getString().toLowerCase();
-
-        if (message.contains("genyo") && !message.startsWith("§")) {
-            Managers.SOUND.playSound(VINE);
-        } else if (message.contains("verstappen")) {
-            Managers.SOUND.playSound(VERSTAPPEN);
-        } else if ((message.contains("nigga") || message.contains("nigger")) &&
-            (GenyoConfig.get().blackPerson.get()) && GenyoConfig.get() != null) {
-            if (timer.passed(6000)) {
-                Managers.SOUND.playSound(BLACK, 10);
-                timer.reset();
-            }
-        }
+        Registry.register(Registries.SOUND_EVENT, KEYPRESS_TH_ID, KEYPRESS_TH);
+        Registry.register(Registries.SOUND_EVENT, KEYPRESS_GENYO_ID, KEYPRESS_GENYO);
     }
 
 }

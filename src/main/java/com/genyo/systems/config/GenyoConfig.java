@@ -37,6 +37,14 @@ public class GenyoConfig extends System<GenyoConfig> {
         .build()
     );
 
+    public final Setting<TypingFile> typingFile = sgSounds.add(new EnumSetting.Builder<TypingFile>()
+        .name("typing-file")
+        .description("Choose the source file of the typing sound.")
+        .defaultValue(TypingFile.ThunderHack)
+        .visible(typing::get)
+        .build()
+    );
+
     public final Setting<Integer> typingVolume = sgSounds.add(new IntSetting.Builder()
         .name("typing-volume")
         .description("Adjust the volume of the typing sounds")
@@ -78,6 +86,11 @@ public class GenyoConfig extends System<GenyoConfig> {
         if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
 
         return this;
+    }
+
+    public enum TypingFile {
+        ThunderHack,
+        Genyo
     }
 
 }

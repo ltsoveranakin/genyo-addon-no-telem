@@ -31,9 +31,13 @@ written for Meteor 1.21.4
 - Hulkenberg
 
 ## Problem?
+
 <a href="https://discord.gg/dwuAuXKQ">Join Discord</a>
 
+*please note that we aren't developing this thing 24/7*
+
 ### Credits
+
 Credit to <strong>"John Genyo"</strong>, the founder of Genyo Corporations
 
 ## License
