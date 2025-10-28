@@ -1,13 +1,13 @@
 package com.genyo.commands;
 
 import com.genyo.commands.arguments.EnemyArgumentType;
+import com.genyo.commands.arguments.PlayerListEntryArgumentTypeEx;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.systems.enemies.Enemy;
 import com.genyo.utils.GenyoChatUtils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.commands.Command;
-import meteordevelopment.meteorclient.commands.arguments.PlayerListEntryArgumentType;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.Formatting;
 
@@ -20,9 +20,14 @@ public class EnemiesCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(literal("add")
-            .then((argument("player", PlayerListEntryArgumentType.create())
+            .then((argument("player", PlayerListEntryArgumentTypeEx.create())
                 .executes(context -> {
-                    GameProfile profile = PlayerListEntryArgumentType.get(context).getProfile();
+                    GameProfile profile = PlayerListEntryArgumentTypeEx.get(context).getProfile();
+                    if (profile.getName().equals(mc.player.getGameProfile().getName())) {
+                        GenyoChatUtils.sendError("You can't add yourself as enemy.");
+                        return SINGLE_SUCCESS;
+                    }
+
                     Enemy enemy = new Enemy(profile.getName(), profile.getId());
 
                     if (Enemies.get().add(enemy)) {
@@ -39,13 +44,13 @@ public class EnemiesCommand extends Command {
                 .executes(context -> {
                     Enemy enemy = EnemyArgumentType.get(context);
                     if (enemy == null) {
-                        error("Not enemies with that player.");
+                        GenyoChatUtils.sendError("Not enemies with that player.");
                         return SINGLE_SUCCESS;
                     }
 
                     if (Enemies.get().remove(enemy)) {
                         GenyoChatUtils.sendMessage(Formatting.GRAY + "Removed %s from enemies.".formatted(enemy.getName()));
-                    } else error("Failed to remove enemy.");
+                    } else GenyoChatUtils.sendError("Failed to remove enemy.");
 
                     return SINGLE_SUCCESS;
                 })

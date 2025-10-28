@@ -3,13 +3,16 @@ package com.genyo.core;
 import com.genyo.managers.Managers;
 import com.genyo.core.sound.SoundManager;
 import com.genyo.systems.config.GenyoConfig;
+import com.genyo.systems.enemies.Enemies;
 import com.genyo.utils.math.timer.CacheTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.MeteorClient;
+import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.Random;
 
@@ -66,6 +69,14 @@ public final class Core {
                 soundTimer.reset();
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerRender(EntityAddedEvent event) {
+        if (!(event.entity instanceof PlayerEntity player)) return;
+        if (!Enemies.get().isEnemy(player)) return;
+
+        Managers.SOUND.playSound(HAMBURGER);
     }
 
 }
