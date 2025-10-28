@@ -33,10 +33,7 @@ public final class Core {
         if (!mc.inGameHud.getChatHud().isChatFocused()) return;
 
         if (event.action == KeyAction.Press && GenyoConfig.get().typing.get()) {
-            switch (GenyoConfig.get().typingFile.get()) {
-                case Genyo -> Managers.SOUND.playSound(KEYPRESS_GENYO, (int) humanizeVolume(0.8f, 1f), humanizePitch(0.8f, 1.2f));
-                case ThunderHack -> Managers.SOUND.playSound(SoundManager.KEYPRESS_TH, (int) humanizeVolume(0.8f, 1f), humanizePitch(0.8f, 1.2f));
-            }
+            Managers.SOUND.playSound(SoundManager.KEYPRESS, (int) humanizeVolume(0.8f, 1f), humanizePitch(0.8f, 1.2f));
         }
     }
 

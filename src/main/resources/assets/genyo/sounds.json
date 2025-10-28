@@ -24,14 +24,9 @@
       "genyo:blackperson"
     ]
   },
-  "keypress_th": {
+  "keypress": {
     "sounds": [
-      "genyo:keypress_th"
-    ]
-  },
-  "keypress_genyo": {
-    "sounds": [
-      "genyo:keypress_genyo"
+      "genyo:keypress"
     ]
   }
 }
