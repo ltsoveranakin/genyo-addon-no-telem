@@ -20,7 +20,7 @@
 
 # Best addon ever
 
-###### ge(t) - ny(a) - (ahw)
+###### ge~~(t)~~ - ny~~(a)~~ - (ahw)
 
 You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.
 
@@ -51,7 +51,10 @@ I love kiwi. ── ⋆˚୨🥝୧⋆｡˚ !!
 
 ### Credits
 
-* meteor for being awesome
-* Credit to ***"John Genyo"***, the founder of *Genyo Corporations*
-* also [Shoreline](https://github.com/Skitttyy/shoreline-client) for being shorelineistic
-* and other clients lol
+<dl>
+    <dt>Thanks to:</dt>
+    <dd>- meteor for being awesome</dd>
+    <dd>- Credit to <strong>"John Genyo"</strong>, the founder of <em>Genyo Corporations</em></dd>
+    <dd>- also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</dd>
+    <dd>- and other clients lol</dd>
+</dl>

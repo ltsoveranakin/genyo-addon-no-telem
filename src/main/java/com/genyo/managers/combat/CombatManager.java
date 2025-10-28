@@ -46,9 +46,9 @@ public class CombatManager {
                 String entityName = ent.getName().getString();
 
                 if (popList.get(entityName) == null) {
-                    popList.put(entityName, Integer.valueOf(1));
+                    popList.put(entityName, 1);
                 } else {
-                    popList.put(entityName, Integer.valueOf(popList.get(entityName) + 1));
+                    popList.put(entityName, popList.get(entityName) + 1);
                 }
 
                 MeteorClient.EVENT_BUS.post(TotemPopEvent.get((PlayerEntity) ent, popList.get(entityName)));
