@@ -17,7 +17,7 @@ import net.minecraft.village.raid.Raid;
 public class AutoOminous extends GenyoModule {
 
     public AutoOminous() {
-        super(Genyo.MISC, "auto-ominous", "");
+        super(Genyo.MISC, "auto-ominous", "Drinks an ominous bottle right after a Raid victory.");
     }
 
     private boolean drinking = false;

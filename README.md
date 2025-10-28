@@ -5,7 +5,7 @@
 
 <h1 align="center">Genyo Addon</h1>
     <p align="center"><i>❤꧁ღ⊱♥ I have brain damge ♥⊱ღ꧂❤</i></p>
-    <p align="center" style="font-size: 16px;">Shoreline port into <strong>Meteor</strong> plus other <strong>GENYO magic</strong> :D</p>
+    <p align="center" style="font-size: 16px;">Shoreline port into <strong><a href="https://github.com/MeteorDevelopment/meteor-client">Meteor</a></strong> plus other <strong>GENYO magic</strong> :D</p>
 
 <div align="center">
     <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
@@ -18,14 +18,13 @@
     </div>
 </div>
 
----
-
 # Best addon ever
 
 ###### ge^(t)^ - ny^(a)^ - (ahw)
 
-International version: **Genyo Addon**
+You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.
 
+International version: **Genyo Addon**<br>
 *written for **Meteor 1.21.4***
 
 # Features ✨
@@ -38,21 +37,21 @@ I mean you just have to try it out I guess.
 - Also
 - Hulkenberg
 
-## Problem? ⛔
+# Problem? ⛔
 
 [Join Discord](https://discord.gg/dwuAuXKQ)
 
 *⚠️ keep in mind that we aren't developing this thing 24/7 ⚠️*
 
-### Credits
-
-* Credit to ***"John Genyo"***, the founder of *Genyo Corporations*
-
-* <p style="font-size: 11px">also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</p>
-* <p style="font-size: 9px">and other clients lol</p>
-
-## License
+### License
 
 **YOLO License** 🥝🐦
 
 I love kiwi. ── ⋆˚୨🥝୧⋆｡˚ !! 
+
+### Credits
+
+* meteor for being awesome
+* Credit to ***"John Genyo"***, the founder of *Genyo Corporations*
+* <p style="font-size: 11px">also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</p>
+* <p style="font-size: 9px">and other clients lol</p>
