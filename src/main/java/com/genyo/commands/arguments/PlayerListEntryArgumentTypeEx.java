@@ -55,6 +55,8 @@ public class PlayerListEntryArgumentTypeEx implements ArgumentType<PlayerListEnt
         PlayerListEntry clientEntry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getGameProfile().getName());
         if (playerListEntries.contains(clientEntry)) playerListEntries.remove(clientEntry);
 
+        // just made this to exclude yourself from the list, it was kinda annoying.
+
         return CommandSource.suggestMatching(playerListEntries.stream().map(playerListEntry -> playerListEntry.getProfile().getName()), builder);
     }
 
