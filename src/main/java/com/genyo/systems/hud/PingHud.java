@@ -14,7 +14,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
 public class PingHud extends HudElement {
 
-    public static final HudElementInfo<PingHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "ping", "Displays the server's ping.", PingHud::new);
+    public static final HudElementInfo<PingHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "ping", "Displays the server's ping. (turn on FastLatency)", PingHud::new);
     public PingHud() {
         super(INFO);
     }

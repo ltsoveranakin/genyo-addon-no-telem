@@ -150,6 +150,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new GenyoSwing());
         modules.add(new GenyoNametags());
         modules.add(new AutoOminous());
+        modules.add(new FastLatency());
     }
 
     private void initHUD(Hud hud) {
@@ -159,6 +160,7 @@ public class Genyo extends MeteorAddon {
         hud.register(WatermarkHud.INFO);
         hud.register(BetterPlayerRadarHud.INFO);
         hud.register(LogoHud.INFO);
+        hud.register(PingHud.INFO);
     }
 
     @Override
