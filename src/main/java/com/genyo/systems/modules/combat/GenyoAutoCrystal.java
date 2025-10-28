@@ -4,6 +4,7 @@ import com.genyo.Genyo;
 import com.genyo.events.network.DisconnectEvent;
 import com.genyo.events.world.AddEntityEvent;
 import com.genyo.systems.modules.PlacerModule;
+import com.genyo.systems.modules.misc.FastLatency;
 import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.player.RotationUtil;
 import meteordevelopment.meteorclient.settings.*;
@@ -1245,7 +1246,8 @@ public class GenyoAutoCrystal extends PlacerModule {
         {
             return;
         }
-        int latency = Managers.NETWORK.getClientLatency();
+        int latency = Modules.get().isActive(FastLatency.class) ?
+            (int) Modules.get().get(FastLatency.class).getLatency() : Managers.NETWORK.getClientLatency();
         if (!Managers.NETWORK.is2b2t() || latency >= 50)
         {
             placeCrystal(placeCrystal.getBlockPos(), hand);

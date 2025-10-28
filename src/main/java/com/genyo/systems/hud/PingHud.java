@@ -2,18 +2,22 @@ package com.genyo.systems.hud;
 
 import com.genyo.Genyo;
 import com.genyo.managers.Managers;
+import com.genyo.systems.modules.misc.FastLatency;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.hud.Hud;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
+import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
-public class PacketsHud extends HudElement {
+public class PingHud extends HudElement {
 
-    public static final HudElementInfo<PacketsHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "packets", "Displays the amount of incoming and outgoing packets. (out <- in)", PacketsHud::new);
-    public PacketsHud() { super(INFO); }
+    public static final HudElementInfo<PingHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "ping", "Displays the server's ping.", PingHud::new);
+    public PingHud() {
+        super(INFO);
+    }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgColor = settings.createGroup("Color");
@@ -39,9 +43,9 @@ public class PacketsHud extends HudElement {
 
     // Color
 
-    private final Setting<SettingColor> packetsColor = sgColor.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> pingColor = sgColor.add(new ColorSetting.Builder()
         .name("Color 1")
-        .description("Color of 'Packets'")
+        .description("Color of 'Ping'")
         .defaultValue(new SettingColor(255, 255, 255))
         .build()
     );
@@ -110,17 +114,17 @@ public class PacketsHud extends HudElement {
         double x = this.x + border.get();
         double y = this.y + border.get();
 
-        String packetsString = "Packets: ";
-        renderer.text(packetsString, x, y, packetsColor.get(), shadow.get(), getScale());
+        String pingString = "Ping: ";
+        renderer.text(pingString, x, y, pingColor.get(), shadow.get(), getScale());
 
-        String packetsValueString = String.format("%s <- %s", Managers.NETWORK.getOutgoingPPS(), Managers.NETWORK.getIncomingPPS());
-        renderer.text(packetsValueString, x + renderer.textWidth(packetsString, shadow.get(), getScale()) + (renderer.textWidth(" ") * getScale()), y, valueColor.get(), shadow.get(), getScale());
+        String latencyString = String.format("%s", Modules.get().isActive(FastLatency.class) ?
+            (int) Modules.get().get(FastLatency.class).getLatency() : Managers.NETWORK.getClientLatency());
+        renderer.text(latencyString, x + renderer.textWidth(pingString, shadow.get(), getScale()) + (renderer.textWidth(" ") * getScale()), y, valueColor.get(), shadow.get(), getScale());
 
-        setSize(renderer.textWidth(packetsString + packetsValueString), renderer.textHeight(shadow.get(), getScale()));
+        setSize(renderer.textWidth(pingString + latencyString), renderer.textHeight(shadow.get(), getScale()));
 
         if (background.get()) {
             renderer.quad(this.x, y, getWidth(), getHeight(), backgroundColor.get());
         }
     }
-
 }
