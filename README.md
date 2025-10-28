@@ -18,12 +18,20 @@
     </div>
 </div>
 
+---
+
 # Best addon ever
+
+###### ge^(t)^ - ny^(a)^ - (ahw)
 
 International version: **Genyo Addon**
 
 *written for **Meteor 1.21.4***
 
+# Features ✨
+
+I mean you just have to try it out I guess.
+     
 ## How to use ❓
 
 - Yes
@@ -40,13 +48,11 @@ International version: **Genyo Addon**
 
 * Credit to ***"John Genyo"***, the founder of *Genyo Corporations*
 
-<img src="assets/john_genyo.jpeg" width="80" height="100">
-
 * <p style="font-size: 11px">also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</p>
 * <p style="font-size: 9px">and other clients lol</p>
 
 ## License
 
-YOLO License 🥝🐦
+**YOLO License** 🥝🐦
 
 I love kiwi. ── ⋆˚୨🥝୧⋆｡˚ !! 
