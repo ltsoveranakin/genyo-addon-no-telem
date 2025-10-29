@@ -15,7 +15,7 @@ import net.minecraft.network.packet.s2c.play.CommandSuggestionsS2CPacket;
 public class FastLatency extends GenyoModule {
 
     public FastLatency() {
-        super(Genyo.MISC, "fast-latency", "Calculates server ping");
+        super(Genyo.MISC, "fast-latency", "Calculates server ping (use with Ping HUD)");
     }
 
     private long requestTime;
