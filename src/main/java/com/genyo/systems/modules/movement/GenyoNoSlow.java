@@ -79,12 +79,12 @@ public class GenyoNoSlow extends GenyoModule {
         .build()
     );
 
-    private final Setting<Boolean> strafeFix = sgGeneral.add(new BoolSetting.Builder()
+    /*private final Setting<Boolean> strafeFix = sgGeneral.add(new BoolSetting.Builder()
         .name("Strafe Fix")
         .description("Old NCP bypass for strafe")
         .defaultValue(false)
         .build()
-    );
+    );*/
 
     private final Setting<Boolean> inventoryMove = sgGeneral.add(new BoolSetting.Builder()
         .name("Inventory Move")
@@ -263,7 +263,7 @@ public class GenyoNoSlow extends GenyoModule {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onStrafeFix(StrafeFixEvent event)
     {
         if (strafeFix.get())
@@ -279,7 +279,7 @@ public class GenyoNoSlow extends GenyoModule {
             event.yaw = yaw;
             event.pitch = pitch;
         }
-    }
+    }*/
 
     @EventHandler
     public void onSlowMovement(SlowMovementEvent event)
@@ -399,9 +399,9 @@ public class GenyoNoSlow extends GenyoModule {
         return blocks;
     }
 
-    public boolean getStrafeFix()
+    /*public boolean getStrafeFix()
     {
         return strafeFix.get();
-    }
+    }*/
 
 }

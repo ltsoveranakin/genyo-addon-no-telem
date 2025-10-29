@@ -42,7 +42,7 @@ public class BetterPlayerRadarHud extends HudElement {
     private final Setting<Boolean> disableFriends = sgGeneral.add(new BoolSetting.Builder()
         .name("disable-friends")
         .description("Don't show friends.")
-        .defaultValue(true)
+        .defaultValue(false)
         .build()
     );
 
