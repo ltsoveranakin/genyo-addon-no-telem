@@ -51,7 +51,7 @@ import java.util.*;
 public class GenyoNametags extends GenyoModule {
 
     public GenyoNametags() {
-        super(Genyo.VISUAL, "genyo-nametags", "Same as Meteor nametags, pop counter included");
+        super(Genyo.VISUAL, "genyo-nametags", "Same as Meteor Nametags, pop counter included");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
