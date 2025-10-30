@@ -3,9 +3,7 @@
         <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
     </p>
 
-<a href="https://genyo.dev">
 <h1 align="center">Genyo Addon</h1>
-</a>
     <p align="center"><i>❤꧁ღ⊱♥ I have brain damge ♥⊱ღ꧂❤</i></p>
     <p align="center" style="font-size: 16px;">Shoreline port into <strong><a href="https://github.com/MeteorDevelopment/meteor-client">Meteor</a></strong> plus other <strong>GENYO magic</strong> :D</p>
 
@@ -24,7 +22,8 @@
 
 ###### ge(t) - ny(a) - (ahw)
 
-You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.
+You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.<br />
+[Check out the website.](https://genyo.dev)
 
 International version: **Genyo Addon**<br>
 *written for **Meteor 1.21.4***
