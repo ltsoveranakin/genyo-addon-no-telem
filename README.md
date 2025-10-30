@@ -8,14 +8,21 @@
     <p align="center" style="font-size: 16px;">Shoreline port into <strong><a href="https://github.com/MeteorDevelopment/meteor-client">Meteor</a></strong> plus other <strong>GENYO magic</strong> :D</p>
 
 <div align="center">
-    <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
-        <a href="https://discord.gg/dwuAuXKQ">
-            <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
-        </a>
-        <a href="https://github.com/wuritz/genyo-addon/releases">
-            <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat">
-        </a>
-    </div>
+    <a href="https://github.com/wuritz/genyo-addon/releases">
+        <img src="https://img.shields.io/github/v/tag/wuritz/genyo-addon?label=current&style=flat">
+    </a>
+
+<a href="https://discord.gg/dwuAuXKQ">
+        <img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
+    </a>
+    <a href="https://github.com/wuritz/genyo-addon/releases">
+        <img src="https://img.shields.io/github/downloads/wuritz/genyo-addon/total?style=flat">
+    </a>
+
+<br />
+<a href="https://github.com/wuritz/genyo-addon/commits/1.21.4/">
+    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/wuritz/genyo-addon">
+</a>
 </div>
 
 # Best addon ever
