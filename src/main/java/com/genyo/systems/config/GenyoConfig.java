@@ -10,8 +10,18 @@ public class GenyoConfig extends System<GenyoConfig> {
 
     public final Settings settings = new Settings();
 
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgSounds = settings.createGroup("Sounds");
     private final SettingGroup sgVisual = settings.createGroup("Visual");
+
+    // General
+
+    public final Setting<TextPosition> textPosition = sgGeneral.add(new EnumSetting.Builder<TextPosition>()
+        .name("text-position")
+        .description("Position of the Title Screen text")
+        .defaultValue(TextPosition.Top)
+        .build()
+    );
 
     // Sounds
 
@@ -78,6 +88,10 @@ public class GenyoConfig extends System<GenyoConfig> {
         if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
 
         return this;
+    }
+
+    public enum TextPosition {
+        Top, Center
     }
 
 }

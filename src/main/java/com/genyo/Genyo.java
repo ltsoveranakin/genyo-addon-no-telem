@@ -16,6 +16,7 @@ import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.systems.modules.world.*;
+import com.genyo.systems.screens.Changelog;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -180,6 +181,10 @@ public class Genyo extends MeteorAddon {
 
     @Override
     public GithubRepo getRepo() {
+        return new GithubRepo("wuritz", "genyo-addon");
+    }
+
+    public static GithubRepo getGithubRepo() {
         return new GithubRepo("wuritz", "genyo-addon");
     }
 }

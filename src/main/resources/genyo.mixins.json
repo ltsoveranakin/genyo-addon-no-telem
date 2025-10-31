@@ -17,6 +17,7 @@
     "accessor.AccessorKeyBinding",
     "entity.player.MixinPlayerListEntry",
     "game.MixinSplashTextResourceSupplier",
+    "game.MixinTitleScreen",
     "network.MixinClientPlayerEntity",
     "network.MixinClientPlayNetworkHandler",
     "render.MixinEntityRenderer",
