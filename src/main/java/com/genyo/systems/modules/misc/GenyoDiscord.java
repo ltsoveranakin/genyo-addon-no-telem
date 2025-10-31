@@ -142,15 +142,9 @@ public class GenyoDiscord extends GenyoModule {
     public void onActivate() {
         if (Modules.get().isActive(DiscordPresence.class)) Modules.get().get(DiscordPresence.class).toggle();
 
-        DiscordIPC.start(1398651352933994607L, () -> {
-            Genyo.LOG.info("DRPC redy");
-            Genyo.LOG.info(DiscordIPC.getUser().username);
-        });
+        DiscordIPC.start(1398651352933994607L, () -> {});
 
         rpc.setStart(System.currentTimeMillis() / 1000L);
-
-        Genyo.LOG.info("Discord IPC started");
-        Genyo.LOG.info(String.valueOf(DiscordIPC.isConnected()));
 
         String largeText = "%s".formatted(Genyo.NAME);
         rpc.setLargeImage("genyo", largeText);
