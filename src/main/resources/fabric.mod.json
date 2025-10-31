@@ -6,9 +6,10 @@
   "description": "Utility Meteor addon powered by special people's special minds.",
   "authors": [
     "wuritz",
-    "Barnika18ASDASDASDBLACKMAN"
+    "Barnika18"
   ],
   "contact": {
+    "homepage": "https://genyo.dev",
     "repo": "https://github.com/wuritz/genyo-addon"
   },
   "icon": "assets/genyo/icon.png",

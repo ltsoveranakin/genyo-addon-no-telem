@@ -3,7 +3,6 @@ package com.genyo.utils.world;
 import com.genyo.utils.player.EnchantmentUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.*;
@@ -25,8 +24,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 

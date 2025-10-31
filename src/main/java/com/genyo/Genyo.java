@@ -16,7 +16,6 @@ import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
 import com.genyo.systems.modules.world.*;
-import com.genyo.systems.screens.Changelog;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -150,7 +149,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
         modules.add(new GenyoNametags());
-        modules.add(new AutoOminous());
+        //modules.add(new AutoOminous());
         modules.add(new FastLatency());
         modules.add(new FastPlace());
     }

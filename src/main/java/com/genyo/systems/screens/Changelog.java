@@ -4,18 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.genyo.Genyo;
 import com.genyo.systems.config.GenyoConfig;
-import com.nimbusds.oauth2.sdk.Response;
-import meteordevelopment.meteorclient.MeteorClient;
-import meteordevelopment.meteorclient.addons.GithubRepo;
-import meteordevelopment.meteorclient.mixininterface.IText;
-import meteordevelopment.meteorclient.utils.network.Http;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
-import meteordevelopment.meteorclient.utils.player.TitleScreenCredits;
-import meteordevelopment.meteorclient.utils.render.MeteorToast;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 
 import java.awt.*;
@@ -30,7 +20,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 public class Changelog {
 
     private static String latestVersion = null;
-    private static String updateString = "New update is available";
+    private static String updateString = "";
 
     private Changelog() {
 
@@ -72,15 +62,16 @@ public class Changelog {
 
         y += mc.textRenderer.fontHeight + 2;
 
-        // Is a new update available?
-        if (!Genyo.VERSION.toString().equals(latestVersion)) {
+        // Is there a new update available?
+        if (!Genyo.VERSION.toString().equals(latestVersion) && latestVersion != null) {
+            updateString = "New update is available";
             context.drawTextWithShadow(mc.textRenderer, updateString, x, y, Color.ORANGE.getRGB());
-        } else {
-            context.drawTextWithShadow(mc.textRenderer, "Up to date.", x, y, Color.GREEN.getRGB());
         }
     }
 
     public static boolean onClicked(double mouseX, double mouseY) {
+        if (updateString == "") return false;
+
         int y = GenyoConfig.get().textPosition.get() == GenyoConfig.TextPosition.Center ? (mc.currentScreen.height / 2) - mc.textRenderer.fontHeight : 4
             + mc.textRenderer.fontHeight + 2;
         int x = 3;
