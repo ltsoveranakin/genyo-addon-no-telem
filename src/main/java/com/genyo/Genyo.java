@@ -93,8 +93,6 @@ public class Genyo extends MeteorAddon {
         // HUD
         initHUD(Hud.get());
 
-        LOG.info(VERSION.toString());
-
         core = new Core();
     }
 
@@ -185,7 +183,16 @@ public class Genyo extends MeteorAddon {
         return new GithubRepo("wuritz", "genyo-addon");
     }
 
-    public static GithubRepo getGithubRepo() {
-        return new GithubRepo("wuritz", "genyo-addon");
+    @Override
+    public String getWebsite() {
+        return "https://genyo.dev";
     }
+
+    @Override
+    public String getCommit() {
+        ModMetadata modMetadata = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata();
+        String commit = modMetadata.getCustomValue("github:sha").getAsString();
+        return commit.isEmpty() ? null : commit;
+    }
+
 }

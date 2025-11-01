@@ -1,6 +1,6 @@
 package com.genyo.mixin.game;
 
-import com.genyo.systems.screens.Changelog;
+import com.genyo.core.Changelog;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;

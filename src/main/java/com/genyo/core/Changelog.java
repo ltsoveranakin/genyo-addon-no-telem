@@ -1,4 +1,4 @@
-package com.genyo.systems.screens;
+package com.genyo.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
