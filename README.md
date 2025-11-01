@@ -50,7 +50,7 @@ Five categories of modules:
 
 - Yes
 - Also
-- Hulkenberg
+- Hulkenberg.
 
 # Problem? ⛔
 
