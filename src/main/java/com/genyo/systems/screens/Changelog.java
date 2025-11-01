@@ -28,8 +28,8 @@ public class Changelog {
 
     private static void init() {
         MeteorExecutor.execute(() -> {
-            // Update latest version
-            String url = String.format("https://api.github.com/repos/wuritz/genyo-addon/releases/latest");
+            // Update latest version a
+            String url = "https://api.github.com/repos/wuritz/genyo-addon/releases/latest";
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()

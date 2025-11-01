@@ -93,6 +93,8 @@ public class Genyo extends MeteorAddon {
         // HUD
         initHUD(Hud.get());
 
+        LOG.info(VERSION.toString());
+
         core = new Core();
     }
 
