@@ -27,7 +27,7 @@
 
 # Best addon ever
 
-###### ge(t) - ny(a) - (ahw)
+###### ge(t) - ny(a) - (ahw) 
 
 You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.<br />
 [Check out the website.](https://genyo.dev)
@@ -37,7 +37,14 @@ International version: **Genyo Addon**<br>
 
 # Features ✨
 
-I mean you just have to try it out I guess.
+📋 Check out the [full list of features](https://genyo.dev/features) on our website. 📋
+
+Five categories of modules:
+- Combat
+- Miscellaneous
+- Movement
+- Visual
+- World
      
 ## How to use ❓
 
@@ -47,7 +54,10 @@ I mean you just have to try it out I guess.
 
 # Problem? ⛔
 
-[Join Discord](https://discord.gg/dwuAuXKQ)
+[Join Discord](https://discord.gg/dwuAuXKQ) for support. <br />
+<a href="https://discord.gg/dwuAuXKQ">
+<img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
+</a>
 
 *⚠️ keep in mind that we aren't developing this thing 24/7 ⚠️*
 
