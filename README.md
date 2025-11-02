@@ -1,6 +1,6 @@
 <div style="align-content: center;">
     <p align="center">
-        <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/1.21.4/assets/genyo512.png" width=256 height=256>
+        <img src="https://raw.githubusercontent.com/wuritz/genyo-addon/refs/heads/master/assets/genyo512.png" width=256 height=256>
     </p>
 
 <h1 align="center">Genyo Addon</h1>
@@ -20,14 +20,12 @@
     </a>
 
 <br />
-<a href="https://github.com/wuritz/genyo-addon/commits/1.21.4/">
+<a href="https://github.com/wuritz/genyo-addon/commits/master/">
     <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/wuritz/genyo-addon">
 </a>
 </div>
 
 # Best addon ever
-
-###### ge(t) - ny(a) - (ahw) 
 
 You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.<br />
 [Check out the website.](https://genyo.dev)
