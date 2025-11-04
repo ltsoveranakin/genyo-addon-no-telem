@@ -28,5 +28,10 @@
     "sounds": [
       "genyo:keypress"
     ]
+  },
+  "kiwi": {
+    "sounds": [
+      "genyo:kiwi"
+    ]
   }
 }

@@ -65,6 +65,8 @@ public final class Core {
                 Managers.SOUND.playSound(BLACK, 10);
                 soundTimer.reset();
             }
+        } else if (message.contains("kiwi")) {
+            Managers.SOUND.playSound(KIWI);
         }
     }
 

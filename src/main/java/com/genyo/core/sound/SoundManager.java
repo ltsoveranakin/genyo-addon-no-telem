@@ -28,6 +28,9 @@ public class SoundManager {
     public static final Identifier KEYPRESS_ID = Identifier.of("genyo:keypress");
     public static final SoundEvent KEYPRESS = SoundEvent.of(KEYPRESS_ID);
 
+    public static final Identifier KIWI_ID = Identifier.of("genyo:kiwi");
+    public static final SoundEvent KIWI = SoundEvent.of(KIWI_ID);
+
     public void playSound(SoundEvent sound) {
         if (mc.player != null && mc.world != null && GenyoConfig.get() != null) {
             mc.player.playSound(sound, (float) GenyoConfig.get().globalVolume.get() / 100f, 1f);
@@ -53,6 +56,7 @@ public class SoundManager {
         Registry.register(Registries.SOUND_EVENT, HAMBURGER_ID, HAMBURGER);
         Registry.register(Registries.SOUND_EVENT, BLACK_ID, BLACK);
         Registry.register(Registries.SOUND_EVENT, KEYPRESS_ID, KEYPRESS);
+        Registry.register(Registries.SOUND_EVENT, KIWI_ID, KIWI);
     }
 
 }
