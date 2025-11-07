@@ -160,7 +160,7 @@ public class GenyoScaffold extends PlacerModule {
     public void onPlayerTick(PlayerTickEvent event)
     {
 
-        if (!multitaskConfig.get() && checkMultitask())
+        if (!multitask.get() && checkMultitask())
         {
             blockData = null;
             renderData = null;

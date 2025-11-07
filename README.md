@@ -5,7 +5,7 @@
 
 <h1 align="center">Genyo Addon</h1>
     <p align="center"><i>❤꧁ღ⊱♥ I have brain damge ♥⊱ღ꧂❤</i></p>
-    <p align="center" style="font-size: 16px;">Shoreline port into <strong><a href="https://github.com/MeteorDevelopment/meteor-client">Meteor</a></strong> plus other <strong>GENYO magic</strong> :D</p>
+    <p align="center" style="font-size: 16px;">Shoreline port into <strong><a href="https://github.com/MeteorDevelopment/meteor-client">Meteor 1.21.4</a></strong> plus other <strong>GENYO magic</strong> :D</p>
 
 <div align="center">
     <a href="https://github.com/wuritz/genyo-addon/releases">
@@ -25,7 +25,7 @@
 </a>
 </div>
 
-# Best addon ever
+## Best addon ever
 
 You don't need anything more, we have everything you've ever wanted. Also things you've never wanted.<br />
 [Check out the website.](https://genyo.dev)
@@ -33,7 +33,7 @@ You don't need anything more, we have everything you've ever wanted. Also things
 International version: **Genyo Addon**<br>
 *written for **Meteor 1.21.4***
 
-# Features ✨
+## Features ✨
 
 📋 Check out the [full list of features](https://genyo.dev/features) on our website. 📋
 
@@ -43,29 +43,17 @@ Five categories of modules:
 - Movement
 - Visual
 - World
-     
-## How to use ❓
 
-- Yes
-- Also
-- Hulkenberg.
-
-# Problem? ⛔
+## Problem?
 
 [Join Discord](https://discord.gg/dwuAuXKQ) for support. <br />
-<a href="https://discord.gg/dwuAuXKQ">
-<img src="https://img.shields.io/discord/1398445342827085884?style=flat&logo=Discord&label=Discord&color=035efc">
-</a>
-
 *⚠️ keep in mind that we aren't developing this thing 24/7 ⚠️*
 
-### License
+## License
 
-**YOLO License** 🥝🐦
+[YOLO License](https://github.com/wuritz/genyo-addon/blob/master/LICENSE) - i guess
 
-I love kiwi. ── ⋆˚୨🥝୧⋆｡˚ !! 
-
-### Credits
+## Credits
 
 <dl>
     <dt>Thanks to:</dt>

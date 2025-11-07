@@ -168,7 +168,7 @@ public class GenyoAutoTrap extends PlacerModule {
     {
         blocksPlaced = 0;
 
-        if (!multitaskConfig.get() && mc.player.isUsingItem())
+        if (!multitask.get() && mc.player.isUsingItem())
         {
             surround.clear();
             placements.clear();
@@ -218,7 +218,7 @@ public class GenyoAutoTrap extends PlacerModule {
                 {
                     continue;
                 }
-                Direction direction = Managers.INTERACT.getInteractDirectionInternal(block, strictDirectionConfig.get());
+                Direction direction = Managers.INTERACT.getInteractDirectionInternal(block, strictDirection.get());
                 if (direction == null)
                 {
                     placements.add(block.down());
@@ -292,7 +292,7 @@ public class GenyoAutoTrap extends PlacerModule {
 
     private void placeBlock(BlockPos pos, int slot)
     {
-        Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
+        Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
         {
             if (rotateConfig.get() && state)
             {

@@ -80,13 +80,6 @@ public class GenyoAutoCrystal extends PlacerModule {
     private final SettingGroup sgDamage = settings.createGroup("Damage");
     private final SettingGroup sgRender = settings.createGroup("Render");
 
-    private final Setting<Boolean> multitask = sgGeneral.add(new BoolSetting.Builder()
-        .name("Allow Multitask")
-        .description("Allows actions while using items")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> whileMining = sgGeneral.add(new BoolSetting.Builder()
         .name("While Mining")
         .description("Allows attacking while mining blocks")
@@ -425,14 +418,6 @@ public class GenyoAutoCrystal extends PlacerModule {
     private final Setting<Boolean> breakValid = sgPlace.add(new BoolSetting.Builder()
         .name("Strict")
         .description("Only places crystals that can be attacked")
-        .defaultValue(false)
-        .visible(place::get)
-        .build()
-    );
-
-    private final Setting<Boolean> strictDirection = sgPlace.add(new BoolSetting.Builder()
-        .name("Strict Direction")
-        .description("Interacts with only visible directions when placing crystals")
         .defaultValue(false)
         .visible(place::get)
         .build()

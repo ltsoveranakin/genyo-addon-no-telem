@@ -249,7 +249,7 @@ public class GenyoPhase extends PlacerModule {
                 if (slot != -1 && blockPos != null && !mc.world.getBlockState(blockPos.down()).isReplaceable())
                 {
                     Managers.INTERACT.placeBlock(blockPos, slot,
-                        strictDirectionConfig.get(), false, true, (state, angles) ->
+                        strictDirection.get(), false, true, (state, angles) ->
                         {
                             if (state)
                             {

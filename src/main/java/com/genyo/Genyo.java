@@ -152,6 +152,7 @@ public class Genyo extends MeteorAddon {
         //modules.add(new AutoOminous());
         modules.add(new FastLatency());
         modules.add(new FastPlace());
+        modules.add(new AutoWeb());
     }
 
     private void initHUD(Hud hud) {

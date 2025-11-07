@@ -30,4 +30,8 @@ public class MathUtil {
         return value*value;
     }
 
+    public static int squared(int value) {
+        return value*value;
+    }
+
 }
