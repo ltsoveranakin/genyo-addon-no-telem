@@ -23,8 +23,6 @@ public class InfoExporter {
     public static List<ExSystem> systems = new ArrayList<>();
     public static List<ExHUD> huds = new ArrayList<>();
 
-    private static boolean failed = false;
-
     public InfoExporter() {
         acquireInfo();
     }
@@ -33,7 +31,6 @@ public class InfoExporter {
         // Categories
         categories.addAll(initCategories());
         if (categories.isEmpty()) {
-            failed = true;
             return;
         }
 
@@ -75,7 +72,7 @@ public class InfoExporter {
 
         String outputString = yaml.dump(output);
 
-        try (FileWriter writer = new FileWriter("output.yaml")) {
+        try (FileWriter writer = new FileWriter("genyo_info.yaml")) {
             writer.write(outputString);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -173,7 +170,7 @@ public class InfoExporter {
         List<ExHUD> init = new ArrayList<>();
 
         for (HudElementInfo<?> info : Genyo.HUD_ELEMENTS) {
-            ExHUD current = new ExHUD(info.name, info.description);
+            ExHUD current = new ExHUD(info.title, info.description);
             init.add(current);
         }
 

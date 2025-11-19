@@ -11,7 +11,6 @@ public class ExportCommand extends Command {
         super("export", "Exports Genyo infos for the website to use.");
     }
 
-
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
