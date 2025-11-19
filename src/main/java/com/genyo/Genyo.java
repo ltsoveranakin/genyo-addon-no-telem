@@ -1,5 +1,6 @@
 package com.genyo;
 
+import com.genyo.commands.ExportCommand;
 import com.genyo.core.Core;
 import com.genyo.commands.EnemiesCommand;
 import com.genyo.systems.config.GenyoConfig;
@@ -23,6 +24,7 @@ import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
 import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.hud.Hud;
+import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -32,6 +34,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Genyo extends MeteorAddon {
 
@@ -44,7 +49,10 @@ public class Genyo extends MeteorAddon {
     public static final Category VISUAL = new Category("G-VISUAL", Items.MILK_BUCKET.getDefaultStack());
     public static final Category WORLD = new Category("G-WORLD", Items.MILK_BUCKET.getDefaultStack());
 
+    public static final List<Category> CATEGORIES = new ArrayList<>();
+
     public static final HudGroup HUD_GROUP = new HudGroup("Genyo");
+    public static final List<HudElementInfo<?>> HUD_ELEMENTS = new ArrayList<>();
 
     public static final String MOD_ID = "genyo";
     public static final ModMetadata MOD_META;
@@ -81,6 +89,7 @@ public class Genyo extends MeteorAddon {
 
         // Commands
         Commands.add(new EnemiesCommand());
+        Commands.add(new ExportCommand());
 
         // Systems
         initSystems();
@@ -92,6 +101,13 @@ public class Genyo extends MeteorAddon {
 
         // HUD
         initHUD(Hud.get());
+
+        // For export
+        CATEGORIES.add(COMBAT);
+        CATEGORIES.add(MISC);
+        CATEGORIES.add(MOVEMENT);
+        CATEGORIES.add(VISUAL);
+        CATEGORIES.add(WORLD);
 
         core = new Core();
     }
@@ -162,6 +178,14 @@ public class Genyo extends MeteorAddon {
         hud.register(BetterPlayerRadarHud.INFO);
         hud.register(LogoHud.INFO);
         hud.register(PingHud.INFO);
+
+        HUD_ELEMENTS.add(PvPNeccessaryHud.INFO);
+        HUD_ELEMENTS.add(ActiveGenyoHud.INFO);
+        HUD_ELEMENTS.add(PacketsHud.INFO);
+        HUD_ELEMENTS.add(WatermarkHud.INFO);
+        HUD_ELEMENTS.add(BetterPlayerRadarHud.INFO);
+        HUD_ELEMENTS.add(LogoHud.INFO);
+        HUD_ELEMENTS.add(PingHud.INFO);
     }
 
     @Override
