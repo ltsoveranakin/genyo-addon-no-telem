@@ -36,7 +36,7 @@ public class InfoExporter {
 
         // Modules
         for (String category : categories) {
-            List<ExModule> currentModules = acquireModules();
+            List<ExModule> currentModules = acquireModules(category);
             if (!currentModules.isEmpty()) modules.addAll(currentModules);
             else Genyo.LOG.error("Failed to add {} modules.", category);
         }
@@ -136,19 +136,17 @@ public class InfoExporter {
         return export;
     }
 
-    private static List<ExModule> acquireModules() {
+    private static List<ExModule> acquireModules(String category) {
         List<ExModule> acquired = new ArrayList<>();
 
-        for (Category category : Genyo.CATEGORIES) {
-            for (Module module : Modules.get().getGroup(category)) {
-                String moduleName = module.name;
-                if (moduleName.contains("-")) { // if the module name is not already formatted, due to genyo efficient development
-                    moduleName = Utils.nameToTitle(moduleName);
-                }
-
-                ExModule exModule = new ExModule(moduleName, module.description, handleCategory(category));
-                acquired.add(exModule);
+        for (Module module : Modules.get().getGroup(handleCategoryS2G(category))) {
+            String moduleName = module.name;
+            if (moduleName.contains("-")) { // if the module name is not already formatted, due to genyo efficient development
+                moduleName = Utils.nameToTitle(moduleName);
             }
+
+            ExModule exModule = new ExModule(moduleName, module.description, handleCategoryS2C(category));
+            acquired.add(exModule);
         }
 
         return acquired;
@@ -188,12 +186,21 @@ public class InfoExporter {
         return init;
     }
 
-    private static Categories handleCategory(Category category) {
-        if (category == Genyo.COMBAT) return Categories.COMBAT;
-        else if (category == Genyo.MISC) return Categories.MISC;
-        else if (category == Genyo.MOVEMENT) return Categories.MOVEMENT;
-        else if (category == Genyo.VISUAL) return Categories.VISUAL;
-        else if (category == Genyo.WORLD) return Categories.WORLD;
+    private static Categories handleCategoryS2C(String category) {
+        if (category == "Combat") return Categories.COMBAT;
+        else if (category == "Misc") return Categories.MISC;
+        else if (category == "Movement") return Categories.MOVEMENT;
+        else if (category == "Visual") return Categories.VISUAL;
+        else if (category == "World") return Categories.WORLD;
+        else return null;
+    }
+
+    private static Category handleCategoryS2G(String category) {
+        if (category == "Combat") return Genyo.COMBAT;
+        else if (category == "Misc") return Genyo.MISC;
+        else if (category == "Movement") return Genyo.MOVEMENT;
+        else if (category == "Visual") return Genyo.VISUAL;
+        else if (category == "World") return Genyo.WORLD;
         else return null;
     }
 
