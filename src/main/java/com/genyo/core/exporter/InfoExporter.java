@@ -62,7 +62,6 @@ public class InfoExporter {
         output.put("categories", categories);
         output.put("modules", exportModules());
         output.put("systems", exportSystems());
-        output.put("huds", exportHuds());
 
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
@@ -103,6 +102,17 @@ public class InfoExporter {
             export.add(map);
         }
 
+        // Have huds be with modules
+        for (ExHUD hud : huds) {
+            Map<String, Object> map = new LinkedHashMap<>();
+
+            map.put("name", hud.name());
+            map.put("description", hud.description());
+            map.put("category", "Hud");
+
+            export.add(map);
+        }
+
         return export;
     }
 
@@ -121,7 +131,7 @@ public class InfoExporter {
         return export;
     }
 
-    private static List<Map<String, Object>> exportHuds() {
+    /*private static List<Map<String, Object>> exportHuds() {
         List<Map<String, Object>> export = new ArrayList<>();
 
         for (ExHUD hud : huds) {
@@ -134,7 +144,7 @@ public class InfoExporter {
         }
 
         return export;
-    }
+    }*/
 
     private static List<ExModule> acquireModules(String category) {
         List<ExModule> acquired = new ArrayList<>();
