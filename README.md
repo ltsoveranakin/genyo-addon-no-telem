@@ -57,8 +57,8 @@ Five categories of modules:
 
 <dl>
     <dt>Thanks to:</dt>
-    <dd>- meteor for being awesome</dd>
-    <dd>- Credit to <strong>"John Genyo"</strong>, the founder of <em>Genyo Corporations</em></dd>
-    <dd>- also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</dd>
-    <dd>- and other clients lol</dd>
+    <dd> - meteor for being awesome</dd>
+    <dd> - Credit to <strong>"John Genyo"</strong>, the founder of <em>Genyo Corporations</em></dd>
+    <dd> - also <a href="https://github.com/Skitttyy/shoreline-client">Shoreline</a> for being shorelineistic</dd>
+    <dd> - and other clients lol</dd>
 </dl>
