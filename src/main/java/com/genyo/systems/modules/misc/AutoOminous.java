@@ -11,7 +11,6 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.village.raid.Raid;
 import net.minecraft.village.raid.RaidManager;
 
@@ -30,24 +29,24 @@ public class AutoOminous extends GenyoModule {
     public void onTick(TickEvent.Pre event) {
         if (mc.player == null || mc.world == null || mc.interactionManager == null || mc.getServer() == null) return;
 
-        /*RaidManager raidManager = mc.getServer().getWorld(mc.player.getWorld().getRegistryKey()).getRaidManager();
+        RaidManager raidManager = mc.getServer().getWorld(mc.player.getWorld().getRegistryKey()).getRaidManager();
         if (raidManager == null) return;
 
         Raid raid = raidManager.getRaidAt(mc.player.getBlockPos(), 50);
         if (raid == null) return;
 
-        if (raid.hasWon()) {*/
-        if (mc.player.getActiveStatusEffects().containsKey(StatusEffects.HERO_OF_THE_VILLAGE)) {
-            if (!mc.player.getActiveStatusEffects().containsKey(StatusEffects.BAD_OMEN)) {
-                if (!drinking) {
-                    drinkPotion();
-                    lookForEffect = true;
+        if (raid.hasWon()) {
+            if (mc.player.getActiveStatusEffects().containsKey(StatusEffects.HERO_OF_THE_VILLAGE)) {
+                if (!mc.player.getActiveStatusEffects().containsKey(StatusEffects.BAD_OMEN)) {
+                    if (!drinking) {
+                        drinkPotion();
+                        lookForEffect = true;
+                    }
+                } else if (lookForEffect) {
+                    stopDrinking();
                 }
-            } else if (lookForEffect) {
-                stopDrinking();
             }
         }
-        /*}*/
     }
 
     private void drinkPotion() {

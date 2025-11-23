@@ -216,7 +216,7 @@ public class GenyoSelfTrap extends PlacerModule {
             return;
         }
 
-        if (!multitaskConfig.get() && checkMultitask()) {
+        if (!multitask.get() && checkMultitask()) {
             trap.clear();
             placements.clear();
             return;
@@ -347,7 +347,7 @@ public class GenyoSelfTrap extends PlacerModule {
     private void placeBlock(BlockPos pos, int slot)
     {
         if (!buggy.get()) {
-            Managers.INTERACT.placeBlock(pos, slot, strictDirectionConfig.get(), false, true, (state, angles) ->
+            Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
             {
                 if (rotate.get() && state) {
                     Managers.ROTATION.setRotationSilent(angles[0], angles[1]);

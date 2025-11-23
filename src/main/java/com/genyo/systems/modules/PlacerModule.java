@@ -30,15 +30,15 @@ public class PlacerModule extends GenyoModule {
         add(Blocks.ENDER_CHEST);
     }};
 
-    protected final Setting<Boolean> multitaskConfig = settings.getDefaultGroup().add(new BoolSetting.Builder()
-        .name("Multitask")
+    protected final Setting<Boolean> multitask = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("multitask")
         .description("Allows mining while using items")
         .defaultValue(false)
         .build()
     );
 
-    protected final Setting<Boolean> strictDirectionConfig = settings.getDefaultGroup().add(new BoolSetting.Builder()
-        .name("Strict Direction")
+    protected final Setting<Boolean> strictDirection = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("strict-direction")
         .description("Places on visible sides only")
         .defaultValue(false)
         .build()
