@@ -10,6 +10,7 @@
     "MixinItemUsageContext",
     "MixinKeyboardInput",
     "PlayerUtilsMixin",
+    "accessor.AccessorAnvilScreen",
     "accessor.AccessorBundlePacket",
     "accessor.AccessorClientPlayerInteractionManager",
     "accessor.AccessorClientWorld",
@@ -30,6 +31,7 @@
   },
   "mixins": [
     "MixinClientConnection",
+    "accessor.AccessorAnvilScreenHandler",
     "accessor.AccessorClientConnection",
     "accessor.AccessorEntityVelocityUpdateS2CPacket",
     "accessor.AccessorMinecraftClient",

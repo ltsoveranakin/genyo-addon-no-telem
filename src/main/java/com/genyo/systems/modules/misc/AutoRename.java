@@ -1,11 +1,16 @@
 package com.genyo.systems.modules.misc;
 
 import com.genyo.Genyo;
+import com.genyo.mixin.accessor.AccessorAnvilScreen;
+import com.genyo.mixin.accessor.AccessorAnvilScreenHandler;
 import com.genyo.systems.modules.GenyoModule;
 import com.genyo.utils.math.timer.TickTimer;
 import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.player.EXPThrower;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 import net.minecraft.component.DataComponentTypes;
@@ -14,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.sound.SoundEvents;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,117 +30,199 @@ public class AutoRename extends GenyoModule {
         super(Genyo.MISC, "auto-rename", "Can I talk my shit again?");
     }
 
-    private final List<Item> defaultItems = Arrays.asList(Items.SHULKER_BOX, Items.WHITE_SHULKER_BOX,
-        Items.LIGHT_GRAY_SHULKER_BOX, Items.GRAY_SHULKER_BOX, Items.BLACK_SHULKER_BOX, Items.BROWN_SHULKER_BOX, Items.RED_SHULKER_BOX, Items.ORANGE_SHULKER_BOX,
-        Items.YELLOW_SHULKER_BOX, Items.LIME_SHULKER_BOX, Items.GREEN_SHULKER_BOX, Items.CYAN_SHULKER_BOX, Items.LIGHT_BLUE_SHULKER_BOX, Items.BLUE_SHULKER_BOX,
-        Items.PURPLE_SHULKER_BOX, Items.PINK_SHULKER_BOX);
-
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
-    private final Setting<List<Item>> items = sgGeneral.add(new ItemListSetting.Builder()
-        .name("Items")
-        .description("Select items to rename")
-        .defaultValue(defaultItems)
+    private final Setting<List<Item>> itemList = settings.getDefaultGroup().add(new ItemListSetting.Builder()
+        .name("items")
+        .description("Items to automatically rename (or exclude from being renamed, if blacklist mode is enabled.)")
         .build()
     );
 
-    private final Setting<String> text = sgGeneral.add(new StringSetting.Builder()
-        .name("Text")
-        .description("Asd")
-        .defaultValue("Even if I don't hit again?")
+    private final Setting<String> itemName = settings.getDefaultGroup().add(new StringSetting.Builder()
+        .name("custom-name")
+        .description("The name you want to give to qualifying items.")
+        .defaultValue("")
+        .onChanged(name -> {
+            if (name.length() > AnvilScreenHandler.MAX_NAME_LENGTH) {
+                sendError("Custom name exceeds max accepted length!");
+            }
+        })
         .build()
     );
 
-    private final Setting<Integer> tickDelay = sgGeneral.add(new IntSetting.Builder()
-        .name("Tick Delay")
-        .description("Dawg, are you fucking kidding?")
-        .min(0)
-        .defaultValue(10)
-        .max(20)
-        .build()
-    );
-
-    private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
-        .name("Chat Feedback")
-        .description("Gives you a sweet message when it's done")
+    private final Setting<Boolean> blacklistMode = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("blacklist-mode")
+        .description("Rename all items except the ones selected in the Items list.")
         .defaultValue(false)
         .build()
     );
 
-    private final Timer delayTimer = new TickTimer();
+    private final Setting<Boolean> renameNamed = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("rename-prenamed")
+        .description("Rename items which already have a different custom name.")
+        .defaultValue(false)
+        .build()
+    );
 
-    @EventHandler
-    public void onTick(TickEvent.Pre event) {
-        if (mc.player == null || mc.world == null || mc.interactionManager == null ||
-        !(mc.currentScreen instanceof AnvilScreen anvilScreen)) return;
+    private final Setting<Boolean> muteAnvils = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("mute-anvils")
+        .defaultValue(true)
+        .build()
+    );
 
-        if (!delayTimer.passed(tickDelay.get())) return;
+    private final Setting<Boolean> pingOnDone = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("sound-ping")
+        .description("Play a sound cue when no more items can be renamed.")
+        .defaultValue(true)
+        .build()
+    );
 
-        if (mc.player.experienceLevel <= 0 && !mc.player.isCreative()) {
-            if (debug.get()) sendError("Not enough XP level.");
-            return;
-        }
+    private final Setting<Double> pingVolume = settings.getDefaultGroup().add(new DoubleSetting.Builder()
+        .name("ping-volume")
+        .sliderMin(0.0)
+        .sliderMax(5.0)
+        .defaultValue(1.0)
+        .build()
+    );
 
-        final AnvilScreenHandler screenHandler = anvilScreen.getScreenHandler();
-        if (!screenHandler.getSlot(1).getStack().isEmpty()) {
-            moveToEmptySlot(screenHandler, 1);
-            return;
-        }
-        if (!screenHandler.getSlot(0).getStack().isEmpty()) {
-            moveToEmptySlot(screenHandler, 0);
-            return;
-        }
-        if (!screenHandler.getSlot(2).getStack().isEmpty()) {
-            moveToEmptySlot(screenHandler, 2);
-            return;
-        }
+    private final Setting<Boolean> closeOnDone = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("close-anvil")
+        .description("Automatically close the anvil screen when no more items can be renamed.")
+        .defaultValue(true)
+        .build()
+    );
 
-        AnvilScreenHandler handler = (AnvilScreenHandler) mc.player.currentScreenHandler;
+    private final Setting<Boolean> disableOnDone = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("disable-on-done")
+        .description("Automatically disable the module when no more items can be renamed.")
+        .defaultValue(false)
+        .build()
+    );
 
-        for (int i = 3; i < 36 + 3; i++)
-        {
-            final ItemStack itemStack = screenHandler.getSlot(i).getStack();
+    private final Setting<Boolean> enableExpThrower = settings.getDefaultGroup().add(new BoolSetting.Builder()
+        .name("enable-exp-thrower")
+        .description("Automatically enable the Exp Thrower module when no more items can be renamed.")
+        .defaultValue(false)
+        .build()
+    );
 
-            if (itemStack.isEmpty() || equalsName(itemStack, text.get())) continue;
+    private final Setting<Integer> tickRate = settings.getDefaultGroup().add(new IntSetting.Builder()
+        .name("tick-rate")
+        .min(0).max(1000)
+        .sliderRange(0, 100)
+        .defaultValue(0)
+        .build()
+    );
 
-            if (!items.get().contains(itemStack.getItem())) continue;
+    private int timer = 0;
+    private boolean notified = false;
+    private static final int ANVIL_OFFSET = 3;
 
-            final String name = (!text.get().trim().isEmpty() ? text.get() : "");
-            mc.interactionManager.clickSlot(screenHandler.syncId, i, 0, SlotActionType.PICKUP, mc.player);
-            mc.interactionManager.clickSlot(screenHandler.syncId, screenHandler.getSlot(0).id, 0, SlotActionType.PICKUP, mc.player);
+    public boolean shouldMute() { return muteAnvils.get(); }
 
-            ((AnvilScreen) mc.currentScreen).nameField.setText(name);
-            handler.updateToClient();
-            handler.updateResult();
-
-            if (debug.get()) sendInfo("Successfully renamed item in slot: " + i + ".");
-
-            mc.interactionManager.clickSlot(screenHandler.syncId, screenHandler.getSlot(2).id, 0, SlotActionType.PICKUP, mc.player);
-            mc.interactionManager.clickSlot(screenHandler.syncId, i, 0, SlotActionType.PICKUP, mc.player);
-            break;
-        }
-        delayTimer.reset();
-    }
-
-    private void moveToEmptySlot(final AnvilScreenHandler screenHandler, final int slot) {
-        if (mc.interactionManager == null) return;
-
-        for (int i = 3; i < 36 + 3; i++) {
-            final ItemStack itemStack = screenHandler.getSlot(i).getStack();
-            if (itemStack.isEmpty()) {
-                mc.interactionManager.clickSlot(screenHandler.syncId, screenHandler.getSlot(slot).id, 0, SlotActionType.PICKUP, mc.player);
-                mc.interactionManager.clickSlot(screenHandler.syncId, i, 0, SlotActionType.PICKUP, mc.player);
-                return;
+    private boolean hasValidItems(AnvilScreenHandler handler) {
+        if (mc.player == null) return false;
+        for (int n = 0; n < mc.player.getInventory().main.size() + ANVIL_OFFSET; n++) {
+            if (n == 2) continue;
+            ItemStack stack = handler.getSlot(n).getStack();
+            if ((blacklistMode.get() && !itemList.get().contains(stack.getItem()))
+                || (!blacklistMode.get() && itemList.get().contains(stack.getItem())))
+            {
+                if (itemName.get().isBlank() && stack.contains(DataComponentTypes.CUSTOM_NAME)) return true;
+                else if (!stack.getName().getString().equals(itemName.get())) return true;
             }
         }
-        mc.interactionManager.clickSlot(screenHandler.syncId, screenHandler.getSlot(slot).id, 0, SlotActionType.THROW, mc.player);
+        return false;
     }
 
-    private boolean equalsName(final ItemStack itemStack, final String itemName) {
-        if (itemName.trim().isEmpty()) {
-            return itemStack.get(DataComponentTypes.CUSTOM_NAME) == null;
+    private void noXP() {
+        if (mc.player == null) return;
+        if (!notified) {
+            sendError("Not enough experience!");
+            if (pingOnDone.get()) mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
+        }
+
+        notified = true;
+        if (closeOnDone.get()) mc.player.closeHandledScreen();
+        if (disableOnDone.get()) this.toggle();
+        if (enableExpThrower.get() && !Modules.get().isActive(EXPThrower.class)) Modules.get().get(EXPThrower.class).toggle();
+    }
+
+    private void finished() {
+        if (mc.player == null) return;
+        if (!notified) {
+            sendError("No more items to rename§a..!");
+            if (pingOnDone.get()) mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
+        }
+
+        notified = true;
+        if (closeOnDone.get()) mc.player.closeHandledScreen();
+        if (disableOnDone.get()) this.toggle();
+    }
+
+    @Override
+    public void onDeactivate() {
+        timer = 0;
+        notified = false;
+    }
+
+    @EventHandler
+    private void onTick(TickEvent.Post event) {
+        if (mc.player == null) return;
+
+        if (mc.currentScreen == null) {
+            notified = false;
+            return;
+        }
+
+        if (!(mc.currentScreen instanceof AnvilScreen anvilScreen)) return;
+        if (!(mc.player.currentScreenHandler instanceof AnvilScreenHandler anvil)) return;
+
+        if (timer < tickRate.get()) {
+            timer++;
+            return;
         } else {
-            return itemStack.getName().getString().equals(itemName);
+            timer = 0;
+        }
+
+        ItemStack input1 = anvil.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack();
+        ItemStack input2 = anvil.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack();
+        ItemStack output = anvil.getSlot(AnvilScreenHandler.OUTPUT_ID).getStack();
+
+        if (!hasValidItems(anvil)) finished();
+        else if (input1.isEmpty() && input2.isEmpty()) {
+            for (int n = ANVIL_OFFSET; n < mc.player.getInventory().main.size() + ANVIL_OFFSET; n++) {
+                ItemStack stack = anvil.getSlot(n).getStack();
+                if (stack.contains(DataComponentTypes.CUSTOM_NAME) && !renameNamed.get()) continue;
+                else if (stack.getName().getString().equals(itemName.get())) continue;
+                else if (itemName.get().isBlank() && !stack.contains(DataComponentTypes.CUSTOM_NAME)) continue;
+                if ((blacklistMode.get() && !itemList.get().contains(stack.getItem()))
+                    || (!blacklistMode.get() && itemList.get().contains(stack.getItem())))
+                {
+                    InvUtils.shiftClick().slotId(n);
+                    ((AccessorAnvilScreen) anvilScreen).getNameField().setText(itemName.get());
+                    ItemStack check = anvil.getSlot(AnvilScreenHandler.OUTPUT_ID).getStack();
+                    if (itemList.get().contains(check.getItem())) {
+                        if (check.getName().getString().equals(itemName.get()) || (itemName.get().isBlank() && stack.contains(DataComponentTypes.CUSTOM_NAME))) {
+                            int cost = ((AccessorAnvilScreenHandler) anvil).getLevelCost().get();
+                            if (mc.player.experienceLevel >= cost) {
+                                InvUtils.shiftClick().slotId(AnvilScreenHandler.OUTPUT_ID);
+                            } else noXP();
+                            return;
+                        }
+                    }
+                }
+            }
+            finished();
+        } else if (!output.isEmpty() && itemList.get().contains(output.getItem())) {
+            if (output.getName().getString().equals(itemName.get()) || (itemName.get().isBlank() && input1.contains(DataComponentTypes.CUSTOM_NAME))) {
+                int cost = ((AccessorAnvilScreenHandler) anvil).getLevelCost().get();
+                if (mc.player.experienceLevel >= cost) {
+                    InvUtils.shiftClick().slotId(AnvilScreenHandler.OUTPUT_ID);
+                } else noXP();
+            }
+        } else if (!input2.isEmpty()) {
+            InvUtils.shiftClick().slotId(AnvilScreenHandler.INPUT_2_ID);
+        } else if (output.isEmpty()) {
+            InvUtils.shiftClick().slotId(AnvilScreenHandler.INPUT_1_ID);
         }
     }
 

@@ -160,9 +160,8 @@ public class Genyo extends MeteorAddon {
         modules.add(new NoPacketKick());
         modules.add(new AntiLadder());
         modules.add(new AutoBrainrot());
-        //modules.add(new AutoRename());
         modules.add(new GenyoNoSlow());
-        modules.add(new TsunodaBlinker());
+        //modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());
         modules.add(new GenyoNametags());
         //modules.add(new AutoOminous());
@@ -171,6 +170,8 @@ public class Genyo extends MeteorAddon {
         modules.add(new AutoWeb());
         modules.add(new AutoCrawlTrap());
         modules.add(new BasePlace());
+        modules.add(new AutoRename());
+        modules.add(new FriendProtector());
     }
 
     private void initHUD(Hud hud) {
