@@ -27,6 +27,7 @@ import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
+import meteordevelopment.meteorclient.utils.render.color.RainbowColor;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -430,6 +431,9 @@ public class GenyoNametags extends GenyoModule {
 
         if (player == mc.player) name = Modules.get().get(NameProtect.class).getName(player.getName().getString());
         else name = player.getName().getString();
+
+        // genyo esp
+        if (name == "wuritz" || name == "Barnika18") nameColor = new RainbowColor();
 
         // Health
         float absorption = player.getAbsorptionAmount();

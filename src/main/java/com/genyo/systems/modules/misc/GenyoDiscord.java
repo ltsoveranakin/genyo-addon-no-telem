@@ -1,9 +1,10 @@
 package com.genyo.systems.modules.misc;
 
+import com.ferra13671.discordipc.DiscordIPC;
+import com.ferra13671.discordipc.activity.Button;
+import com.ferra13671.discordipc.activity.RichPresence;
 import com.genyo.Genyo;
 import com.genyo.systems.modules.GenyoModule;
-import meteordevelopment.discordipc.DiscordIPC;
-import meteordevelopment.discordipc.RichPresence;
 import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.gui.GuiTheme;
@@ -97,7 +98,9 @@ public class GenyoDiscord extends GenyoModule {
         .build()
     );
 
+    // New RPC using com.ferra13671.discordipc
     private static final RichPresence rpc = new RichPresence();
+
     private SmallImage currentSmallImage;
     private int ticks;
     private boolean forceUpdate, lastWasInMainMenu;
@@ -110,18 +113,13 @@ public class GenyoDiscord extends GenyoModule {
 
     public static final List<Pair<String, String>> customStates = new ArrayList<>();
 
-    static {
-        //registerCustomState("com.terraformersmc.modmenu.gui", "Browsing mods");
-        //registerCustomState("me.jellysquid.mods.sodium.client", "Changing options");
-    }
-
     public GenyoDiscord() {
-        super(Genyo.MISC, "genyo-discord", "this one is superior to the original module because its genyo");
+        super(Genyo.MISC, "genyo-discord", "Genyo Discord RPC for you to show off.");
 
         runInMainMenu = true;
+        currentSmallImage = SmallImage.Hulkenberg;
     }
 
-    /** Registers a custom state to be used when the current screen is a class in the specified package. */
     public static void registerCustomState(String packageName, String state) {
         for (var pair : customStates) {
             if (pair.getLeft().equals(packageName)) {
@@ -133,7 +131,6 @@ public class GenyoDiscord extends GenyoModule {
         customStates.add(new Pair<>(packageName, state));
     }
 
-    /** The package name must match exactly to the one provided through {@link #registerCustomState(String, String)}. */
     public static void unregisterCustomState(String packageName) {
         customStates.removeIf(pair -> pair.getLeft().equals(packageName));
     }
@@ -142,12 +139,21 @@ public class GenyoDiscord extends GenyoModule {
     public void onActivate() {
         if (Modules.get().isActive(DiscordPresence.class)) Modules.get().get(DiscordPresence.class).toggle();
 
-        DiscordIPC.start(1398651352933994607L, () -> {});
-
-        rpc.setStart(System.currentTimeMillis() / 1000L);
+        if (!DiscordIPC.start(1398651352933994607L, () -> {})) {
+            return;
+        }
 
         String largeText = "%s".formatted(Genyo.NAME);
-        rpc.setLargeImage("genyo", largeText);
+
+        rpc.update(activity -> activity
+            .setLargeImage("genyo")
+            .setLargeText(largeText)
+        );
+
+        // button
+        rpc.update(activity -> activity
+            .setButtons(new Button("Website", "https://genyo.dev"))
+        );
 
         currentSmallImage = SmallImage.Hulkenberg;
 
@@ -161,6 +167,8 @@ public class GenyoDiscord extends GenyoModule {
 
         line1I = 0;
         line2I = 0;
+
+        DiscordIPC.setRichPresence(rpc);
     }
 
     @Override
@@ -187,11 +195,19 @@ public class GenyoDiscord extends GenyoModule {
         recompile(line2Strings.get(), line2Scripts);
     }
 
+    private void setDetails(String details) {
+        rpc.update(activity -> activity.setDetails(details));
+    }
+
+    private void setState(String state) {
+        rpc.update(activity -> activity.setState(state));
+    }
+
     @EventHandler
     private void onTick(TickEvent.Post event) {
         boolean update = false;
 
-        // Image
+        // image
         if (ticks >= 200 || forceUpdate) {
             currentSmallImage = currentSmallImage.next();
             currentSmallImage.apply();
@@ -202,7 +218,7 @@ public class GenyoDiscord extends GenyoModule {
         else ticks++;
 
         if (Utils.canUpdate()) {
-            // Line 1
+            // line 1
             if (line1Ticks >= line1UpdateDelay.get() || forceUpdate) {
                 if (!line1Scripts.isEmpty()) {
                     int i = Utils.random(0, line1Scripts.size());
@@ -212,14 +228,14 @@ public class GenyoDiscord extends GenyoModule {
                     }
 
                     String message = MeteorStarscript.run(line1Scripts.get(i));
-                    if (message != null) rpc.setDetails(message);
+                    if (message != null) setDetails(message);
                 }
                 update = true;
 
                 line1Ticks = 0;
             } else line1Ticks++;
 
-            // Line 2
+            // line 2
             if (line2Ticks >= line2UpdateDelay.get() || forceUpdate) {
                 if (!line2Scripts.isEmpty()) {
                     int i = Utils.random(0, line2Scripts.size());
@@ -229,7 +245,7 @@ public class GenyoDiscord extends GenyoModule {
                     }
 
                     String message = MeteorStarscript.run(line2Scripts.get(i));
-                    if (message != null) rpc.setState(message);
+                    if (message != null) setState(message);
                 }
                 update = true;
 
@@ -238,41 +254,40 @@ public class GenyoDiscord extends GenyoModule {
         }
         else {
             if (!lastWasInMainMenu) {
-                rpc.setDetails("Genyo Addon");
+                setDetails("Genyo Addon");
 
-                if (mc.currentScreen instanceof TitleScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof SelectWorldScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof CreateWorldScreen || mc.currentScreen instanceof EditGameRulesScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof EditWorldScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof LevelLoadingScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof MultiplayerScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof AddServerScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof ConnectScreen || mc.currentScreen instanceof DirectConnectScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof WidgetScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof OptionsScreen || mc.currentScreen instanceof SkinOptionsScreen || mc.currentScreen instanceof SoundOptionsScreen || mc.currentScreen instanceof VideoOptionsScreen || mc.currentScreen instanceof ControlsOptionsScreen || mc.currentScreen instanceof LanguageOptionsScreen || mc.currentScreen instanceof ChatOptionsScreen || mc.currentScreen instanceof PackScreen || mc.currentScreen instanceof AccessibilityOptionsScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof CreditsScreen) rpc.setState("Brasil Hulkenberg");
-                else if (mc.currentScreen instanceof RealmsScreen) rpc.setState("Brasil Hulkenberg");
+                if (mc.currentScreen instanceof TitleScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof SelectWorldScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof CreateWorldScreen || mc.currentScreen instanceof EditGameRulesScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof EditWorldScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof LevelLoadingScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof MultiplayerScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof AddServerScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof ConnectScreen || mc.currentScreen instanceof DirectConnectScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof WidgetScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof OptionsScreen || mc.currentScreen instanceof SkinOptionsScreen || mc.currentScreen instanceof SoundOptionsScreen || mc.currentScreen instanceof VideoOptionsScreen || mc.currentScreen instanceof ControlsOptionsScreen || mc.currentScreen instanceof LanguageOptionsScreen || mc.currentScreen instanceof ChatOptionsScreen || mc.currentScreen instanceof PackScreen || mc.currentScreen instanceof AccessibilityOptionsScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof CreditsScreen) setState("Brasil Hulkenberg");
+                else if (mc.currentScreen instanceof RealmsScreen) setState("Brasil Hulkenberg");
                 else {
                     boolean setState = false;
                     if (mc.currentScreen != null) {
                         String className = mc.currentScreen.getClass().getName();
                         for (var pair : customStates) {
                             if (className.startsWith(pair.getLeft())) {
-                                rpc.setState(pair.getRight());
+                                setState(pair.getRight());
                                 setState = true;
                                 break;
                             }
                         }
                     }
-                    if (!setState) rpc.setState("Brasil Hulkenberg");
+                    if (!setState) setState("Brasil Hulkenberg");
                 }
 
                 update = true;
             }
         }
 
-        // Update
-        if (update) DiscordIPC.setActivity(rpc);
+        if (update) DiscordIPC.setRichPresence(rpc);
         forceUpdate = false;
         lastWasInMainMenu = !Utils.canUpdate();
     }
@@ -302,7 +317,10 @@ public class GenyoDiscord extends GenyoModule {
         }
 
         void apply() {
-            rpc.setSmallImage(key, text);
+            rpc.update(activity -> activity
+                .setSmallImage(key)
+                .setSmallText(text)
+            );
         }
 
         SmallImage next() {

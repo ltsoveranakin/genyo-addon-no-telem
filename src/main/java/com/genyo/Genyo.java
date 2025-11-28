@@ -3,6 +3,8 @@ package com.genyo;
 import com.genyo.commands.ExportCommand;
 import com.genyo.core.Core;
 import com.genyo.commands.EnemiesCommand;
+import com.genyo.core.stats.ClientIdManager;
+import com.genyo.core.stats.WebStats;
 import com.genyo.systems.config.GenyoConfig;
 import com.genyo.systems.config.GenyoTab;
 import com.genyo.systems.hud.*;
@@ -35,6 +37,7 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +63,8 @@ public class Genyo extends MeteorAddon {
     public static final Version VERSION;
 
     public static Core core;
+    public static String clientId;
+    private static WebStats STATS;
 
     static {
         MOD_META = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata();
@@ -110,6 +115,14 @@ public class Genyo extends MeteorAddon {
         CATEGORIES.add(WORLD);
 
         core = new Core();
+
+        Path configDir = FabricLoader.getInstance().getConfigDir();
+        clientId = ClientIdManager.getClientId(configDir);
+        LOG.info("Client ID: {}", clientId);
+        STATS = new WebStats(clientId);
+
+        STATS.sendLogin();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> STATS.sendLogout()));
     }
 
     private void initTabs() {

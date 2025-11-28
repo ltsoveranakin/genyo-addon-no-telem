@@ -24,6 +24,10 @@ repositories {
         name = "Meteor Dev Snapshots"
         url = "https://maven.meteordev.org/snapshots"
     }
+    maven {
+        name = "ferra13671-maven"
+        url = "https://ferra13671.github.io/maven/"
+    }
 }
 
 dependencies {
@@ -39,6 +43,9 @@ dependencies {
     // SnakeYaml
     implementation 'org.yaml:snakeyaml:2.2'
     include 'org.yaml:snakeyaml:2.2'
+
+    implementation "com.ferra13671:discord-ipc:1.2"
+    include 'com.ferra13671:discord-ipc:1.2'
 }
 
 tasks {
