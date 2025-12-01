@@ -35,14 +35,7 @@ International version: **Genyo Addon**<br>
 
 ## Features ✨
 
-📋 Check out the [full list of features](https://genyo.dev/features) on our website. 📋
-
-Five categories of modules:
-- Combat
-- Miscellaneous
-- Movement
-- Visual
-- World
+📋 Check out the [full list of modules](https://genyo.dev/#modules) on our website. 📋
 
 ## Problem?
 
