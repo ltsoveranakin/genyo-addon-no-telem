@@ -11,10 +11,7 @@ import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
 import com.genyo.systems.modules.movement.*;
-import com.genyo.systems.modules.visual.AngelSexHulkenberg;
-import com.genyo.systems.modules.visual.GenyoCapes;
-import com.genyo.systems.modules.visual.GenyoNametags;
-import com.genyo.systems.modules.visual.PenisESP;
+import com.genyo.systems.modules.visual.*;
 import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.managers.Managers;
 import com.genyo.systems.enemies.Enemies;
@@ -185,6 +182,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new BasePlace());
         modules.add(new AutoRename());
         modules.add(new FriendProtector());
+        modules.add(new Parkinsons());
     }
 
     private void initHUD(Hud hud) {
