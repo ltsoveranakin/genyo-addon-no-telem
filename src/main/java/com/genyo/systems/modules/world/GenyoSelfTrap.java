@@ -31,10 +31,7 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -42,6 +39,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.*;
+
 
 public class GenyoSelfTrap extends PlacerModule {
 
@@ -125,7 +123,22 @@ public class GenyoSelfTrap extends PlacerModule {
         .defaultValue(false)
         .build()
     );
+    private final Setting<Boolean> mineProtect = sgGeneral.add(new BoolSetting.Builder()
+        .name("Mine Protect")
+        .description("Places a block on surround when an enemy mines past a set threshold")
+        .defaultValue(false)
+        .build()
+    );
 
+    private final Setting<Float> mineProtectThreshold = sgGeneral.add(new FloatSetting.Builder()
+        .name("Mine Threshold")
+        .description("Mining progress % at which to place a protective block (0-100)")
+        .defaultValue(50.0f)
+        .min(0.0f)
+        .max(100.0f)
+        .visible(() -> mineProtect.get())
+        .build()
+    );
     private final Setting<Boolean> support = sgGeneral.add(new BoolSetting.Builder()
         .name("Support")
         .description("Creates a floor for the trap if there is none")
@@ -187,6 +200,8 @@ public class GenyoSelfTrap extends PlacerModule {
     private List<BlockPos> placements = new ArrayList<>();
     private final Map<BlockPos, Long> packets = new HashMap<>();
     private final Map<BlockPos, Animation> fadeList = new HashMap<>();
+    private final Map<Integer, long[]> mineProgress = new HashMap<>();
+    private final Map<BlockPos, Long> mineProtectCooldown = new HashMap<>();
     private double prevY;
 
     @Override
@@ -202,6 +217,8 @@ public class GenyoSelfTrap extends PlacerModule {
         placements.clear();
         packets.clear();
         fadeList.clear();
+        mineProgress.clear();
+        mineProtectCooldown.clear();
     }
 
     @EventHandler
@@ -280,6 +297,39 @@ public class GenyoSelfTrap extends PlacerModule {
 
     private void handlePackets(Packet<?> serverPacket)
     {
+        if (serverPacket instanceof BlockBreakingProgressS2CPacket packet && mineProtect.get()) {
+            BlockPos minedPos = packet.getPos();
+            int entityId = packet.getEntityId();
+            int stage = packet.getProgress();
+
+            if (stage < 0) {
+                mineProgress.remove(entityId);
+                return;
+            }
+
+            if (!trap.contains(minedPos)) return;
+
+            float progressPercent = (stage / 9.0f) * 100.0f;
+            long[] prev = mineProgress.get(entityId);
+            float prevPercent = (prev != null) ? (prev[1] / 9.0f) * 100.0f : 0.0f;
+
+            mineProgress.put(entityId, new long[]{minedPos.asLong(), stage});
+
+            if (prevPercent < mineProtectThreshold.get() && progressPercent >= mineProtectThreshold.get()) {
+                Long lastReact = mineProtectCooldown.get(minedPos);
+                if (lastReact != null && System.currentTimeMillis() - lastReact < 500) return;
+
+                final int slot = getResistantBlockItem();
+                if (slot == -1) return;
+
+                for (BlockPos adjacent : getAdjacentPlacements(minedPos)) {
+                    placeBlock(adjacent, slot);
+                }
+                mineProtectCooldown.put(minedPos, System.currentTimeMillis());
+            }
+            return;
+        }
+
         if (timing.get() != Timing.SEQUENTIAL) return;
 
         if (serverPacket instanceof BlockUpdateS2CPacket packet)
@@ -291,10 +341,7 @@ public class GenyoSelfTrap extends PlacerModule {
                 if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
                 {
                     final int slot = getResistantBlockItem();
-                    if (slot == -1)
-                    {
-                        return;
-                    }
+                    if (slot == -1) return;
                     placeBlock(targetPos, slot);
                 }
                 else if (BlastResistantBlocks.isBlastResistant(blockState))
@@ -304,10 +351,7 @@ public class GenyoSelfTrap extends PlacerModule {
             }
         }
 
-        if (blocksPlaced > shiftTicks.get() * 2) // Give some leniency if we are getting place on
-        {
-            return;
-        }
+        if (blocksPlaced > shiftTicks.get() * 2) return;
 
         if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosion.get())
         {
@@ -315,10 +359,7 @@ public class GenyoSelfTrap extends PlacerModule {
             if (trap.contains(pos))
             {
                 final int slot = getResistantBlockItem();
-                if (slot == -1)
-                {
-                    return;
-                }
+                if (slot == -1) return;
                 placeBlock(pos, slot);
             }
         }
@@ -328,22 +369,31 @@ public class GenyoSelfTrap extends PlacerModule {
         {
             for (BlockPos pos : trap)
             {
-                if (!pos.equals(BlockPos.ofFloored(packet.getX(), packet.getY(), packet.getZ())))
-                {
-                    continue;
-                }
+                if (!pos.equals(BlockPos.ofFloored(packet.getX(), packet.getY(), packet.getZ()))) continue;
 
                 final int slot = getResistantBlockItem();
-                if (slot == -1)
-                {
-                    return;
-                }
+                if (slot == -1) return;
                 placeBlock(pos, slot);
                 break;
             }
         }
     }
 
+    private List<BlockPos> getAdjacentPlacements(BlockPos minedPos)
+    {
+        List<BlockPos> result = new ArrayList<>();
+        for (Direction dir : Direction.values())
+        {
+            BlockPos adjacent = minedPos.offset(dir);
+
+            if (adjacent.equals(mc.player.getBlockPos()) || adjacent.equals(mc.player.getBlockPos().up())) continue;
+            if (!mc.world.getBlockState(adjacent).isReplaceable()) continue;
+            if (!mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, adjacent, ShapeContext.absent())) continue;
+
+            result.add(adjacent);
+        }
+        return result;
+    }
     private void placeBlock(BlockPos pos, int slot)
     {
         if (!buggy.get()) {
@@ -356,6 +406,7 @@ public class GenyoSelfTrap extends PlacerModule {
         } else {
             if (InvUtils.findInHotbar(Items.OBSIDIAN).slot() == -1) return;
 
+            Managers.INVENTORY.setSlot(slot);
             BlockUtils.place(pos, InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 0, true);
         }
         packets.put(pos, System.currentTimeMillis());

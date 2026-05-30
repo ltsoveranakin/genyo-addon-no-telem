@@ -23,7 +23,7 @@ public class Parkinsons extends GenyoModule {
     public void onActivate() {
         shouldFreeze = true;
 
-        storedPos = mc.player.getPos();
+        storedPos = mc.player.getEntityPos();
         storedYaw = mc.player.getYaw();
         storedPitch = mc.player.getPitch();
 
@@ -41,7 +41,7 @@ public class Parkinsons extends GenyoModule {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
-        Entity camera = mc.cameraEntity;
+        Entity camera = mc.getCameraEntity();
 
         Vec3d forward = Vec3d.fromPolar(0, camera.getYaw()).normalize();
         Vec3d right = new Vec3d(-forward.z, 0, forward.x).normalize();
@@ -56,7 +56,7 @@ public class Parkinsons extends GenyoModule {
 
         if (velocity.lengthSquared() > 0) {
             velocity = velocity.normalize().multiply(1);
-            Vec3d pos = camera.getPos();
+            Vec3d pos = camera.getEntityPos();
 
             camera.setPos(pos.x + velocity.x, pos.y + velocity.y, pos.z + velocity.z);
         }

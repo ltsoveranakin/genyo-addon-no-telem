@@ -66,7 +66,7 @@ public class TsunodaBlinker extends GenyoModule {
     {
         if (mc.player != null && render.get())
         {
-            serverModel = new FakePlayerEntity(mc.player, mc.player.getGameProfile().getName(), 20, true);
+            serverModel = new FakePlayerEntity(mc.player, mc.player.getGameProfile().name(), 20, true);
             serverModel.spawn();
             serverModel.setUuid(mc.player.getUuid());
         }

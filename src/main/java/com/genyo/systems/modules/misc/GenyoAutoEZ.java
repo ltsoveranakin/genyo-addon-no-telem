@@ -98,7 +98,7 @@ public class GenyoAutoEZ extends GenyoModule {
             if (packet.getStatus() == 35) {                                             //----Pop----//
                 Entity entity = packet.getEntity(mc.world);
                 if (mc.player != null && mc.world != null && entity instanceof PlayerEntity playerEntity) {
-                    if (entity != mc.player && mc.player.getPos().distanceTo(entity.getPos()) <= range.get()) {
+                    if (entity != mc.player && mc.player.getEntityPos().distanceTo(entity.getEntityPos()) <= range.get()) {
 
                         if (trackPlayers.get()) {
                             if (taggedPlayers.containsKey(playerEntity)) {

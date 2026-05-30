@@ -10,6 +10,15 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class SoundManager {
 
+    public static final Identifier GUI_HOVER_ID = Identifier.of("genyo:gui_hover");
+    public static final SoundEvent GUI_HOVER = SoundEvent.of(GUI_HOVER_ID);
+
+    public static final Identifier GUI_CLICK_LEFT_ID = Identifier.of("genyo:gui_click_left");
+    public static final SoundEvent GUI_CLICK_LEFT = SoundEvent.of(GUI_CLICK_LEFT_ID);
+
+    public static final Identifier GUI_CLICK_RIGHT_ID = Identifier.of("genyo:gui_click_right");
+    public static final SoundEvent GUI_CLICK_RIGHT = SoundEvent.of(GUI_CLICK_RIGHT_ID);
+
     public static final Identifier VINE_ID = Identifier.of("genyo:vine");
     public static final SoundEvent VINE = SoundEvent.of(VINE_ID);
 
@@ -31,6 +40,11 @@ public class SoundManager {
     public static final Identifier KIWI_ID = Identifier.of("genyo:kiwi");
     public static final SoundEvent KIWI = SoundEvent.of(KIWI_ID);
 
+    public void playUISound(SoundEvent sound, float volume, float pitch) {
+        mc.getSoundManager().play(
+            net.minecraft.client.sound.PositionedSoundInstance.master(sound, pitch, volume)
+        );
+    }
     public void playSound(SoundEvent sound) {
         if (mc.player != null && mc.world != null && GenyoConfig.get() != null) {
             mc.player.playSound(sound, (float) GenyoConfig.get().globalVolume.get() / 100f, 1f);
@@ -57,6 +71,9 @@ public class SoundManager {
         Registry.register(Registries.SOUND_EVENT, BLACK_ID, BLACK);
         Registry.register(Registries.SOUND_EVENT, KEYPRESS_ID, KEYPRESS);
         Registry.register(Registries.SOUND_EVENT, KIWI_ID, KIWI);
+        Registry.register(Registries.SOUND_EVENT, GUI_HOVER_ID, GUI_HOVER);
+        Registry.register(Registries.SOUND_EVENT, GUI_CLICK_LEFT_ID, GUI_CLICK_LEFT);
+        Registry.register(Registries.SOUND_EVENT, GUI_CLICK_RIGHT_ID, GUI_CLICK_RIGHT);
     }
 
 }

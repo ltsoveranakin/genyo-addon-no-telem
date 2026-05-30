@@ -17,7 +17,7 @@ import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.misc.NameProtect;
+import meteordevelopment.meteorclient.systems.modules.player.NameProtect;
 import meteordevelopment.meteorclient.systems.modules.render.Freecam;
 import meteordevelopment.meteorclient.systems.modules.render.Nametags;
 import meteordevelopment.meteorclient.utils.Utils;
@@ -339,7 +339,7 @@ public class GenyoNametags extends GenyoModule {
 
         boolean freecamNotActive = !Modules.get().isActive(Freecam.class);
         boolean notThirdPerson = mc.options.getPerspective().isFirstPerson();
-        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+        Vec3d cameraPos = mc.gameRenderer.getCamera().getCameraPos();
 
         for (Entity entity : mc.world.getEntities()) {
             EntityType<?> type = entity.getType();
@@ -479,7 +479,7 @@ public class GenyoNametags extends GenyoModule {
 
         double width = nameWidth;
 
-        boolean renderPlayerDistance = player != mc.cameraEntity || Modules.get().isActive(Freecam.class);
+        boolean renderPlayerDistance = player != mc.getCameraEntity() || Modules.get().isActive(Freecam.class);
 
         if (displayHealth.get()) width += healthWidth;
         if (displayGameMode.get()) width += gmWidth;
@@ -735,10 +735,10 @@ public class GenyoNametags extends GenyoModule {
     private ItemStack getItem(PlayerEntity entity, int index) {
         return switch (index) {
             case 0 -> entity.getMainHandStack();
-            case 1 -> entity.getInventory().armor.get(3);
-            case 2 -> entity.getInventory().armor.get(2);
-            case 3 -> entity.getInventory().armor.get(1);
-            case 4 -> entity.getInventory().armor.get(0);
+            case 1 -> entity.getInventory().getStack(39); // HEAD
+            case 2 -> entity.getInventory().getStack(38); // CHEST
+            case 3 -> entity.getInventory().getStack(37); // LEGS
+            case 4 -> entity.getInventory().getStack(36); // FEET
             case 5 -> entity.getOffHandStack();
             default -> ItemStack.EMPTY;
         };
@@ -747,7 +747,7 @@ public class GenyoNametags extends GenyoModule {
     private void drawBg(double x, double y, double width, double height) {
         Renderer2D.COLOR.begin();
         Renderer2D.COLOR.quad(x - 1, y - 1, width + 2, height + 2, background.get());
-        Renderer2D.COLOR.render(null);
+        Renderer2D.COLOR.render();
     }
 
     public enum Position {

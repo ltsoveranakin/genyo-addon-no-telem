@@ -4,7 +4,8 @@ import com.genyo.systems.modules.visual.GenyoCapes;
 import com.mojang.authlib.GameProfile;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.SkinTextures;
+import net.minecraft.entity.player.SkinTextures;
+import net.minecraft.util.AssetInfo;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,16 +25,37 @@ public abstract class MixinPlayerListEntry {
 
     @Inject(method = "getSkinTextures", at = @At("TAIL"), cancellable = true)
     private void getSkinTextures(CallbackInfoReturnable<SkinTextures> info) {
-        if (((profile.getName().equals(mc.player.getGameProfile().getName())
-            && profile.getId().equals(mc.player.getGameProfile().getId())))
-            && Modules.get().isActive(GenyoCapes.class)
-            && Modules.get().get(GenyoCapes.class).getCapeTexture() != null)
-        {
-            Identifier identifier = Modules.get().get(GenyoCapes.class).getCapeTexture();
-            SkinTextures texture = info.getReturnValue();
+        if (!Modules.get().isActive(GenyoCapes.class)) return;
 
-            info.setReturnValue(new SkinTextures(texture.texture(), texture.textureUrl(), identifier, identifier, texture.model(), texture.secure()));
+        GenyoCapes mod = Modules.get().get(GenyoCapes.class);
+        String name = profile.name();
+
+        boolean isSelf = name.equals(mc.player.getGameProfile().name())
+            && profile.id().equals(mc.player.getGameProfile().id());
+        boolean isDev = mod.isDev(name);
+
+        if (!isDev && !isSelf && !mod.everyoneConfig.get()) return;
+
+        Identifier textureId;
+        Identifier texturePath;
+
+        if (isDev) {
+            textureId = Identifier.of("genyo", "cape_dev");
+            texturePath = Identifier.of("genyo", "textures/cape_dev.png");
+        } else {
+            textureId = Identifier.of("genyo", "cape");
+            texturePath = Identifier.of("genyo", "textures/cape.png");
         }
-    }
 
+        SkinTextures original = info.getReturnValue();
+        AssetInfo.TextureAssetInfo capeAsset = new AssetInfo.TextureAssetInfo(textureId, texturePath);
+
+        info.setReturnValue(new SkinTextures(
+            original.body(),
+            capeAsset,
+            capeAsset,
+            original.model(),
+            original.secure()
+        ));
+    }
 }

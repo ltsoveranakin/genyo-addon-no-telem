@@ -63,7 +63,7 @@ public class GenyoWelcome extends GenyoModule {
         if (mc.player == null && mc.world == null) return;
         onlinePlayers.clear();
         mc.getNetworkHandler().getPlayerList().iterator().forEachRemaining(p -> {
-            if (p.getProfile() != null) onlinePlayers.add(p.getProfile().getId());
+            if (p.getProfile() != null) onlinePlayers.add(p.getProfile().id());
         });
     }
 
@@ -96,9 +96,9 @@ public class GenyoWelcome extends GenyoModule {
                 GameProfile profile = entry.profile();
                 if (profile == null) return;
 
-                String name = profile.getName();
+                String name = profile.name();
                 if (!namesList.contains(name)) return;
-                UUID playerUuid = profile.getId();
+                UUID playerUuid = profile.id();
 
                 if (!pac.getActions().contains(PlayerListS2CPacket.Action.ADD_PLAYER)
                     && playerUuid != null && !onlinePlayers.contains(playerUuid)) return;

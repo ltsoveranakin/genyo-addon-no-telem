@@ -43,7 +43,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         super(client, connection, connectionState);
     }
 
-    @Inject(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
+    @Inject(method = "onExplosion", at = @At("HEAD"))
     private void onExplosionVelocity(ExplosionS2CPacket packet, CallbackInfo ci) {
         GenyoVelocity velocity = Modules.get().get(GenyoVelocity.class);
         if (velocity.explosionConfig.get()) {

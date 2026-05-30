@@ -22,7 +22,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 public class MixinEntity {
 
     @Shadow
-    public float fallDistance;
+    public double fallDistance;
 
     @Shadow protected Vec3d movementMultiplier;
 
@@ -55,7 +55,7 @@ public class MixinEntity {
         MeteorClient.EVENT_BUS.post(slowMovementEvent);
         if (slowMovementEvent.isCancelled()) {
             ci.cancel();
-            this.fallDistance = 0.0f;
+            this.fallDistance = 0.0;
             this.movementMultiplier = multiplier.multiply(slowMovementEvent.multiplier);
         }
     }

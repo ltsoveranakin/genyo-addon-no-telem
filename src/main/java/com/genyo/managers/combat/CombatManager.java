@@ -23,9 +23,6 @@ public class CombatManager {
 
     public HashMap<String, Integer> popList = new HashMap<>();
 
-    //
-     //wfsdfdsf
-
     @EventHandler
     private void onAttackEntity(AttackEntityEvent event) {
         if (mc.player == null && mc.world == null) return;

@@ -220,7 +220,7 @@ public class GenyoAutoTotem extends GenyoModule {
             // If offhand gap is enabled & the use key is pressed down, equip a golden apple.
             final Item mainHandItem = mc.player.getMainHandStack().getItem();
             if (gappleConfig.get() && mc.options.useKey.isPressed()
-                && (mainHandItem instanceof SwordItem
+                && (mc.player.getMainHandStack().isIn(ItemTags.SWORDS)
                 || mainHandItem instanceof TridentItem
                 || mainHandItem instanceof AxeItem)
                 && PlayerUtil.getLocalPlayerHealth() >= healthConfig.get())
@@ -366,7 +366,7 @@ public class GenyoAutoTotem extends GenyoModule {
             {
                 continue;
             }
-            double potential = ExplosionUtil.getDamageTo(mc.player, crystal.getPos(), false);
+            double potential = ExplosionUtil.getDamageTo(mc.player, crystal.getEntityPos(), false);
             if (health + 0.5 > potential)
             {
                 continue;

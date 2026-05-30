@@ -38,9 +38,9 @@ public class Interpolation {
      */
     public static Vec3d getInterpolatedPosition(Entity entity, float tickDelta)
     {
-        return new Vec3d(entity.prevX + ((entity.getX() - entity.prevX) * tickDelta),
-            entity.prevY + ((entity.getY() - entity.prevY) * tickDelta),
-            entity.prevZ + ((entity.getZ() - entity.prevZ) * tickDelta));
+        return new Vec3d(entity.lastX + ((entity.getX() - entity.lastX) * tickDelta),
+            entity.lastY + ((entity.getY() - entity.lastY) * tickDelta),
+            entity.lastZ + ((entity.getZ() - entity.lastZ) * tickDelta));
     }
 
     /**
@@ -73,7 +73,7 @@ public class Interpolation {
     public static Box getInterpolatedBox(Box prevBox, Box box)
     {
 
-        double delta = mc.isPaused() ? 1f : mc.getRenderTickCounter().getTickDelta(true);
+        double delta = mc.isPaused() ? 1f : mc.getRenderTickCounter().getTickProgress(true);
 
         return new Box(interpolateDouble(prevBox.minX, box.minX, delta),
             interpolateDouble(prevBox.minY, box.minY, delta),
@@ -90,7 +90,7 @@ public class Interpolation {
     public static Box getInterpolatedEntityBox(Entity entity)
     {
         Box box = entity.getBoundingBox();
-        Box prevBox = entity.getBoundingBox().offset(entity.prevX - entity.getX(), entity.prevY - entity.getY(), entity.prevZ - entity.getZ());
+        Box prevBox = entity.getBoundingBox().offset(entity.lastX - entity.getX(), entity.lastY - entity.getY(), entity.lastZ - entity.getZ());
         return getInterpolatedBox(prevBox, box);
     }
 

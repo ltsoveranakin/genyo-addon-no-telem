@@ -134,7 +134,6 @@ public class Genyo extends MeteorAddon {
 
     private void initModules(Modules modules) {
         modules.add(new GenyoAutoEZ());
-        modules.add(new AngelSexHulkenberg());
         modules.add(new GenyoSurround());
         modules.add(new GenyoWelcome());
         modules.add(new GenyoSkinBlink());
@@ -156,6 +155,7 @@ public class Genyo extends MeteorAddon {
         modules.add(new CombatBrainrot());
         modules.add(new PacketDebug());
         modules.add(new GenyoAutoMine());
+        modules.add(new GenyoAutoMineV2());
         modules.add(new GenyoAutoXP());
         modules.add(new GenyoAutoArmor());
         modules.add(new GenyoAutoTrap());
@@ -193,6 +193,7 @@ public class Genyo extends MeteorAddon {
         hud.register(BetterPlayerRadarHud.INFO);
         hud.register(LogoHud.INFO);
         hud.register(PingHud.INFO);
+        hud.register(GenyoTargetHud.INFO);
 
         HUD_ELEMENTS.add(PvPNeccessaryHud.INFO);
         HUD_ELEMENTS.add(ActiveGenyoHud.INFO);
@@ -201,6 +202,7 @@ public class Genyo extends MeteorAddon {
         HUD_ELEMENTS.add(BetterPlayerRadarHud.INFO);
         HUD_ELEMENTS.add(LogoHud.INFO);
         HUD_ELEMENTS.add(PingHud.INFO);
+        HUD_ELEMENTS.add(GenyoTargetHud.INFO);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class PositionManager {
     private double x, y, z;
     private BlockPos blockPos;
     //
-    private boolean sneaking, sprinting;
+    private boolean sprinting;
     //
     private boolean onGround;
     private boolean horizontalCollision;
@@ -102,10 +102,10 @@ public class PositionManager {
      */
     public final Vec3d getCameraPosVec(float tickDelta)
     {
-        double d = MathHelper.lerp(tickDelta, mc.player.prevX, getX());
-        double e = MathHelper.lerp(tickDelta, mc.player.prevY, getY())
+        double d = MathHelper.lerp(tickDelta, mc.player.lastX, getX());
+        double e = MathHelper.lerp(tickDelta, mc.player.lastY, getY())
             + (double) mc.player.getStandingEyeHeight();
-        double f = MathHelper.lerp(tickDelta, mc.player.prevZ, getZ());
+        double f = MathHelper.lerp(tickDelta, mc.player.lastZ, getZ());
         return new Vec3d(d, e, f);
     }
 
@@ -160,8 +160,6 @@ public class PositionManager {
                 {
                     case START_SPRINTING -> sprinting = true;
                     case STOP_SPRINTING -> sprinting = false;
-                    case PRESS_SHIFT_KEY -> sneaking = true;
-                    case RELEASE_SHIFT_KEY -> sneaking = false;
                 }
             }
         }
@@ -190,13 +188,12 @@ public class PositionManager {
         return blockPos;
     }
 
+    public boolean isSneaking() {
+        return mc.player != null && mc.player.isSneaking();
+    }
+
     /**
      * @return
-     */
-    public boolean isSneaking()
-    {
-        return sneaking;
-    }
 
     /**
      * @return

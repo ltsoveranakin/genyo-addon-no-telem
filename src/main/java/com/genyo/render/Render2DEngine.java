@@ -1,7 +1,7 @@
 package com.genyo.render;
 
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
+
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -14,11 +14,12 @@ public class Render2DEngine {
     public static float interpolateFloat(float oldValue, float newValue, double interpolationValue) {
         return (float) interpolate(oldValue, newValue, (float) interpolationValue);
     }
-
-    public static void endBuilding(BufferBuilder bb) {
+    // Remove endBuilding entirely — it can't work without BufferRenderer
+// All callers in Render3DEngine need to be replaced
+   /*  public static void endBuilding(BufferBuilder bb) {
         BuiltBuffer builtBuffer = bb.endNullable();
         if (builtBuffer != null)
             BufferRenderer.drawWithGlobalProgram(builtBuffer);
-    }
+    } */
 
 }

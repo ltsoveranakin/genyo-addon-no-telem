@@ -26,6 +26,7 @@ import net.minecraft.block.*;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.ingame.SignEditScreen;
+import net.minecraft.client.input.Input;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.component.DataComponentTypes;
@@ -34,10 +35,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import com.genyo.mixin.accessor.AccessorInput;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -179,8 +179,7 @@ public class GenyoNoSlow extends GenyoModule {
     {
         if (airStrict.get() && sneaking)
         {
-            Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+            mc.player.setSneaking(false);
         }
         sneaking = false;
         Managers.TICK.setClientTick(1.0f);
@@ -191,9 +190,7 @@ public class GenyoNoSlow extends GenyoModule {
     {
         if (airStrict.get() && !sneaking && checkSlowed())
         {
-            sneaking = true;
-            Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
+            mc.player.setSneaking(true);
         }
     }
 
@@ -226,26 +223,25 @@ public class GenyoNoSlow extends GenyoModule {
         if (airStrict.get() && !mc.player.isUsingItem())
         {
             sneaking = false;
-            Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+            mc.player.setSneaking(false);
         }
         if (inventoryMove.get() && checkScreen())
         {
-            final long handle = mc.getWindow().getHandle();
+
             KeyBinding[] keys = new KeyBinding[]{mc.options.jumpKey, mc.options.forwardKey, mc.options.backKey, mc.options.rightKey, mc.options.leftKey};
             for (KeyBinding binding : keys)
             {
-                binding.setPressed(InputUtil.isKeyPressed(handle, ((AccessorKeyBinding) binding).getBoundKey().getCode()));
+                binding.setPressed(InputUtil.isKeyPressed(mc.getWindow(), ((AccessorKeyBinding) binding).getBoundKey().getCode()));
             }
             if (arrowMove.get())
             {
                 float yaw = mc.player.getYaw();
                 float pitch = mc.player.getPitch();
 
-                if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_UP)) pitch -= 3.0f;
-                else if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_DOWN)) pitch += 3.0f;
-                else if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT)) yaw -= 3.0f;
-                else if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT)) yaw += 3.0f;
+                if (InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_UP)) pitch -= 3.0f;
+                else if (InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_DOWN)) pitch += 3.0f;
+                else if (InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_LEFT)) yaw -= 3.0f;
+                else if (InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_RIGHT)) yaw += 3.0f;
 
                 mc.player.setYaw(yaw);
                 mc.player.setPitch(MathHelper.clamp(pitch, -90.0f, 90.0f));
@@ -304,14 +300,14 @@ public class GenyoNoSlow extends GenyoModule {
         if (sneak.get() && mc.player.isSneaking() || crawl.get() && mc.player.isCrawling())
         {
             float f = 1.0f / (float) mc.player.getAttributeValue(EntityAttributes.SNEAKING_SPEED);
-            event.input.movementForward *= f;
-            event.input.movementSideways *= f;
+            Vec2f vec = event.input.getMovementInput();
+            ((AccessorInput) event.input).setMovementVector(new Vec2f(vec.x * f, vec.y * f));
         }
 
         if (checkSlowed())
         {
-            event.input.movementForward *= 5.0f;
-            event.input.movementSideways *= 5.0f;
+            Vec2f vec = event.input.getMovementInput();
+            ((AccessorInput) event.input).setMovementVector(new Vec2f(vec.x * 5.0f, vec.y * 5.0f));
         }
     }
 
@@ -334,7 +330,6 @@ public class GenyoNoSlow extends GenyoModule {
             event.slipperiness = 0.6f;
         }
     }
-
     @EventHandler
     public void onPacketSend(PacketEvent.Send event)
     {
@@ -342,7 +337,7 @@ public class GenyoNoSlow extends GenyoModule {
         else if (event.packet instanceof PlayerMoveC2SPacket packet && packet.changesPosition()
             && strict.get() && checkSlowed())
         {
-            Managers.INVENTORY.setSlotForced(mc.player.getInventory().selectedSlot);
+            Managers.INVENTORY.setSlotForced(mc.player.getInventory().getSelectedSlot());
         }
         else if (event.packet instanceof ClickSlotC2SPacket && strict.get())
         {
@@ -352,8 +347,7 @@ public class GenyoNoSlow extends GenyoModule {
             }
             if (sneaking || Managers.POSITION.isSneaking())
             {
-                Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                    ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+                mc.player.setSneaking(false);
             }
             if (Managers.POSITION.isSprinting())
             {

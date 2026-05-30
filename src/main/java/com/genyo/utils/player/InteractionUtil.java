@@ -18,8 +18,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -40,7 +39,7 @@ public class InteractionUtil {
     public static Map<BlockPos, Long> awaiting = new HashMap<>();
 
     public static Vec3d getEyesPos(@NotNull Entity entity) {
-        return entity.getPos().add(0, entity.getEyeHeight(entity.getPose()), 0);
+        return entity.getEyePos().add(0, entity.getEyeHeight(entity.getPose()), 0);
     }
 
     public static float @NotNull [] calculateAngle(Vec3d to) {
@@ -91,7 +90,7 @@ public class InteractionUtil {
             }
             BlockHitResult result = null;
             if (interact == Interact.Legit) {
-                Vec3d p = getVisibleDirectionPoint(support.facing, support.position, 0, 6); //TODO Implement Range
+                Vec3d p = getVisibleDirectionPoint(support.facing, support.position, 0, 6);
                 if (p != null)
                     return new BlockHitResult(p, support.facing, support.position, false);
             } else {
@@ -107,10 +106,8 @@ public class InteractionUtil {
         return switch (dir) {
             case UP -> new Box(.15f, 1f, .15f, .85f, 1f, .85f);
             case DOWN -> new Box(.15f, 0f, .15f, .85f, 0f, .85f);
-
             case EAST -> new Box(1f, .15f, .15f, 1f, .85f, .85f);
             case WEST -> new Box(0f, .15f, .15f, 0f, .85f, .85f);
-
             case NORTH -> new Box(.15f, .15f, 0f, .85f, .85f, 0f);
             case SOUTH -> new Box(.15f, .15f, 1f, .85f, .85f, 1f);
         };
@@ -119,44 +116,29 @@ public class InteractionUtil {
     public static @Nullable Vec3d getVisibleDirectionPoint(@NotNull Direction dir, @NotNull BlockPos bp, float wallRange, float range) {
         Box brutBox = getDirectionBox(dir);
 
-        // EAST, WEST
         if (brutBox.maxX - brutBox.minX == 0)
             for (double y = brutBox.minY; y < brutBox.maxY; y += 0.1f)
                 for (double z = brutBox.minZ; z < brutBox.maxZ; z += 0.1f) {
                     Vec3d point = new Vec3d(bp.getX() + brutBox.minX, bp.getY() + y, bp.getZ() + z);
-
-                    if (shouldSkipPoint(point, bp, dir, wallRange, range))
-                        continue;
-
+                    if (shouldSkipPoint(point, bp, dir, wallRange, range)) continue;
                     return point;
                 }
 
-
-        // DOWN, UP
         if (brutBox.maxY - brutBox.minY == 0)
             for (double x = brutBox.minX; x < brutBox.maxX; x += 0.1f)
                 for (double z = brutBox.minZ; z < brutBox.maxZ; z += 0.1f) {
                     Vec3d point = new Vec3d(bp.getX() + x, bp.getY() + brutBox.minY, bp.getZ() + z);
-
-                    if (shouldSkipPoint(point, bp, dir, wallRange, range))
-                        continue;
-
+                    if (shouldSkipPoint(point, bp, dir, wallRange, range)) continue;
                     return point;
                 }
 
-
-        // NORTH, SOUTH
         if (brutBox.maxZ - brutBox.minZ == 0)
             for (double x = brutBox.minX; x < brutBox.maxX; x += 0.1f)
                 for (double y = brutBox.minY; y < brutBox.maxY; y += 0.1f) {
                     Vec3d point = new Vec3d(bp.getX() + x, bp.getY() + y, bp.getZ() + brutBox.minZ);
-
-                    if (shouldSkipPoint(point, bp, dir, wallRange, range))
-                        continue;
-
+                    if (shouldSkipPoint(point, bp, dir, wallRange, range)) continue;
                     return point;
                 }
-
 
         return null;
     }
@@ -164,15 +146,9 @@ public class InteractionUtil {
     private static boolean shouldSkipPoint(Vec3d point, BlockPos bp, Direction dir, float wallRange, float range) {
         RaycastContext context = new RaycastContext(InteractionUtil.getEyesPos(mc.player), point, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
         BlockHitResult result = mc.world.raycast(context);
-
         float dst = InteractionUtil.squaredDistanceFromEyes(point);
-
-        if (result != null
-            && result.getType() == HitResult.Type.BLOCK
-            && !result.getBlockPos().equals(bp)
-            && dst > wallRange * wallRange)
+        if (result != null && result.getType() == HitResult.Type.BLOCK && !result.getBlockPos().equals(bp) && dst > wallRange * wallRange)
             return true;
-
         return dst > range * range;
     }
 
@@ -191,32 +167,20 @@ public class InteractionUtil {
         double upDelta = getEyesPos(mc.player).y - (positionVector.add(0, 0.5, 0).y);
         double downDelta = getEyesPos(mc.player).y - (positionVector.add(0, -0.5, 0).y);
 
-        if (westDelta > 0 && isSolid(bp.west()))
-            visibleSides.add(Direction.EAST);
-        if (westDelta < 0 && isSolid(bp.east()))
-            visibleSides.add(Direction.WEST);
-        if (eastDelta < 0 && isSolid(bp.east()))
-            visibleSides.add(Direction.WEST);
-        if (eastDelta > 0 && isSolid(bp.west()))
-            visibleSides.add(Direction.EAST);
+        if (westDelta > 0 && isSolid(bp.west())) visibleSides.add(Direction.EAST);
+        if (westDelta < 0 && isSolid(bp.east())) visibleSides.add(Direction.WEST);
+        if (eastDelta < 0 && isSolid(bp.east())) visibleSides.add(Direction.WEST);
+        if (eastDelta > 0 && isSolid(bp.west())) visibleSides.add(Direction.EAST);
 
-        if (northDelta > 0 && isSolid(bp.north()))
-            visibleSides.add(Direction.SOUTH);
-        if (northDelta < 0 && isSolid(bp.south()))
-            visibleSides.add(Direction.NORTH);
-        if (southDelta < 0 && isSolid(bp.south()))
-            visibleSides.add(Direction.NORTH);
-        if (southDelta > 0 && isSolid(bp.north()))
-            visibleSides.add(Direction.SOUTH);
+        if (northDelta > 0 && isSolid(bp.north())) visibleSides.add(Direction.SOUTH);
+        if (northDelta < 0 && isSolid(bp.south())) visibleSides.add(Direction.NORTH);
+        if (southDelta < 0 && isSolid(bp.south())) visibleSides.add(Direction.NORTH);
+        if (southDelta > 0 && isSolid(bp.north())) visibleSides.add(Direction.SOUTH);
 
-        if (upDelta > 0 && isSolid(bp.down()))
-            visibleSides.add(Direction.UP);
-        if (upDelta < 0 && isSolid(bp.up()))
-            visibleSides.add(Direction.DOWN);
-        if (downDelta < 0 && isSolid(bp.up()))
-            visibleSides.add(Direction.DOWN);
-        if (downDelta > 0 && isSolid(bp.down()))
-            visibleSides.add(Direction.UP);
+        if (upDelta > 0 && isSolid(bp.down())) visibleSides.add(Direction.UP);
+        if (upDelta < 0 && isSolid(bp.up())) visibleSides.add(Direction.DOWN);
+        if (downDelta < 0 && isSolid(bp.up())) visibleSides.add(Direction.DOWN);
+        if (downDelta > 0 && isSolid(bp.down())) visibleSides.add(Direction.UP);
 
         return visibleSides;
     }
@@ -226,19 +190,14 @@ public class InteractionUtil {
 
         if (mc.world.getBlockState(bp.add(0, -1, 0)).isSolid() || awaiting.containsKey(bp.add(0, -1, 0)))
             list.add(new BlockPosWithFacing(bp.add(0, -1, 0), Direction.UP));
-
         if (mc.world.getBlockState(bp.add(0, 1, 0)).isSolid() || awaiting.containsKey(bp.add(0, 1, 0)))
             list.add(new BlockPosWithFacing(bp.add(0, 1, 0), Direction.DOWN));
-
         if (mc.world.getBlockState(bp.add(-1, 0, 0)).isSolid() || awaiting.containsKey(bp.add(-1, 0, 0)))
             list.add(new BlockPosWithFacing(bp.add(-1, 0, 0), Direction.EAST));
-
         if (mc.world.getBlockState(bp.add(1, 0, 0)).isSolid() || awaiting.containsKey(bp.add(1, 0, 0)))
             list.add(new BlockPosWithFacing(bp.add(1, 0, 0), Direction.WEST));
-
         if (mc.world.getBlockState(bp.add(0, 0, 1)).isSolid() || awaiting.containsKey(bp.add(0, 0, 1)))
             list.add(new BlockPosWithFacing(bp.add(0, 0, 1), Direction.NORTH));
-
         if (mc.world.getBlockState(bp.add(0, 0, -1)).isSolid() || awaiting.containsKey(bp.add(0, 0, -1)))
             list.add(new BlockPosWithFacing(bp.add(0, 0, -1), Direction.SOUTH));
 
@@ -255,22 +214,20 @@ public class InteractionUtil {
     }
 
     public static boolean placeBlock(BlockPos bp, Rotate rotate, Interact interact, PlaceMode mode, int slot, boolean returnSlot, boolean ignoreEntities) {
-        int prevItem = mc.player.getInventory().selectedSlot;
+        int prevItem = mc.player.getInventory().getSelectedSlot();
         if (slot != -1) GInvUtils.switchTo(slot);
         else return false;
 
         boolean result = placeBlock(bp, rotate, interact, mode, ignoreEntities);
-
         if (returnSlot) GInvUtils.switchTo(prevItem);
         return result;
     }
 
     public static boolean placeBlock(BlockPos bp, Rotate rotate, Interact interact, PlaceMode mode, @NotNull SearchInvResult invResult, boolean returnSlot, boolean ignoreEntities) {
-        int prevItem = mc.player.getInventory().selectedSlot;
+        int prevItem = mc.player.getInventory().getSelectedSlot();
         invResult.switchTo();
         boolean result = placeBlock(bp, rotate, interact, mode, ignoreEntities);
         if (returnSlot) GInvUtils.switchTo(prevItem);
-
         return result;
     }
 
@@ -283,15 +240,12 @@ public class InteractionUtil {
 
         if (sprint)
             mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.STOP_SPRINTING));
-        if (sneak)
-            mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
+        if (sneak) mc.player.setSneaking(true);
 
         float[] angle = calculateAngle(result.getPos());
 
         switch (rotate) {
-            case None -> {
-
-            }
+            case None -> {}
             case Default -> mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(angle[0], angle[1], mc.player.isOnGround(), mc.player.horizontalCollision));
             case Grim -> mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(mc.player.getX(), mc.player.getY(), mc.player.getZ(), angle[0], angle[1], mc.player.isOnGround(), mc.player.horizontalCollision));
         }
@@ -307,8 +261,7 @@ public class InteractionUtil {
         if (rotate == Rotate.Grim)
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYaw(), mc.player.getPitch(), mc.player.isOnGround(), mc.player.horizontalCollision));
 
-        if (sneak)
-            mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+        if (sneak) mc.player.setSneaking(false);  // ← was RELEASE_SHIFT_KEY
 
         if (sprint)
             mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_SPRINTING));
@@ -317,25 +270,9 @@ public class InteractionUtil {
         return true;
     }
 
-    public record BlockPosWithFacing(BlockPos position, Direction facing) {
-    }
+    public record BlockPosWithFacing(BlockPos position, Direction facing) {}
 
-    public enum PlaceMode {
-        Packet,
-        Normal
-    }
-
-    public enum Rotate {
-        None,
-        Default,
-        Grim
-    }
-
-    public enum Interact {
-        Vanilla,
-        Strict,
-        Legit,
-        AirPlace
-    }
-
+    public enum PlaceMode { Packet, Normal }
+    public enum Rotate { None, Default, Grim }
+    public enum Interact { Vanilla, Strict, Legit, AirPlace }
 }
