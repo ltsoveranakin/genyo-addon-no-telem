@@ -23,7 +23,8 @@ public class CombatManager {
 
     public HashMap<String, Integer> popList = new HashMap<>();
 
-    //asd
+    //
+     //wfsdfdsf
 
     @EventHandler
     private void onAttackEntity(AttackEntityEvent event) {
