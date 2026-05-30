@@ -72,7 +72,7 @@ public class GenyoGoodbye extends GenyoModule {
             PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(pac.profileIds().getFirst());
             if (entry == null) return;
 
-            String name = entry.getProfile().getName();
+            String name = entry.getProfile().name();
             if (!namesList.contains(name)) return;
 
             handleMessage(name);

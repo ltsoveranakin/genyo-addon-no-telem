@@ -33,5 +33,20 @@
     "sounds": [
       "genyo:kiwi"
     ]
+  },
+  "gui_hover": {
+    "sounds": [
+      "genyo:gui_hover"
+    ]
+  },
+  "gui_click_left": {
+    "sounds": [
+      "genyo:gui_click_left"
+    ]
+  },
+  "gui_click_right": {
+    "sounds": [
+      "genyo:gui_click_right"
+    ]
   }
 }

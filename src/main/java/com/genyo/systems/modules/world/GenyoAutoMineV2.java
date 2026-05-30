@@ -1,5 +1,4 @@
-
-    package com.genyo.systems.modules.world;
+package com.genyo.systems.modules.world;
 
 import com.genyo.Genyo;
 import com.genyo.events.AttackBlockEvent;
@@ -22,7 +21,7 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-    import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
@@ -39,16 +38,16 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
-    import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class GenyoAutoMine extends GenyoModule {
+public class GenyoAutoMineV2 extends GenyoModule {
 
-    public GenyoAutoMine() {
-        super(Genyo.WORLD, "Genyo AutoMine", "fasz");
+    public GenyoAutoMineV2() {
+        super(Genyo.WORLD, "Genyo AutoMineV2", "fasz");
     }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -270,7 +269,7 @@ public class GenyoAutoMine extends GenyoModule {
         .min(0)
         .defaultValue(250)
         .max(1000)
-        .visible(() -> false) // ??????????
+        .visible(() -> false)
         .build()
     );
 
@@ -282,7 +281,7 @@ public class GenyoAutoMine extends GenyoModule {
     );
 
     private PlayerEntity playerTarget;
-    private MineData packetMine, instantMine; // mining2 should always be the instant mine
+    private MineData packetMine, instantMine;
     private boolean packetSwapBack;
     private boolean manualOverride;
     private final Timer remineTimer = new CacheTimer();
@@ -381,7 +380,7 @@ public class GenyoAutoMine extends GenyoModule {
             int slot = packetMine.getBestSlot();
             float damageDone = packetMine.getBlockDamage() + (swapBefore.get()
                 || packetMineStuck ? damageDelta : 0.0f);
-            if (damageDone >= 1.0f && slot != -1  && !checkMultitask())
+            if (damageDone >= 1.0f && slot != -1 && !checkMultitask())
             {
                 Managers.INVENTORY.setSlot(slot);
                 packetSwapBack = true;
@@ -448,7 +447,6 @@ public class GenyoAutoMine extends GenyoModule {
                     if (manualOverride)
                     {
                         manualOverride = false;
-                        // Clear our old manual mine
                         abortMining(instantMine);
                         instantMineAnim.animation.setState(false);
                         instantMine = null;
@@ -572,12 +570,21 @@ public class GenyoAutoMine extends GenyoModule {
                         else
                         {
                             List<BlockPos> miningBlocks = getMiningBlocks(playerTarget, targetPos, bedrockPhased);
-                            bestMine = getInstantMine(miningBlocks, bedrockPhased);
+                            bestMine = getInstantMine(miningBlocks, bedrockPhased, null);
 
                             if (bestMine != null && (packetMine == null && !changedInstantMine
                                 && doubleBreak.get() || isInstantMineComplete()))
                             {
                                 startAutoMine(bestMine);
+
+                                if (doubleBreak.get() && packetMine == null && !isInstantMineComplete())
+                                {
+                                    MineData secondMine = getInstantMine(miningBlocks, bedrockPhased, bestMine.getPos());
+                                    if (secondMine != null)
+                                    {
+                                        startAutoMine(secondMine);
+                                    }
+                                }
                             }
                         }
                     }
@@ -618,7 +625,6 @@ public class GenyoAutoMine extends GenyoModule {
 
         event.cancel();
 
-        // Do not try to break unbreakable blocks
         if (event.state.getBlock().getHardness() == -1.0f || !canMine(event.state) || isMining(event.pos))
         {
             return;
@@ -728,13 +734,15 @@ public class GenyoAutoMine extends GenyoModule {
         }
     }
 
-    public MineData getInstantMine(List<BlockPos> miningBlocks, boolean bedrockPhased)
+    public MineData getInstantMine(List<BlockPos> miningBlocks, boolean bedrockPhased, BlockPos exclude)
     {
         PriorityQueue<MineData> validInstantMines = new PriorityQueue<>();
         for (BlockPos blockPos : miningBlocks)
         {
+            if (exclude != null && blockPos.equals(exclude)) continue;
+
             BlockState state1 = mc.world.getBlockState(blockPos);
-            if (!isAutoMineBlock(state1.getBlock())) // bedrock mine exploit!!
+            if (!isAutoMineBlock(state1.getBlock()))
             {
                 continue;
             }
@@ -760,7 +768,7 @@ public class GenyoAutoMine extends GenyoModule {
             return null;
         }
 
-        return validInstantMines.peek();
+        return validInstantMines.poll();
     }
 
     public List<BlockPos> getPhaseBlocks(PlayerEntity player, BlockPos playerPos, boolean targetBedrockPhased)
@@ -793,11 +801,6 @@ public class GenyoAutoMine extends GenyoModule {
         return phaseBlocks;
     }
 
-    /**
-     *
-     * @param player
-     * @return A {@link Set} of potential blocks to mine for an enemy player
-     */
     public List<BlockPos> getMiningBlocks(PlayerEntity player, BlockPos playerPos, boolean bedrockPhased)
     {
         List<BlockPos> surroundingBlocks = Modules.get().get(GenyoSurroundV2.class).getSurroundNoDown(player, range.get());
@@ -834,7 +837,6 @@ public class GenyoAutoMine extends GenyoModule {
         }
         BlockPos crawlingPos = GEntityUtils.getRoundedBlockPos(mc.player);
         boolean playerBelow = playerTarget != null && GEntityUtils.getRoundedBlockPos(playerTarget).getY() < crawlingPos.getY();
-        // We want to be same level as our opponent
         if (playerBelow)
         {
             BlockState state = mc.world.getBlockState(crawlingPos.down());
@@ -949,8 +951,6 @@ public class GenyoAutoMine extends GenyoModule {
 
         if (doubleBreak.get())
         {
-            // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L76
-            // https://github.com/GrimAnticheat/Grim/blob/2.0/src/main/java/ac/grim/grimac/checks/impl/misc/FastBreak.java#L98
             if (grimNew.get())
             {
                 if (!anticheat.get())
@@ -1126,7 +1126,6 @@ public class GenyoAutoMine extends GenyoModule {
         private final BlockPos pos;
         private final Direction direction;
         private final MiningGoal goal;
-        //
         private int ticksMining;
         private float blockDamage, lastDamage;
 
@@ -1272,5 +1271,4 @@ public class GenyoAutoMine extends GenyoModule {
         SILENT_ALT,
         OFF
     }
-
 }

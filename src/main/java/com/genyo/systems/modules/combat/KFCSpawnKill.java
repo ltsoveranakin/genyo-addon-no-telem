@@ -493,7 +493,7 @@ public class KFCSpawnKill extends GenyoModule {
         if (attackDelayConfig.get())
         {
             PlayerInventory inventory = mc.player.getInventory();
-            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().selectedSlot : slot);
+            ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().getSelectedSlot() : slot);
 
             MutableDouble attackSpeed = new MutableDouble(
                 mc.player.getAttributeBaseValue(EntityAttributes.ATTACK_SPEED));
@@ -643,11 +643,10 @@ public class KFCSpawnKill extends GenyoModule {
         for (int i = 0; i < 9; i++)
         {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.getItem() instanceof SwordItem swordItem)
+            if (stack.isIn(ItemTags.SWORDS))
             {
-                float sharpness = EnchantmentUtil.getLevel(stack,
-                    Enchantments.SHARPNESS) * 0.5f + 0.5f;
-                float dmg = swordItem.getDefaultStack().getDamage() + sharpness;
+                float sharpness = EnchantmentUtil.getLevel(stack, Enchantments.SHARPNESS) * 0.5f + 0.5f;
+                float dmg = stack.getItem().getDefaultStack().getDamage() + sharpness;
                 if (dmg > sharp)
                 {
                     sharp = dmg;
@@ -734,8 +733,7 @@ public class KFCSpawnKill extends GenyoModule {
             sneaking = Managers.POSITION.isSneaking();
             if (sneaking)
             {
-                Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                    ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+                mc.player.setSneaking(false);
             }
             sprinting = Managers.POSITION.isSprinting();
             if (sprinting)
@@ -756,8 +754,7 @@ public class KFCSpawnKill extends GenyoModule {
         }
         if (sneaking)
         {
-            Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
+            mc.player.setSneaking(true);
         }
         if (sprinting)
         {
@@ -797,11 +794,11 @@ public class KFCSpawnKill extends GenyoModule {
             }
             if (armorCheckConfig.get()
                 && entity instanceof LivingEntity livingEntity
-                && !livingEntity.getArmorItems().iterator().hasNext())
+                && !Stream.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET).anyMatch(s -> !livingEntity.getEquippedStack(s).isEmpty()))
             {
                 continue;
             }
-            double dist = pos.distanceTo(entity.getPos());
+            double dist = pos.distanceTo(entity.getEntityPos());
             if (dist <= searchRangeConfig.get())
             {
                 if (entity.age < ticksExistedConfig.get())
@@ -852,8 +849,9 @@ public class KFCSpawnKill extends GenyoModule {
     {
         float edmg = 0.0f;
         float emax = 0.0f;
-        for (ItemStack armor : e.getArmorItems())
+        for (EquipmentSlot s : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET})
         {
+            ItemStack armor = e.getEquippedStack(s);
             if (armor != null && !armor.isEmpty())
             {
                 edmg += armor.getDamage();
@@ -905,7 +903,7 @@ public class KFCSpawnKill extends GenyoModule {
 
     public boolean isHoldingSword()
     {
-        return !swordCheckConfig.get() || mc.player.getMainHandStack().getItem() instanceof SwordItem
+        return !swordCheckConfig.get() || mc.player.getMainHandStack().isIn(ItemTags.SWORDS)
             || mc.player.getMainHandStack().getItem() instanceof AxeItem
             || mc.player.getMainHandStack().getItem() instanceof TridentItem
             || mc.player.getMainHandStack().getItem() instanceof MaceItem;
@@ -913,7 +911,7 @@ public class KFCSpawnKill extends GenyoModule {
 
     private Vec3d getAttackRotateVec(Entity entity)
     {
-        Vec3d feetPos = entity.getPos();
+        Vec3d feetPos = entity.getEntityPos();
         return switch (hitVectorConfig.get())
         {
             case FEET -> feetPos;

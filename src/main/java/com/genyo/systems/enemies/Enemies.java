@@ -125,7 +125,7 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
     }
 
     public Enemy get(PlayerListEntry player) {
-        return get(player.getProfile().getName());
+        return get(player.getProfile().name());
     }
 
     public boolean isEnemy(PlayerEntity player) {
@@ -170,16 +170,16 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
     @Override
     public Enemies fromTag(NbtCompound tag) {
         enemies.clear();
-        if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
+        if (tag.contains("settings")) tag.getCompound("settings").ifPresent(settings::fromTag);
 
-        for (NbtElement itemTag : tag.getList("enemies", 10)) {
+        for (NbtElement itemTag : tag.getList("enemies").orElse(new net.minecraft.nbt.NbtList())) {
             NbtCompound enemyTag = (NbtCompound) itemTag;
             if (!enemyTag.contains("name")) continue;
 
-            String name = enemyTag.getString("name");
+            String name = enemyTag.getString("name").orElse("");
             if (get(name) != null) continue;
 
-            String uuid = enemyTag.getString("id");
+            String uuid = enemyTag.getString("id").orElse("");
             Enemy enemy = !uuid.isBlank()
                 ? new Enemy(name, UndashedUuid.fromStringLenient(uuid))
                 : new Enemy(name);

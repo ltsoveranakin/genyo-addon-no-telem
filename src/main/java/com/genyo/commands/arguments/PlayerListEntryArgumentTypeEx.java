@@ -39,7 +39,7 @@ public class PlayerListEntryArgumentTypeEx implements ArgumentType<PlayerListEnt
         PlayerListEntry playerListEntry = null;
 
         for (PlayerListEntry p : mc.getNetworkHandler().getPlayerList()) {
-            if (p.getProfile().getName().equalsIgnoreCase(argument)) {
+            if (p.getProfile().name().equalsIgnoreCase(argument)) {
                 playerListEntry = p;
                 break;
             }
@@ -52,12 +52,12 @@ public class PlayerListEntryArgumentTypeEx implements ArgumentType<PlayerListEnt
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         Collection<PlayerListEntry> playerListEntries = mc.getNetworkHandler().getPlayerList();
-        PlayerListEntry clientEntry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getGameProfile().getName());
+        PlayerListEntry clientEntry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getGameProfile().name());
         if (playerListEntries.contains(clientEntry)) playerListEntries.remove(clientEntry);
 
         // just made this to exclude yourself from the list, it was kinda annoying.
 
-        return CommandSource.suggestMatching(playerListEntries.stream().map(playerListEntry -> playerListEntry.getProfile().getName()), builder);
+        return CommandSource.suggestMatching(playerListEntries.stream().map(playerListEntry -> playerListEntry.getProfile().name()), builder);
     }
 
     @Override

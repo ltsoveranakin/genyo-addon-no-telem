@@ -3,6 +3,7 @@ package com.genyo.mixin.game;
 import com.genyo.systems.config.GenyoConfig;
 import net.minecraft.client.gui.screen.SplashTextRenderer;
 import net.minecraft.client.resource.SplashTextResourceSupplier;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +27,7 @@ public abstract class MixinSplashTextResourceSupplier {
     private void onApply(CallbackInfoReturnable<SplashTextRenderer> cir) {
         if (GenyoConfig.get() == null || !GenyoConfig.get().useGenyoSplashes.get()) return;
 
-        if (override) cir.setReturnValue(new SplashTextRenderer(splashes.get(random.nextInt(splashes.size()))));
+        if (override) cir.setReturnValue(new SplashTextRenderer(Text.literal(splashes.get(random.nextInt(splashes.size())))));
         override = !override;
     }
 

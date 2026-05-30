@@ -60,7 +60,7 @@ public class CombatBrainrot extends GenyoModule {
         if (mc.getServer() == null) return;
 
         if (event.packet instanceof PlayerInteractEntityC2SPacket packet) {
-            Entity entity = packet.getEntity(mc.getServer().getWorld(mc.player.getWorld().getRegistryKey()));
+            Entity entity = packet.getEntity(mc.getServer().getWorld(mc.world.getRegistryKey()));
             if (entity == null) return;
 
             if (entity instanceof EndCrystalEntity) {

@@ -8,8 +8,7 @@ import meteordevelopment.meteorclient.utils.render.PlayerHeadUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ public class Enemy implements ISerializable<Enemy>, Comparable<Enemy> {
 
     public volatile String name;
     private volatile @Nullable UUID id;
-    private volatile @Nullable PlayerHeadTexture headTexture;
+    private volatile byte[] headTexture;
     private volatile boolean updating;
 
     public Enemy(String name, @Nullable UUID id) {
@@ -45,7 +44,7 @@ public class Enemy implements ISerializable<Enemy>, Comparable<Enemy> {
     }
 
     public PlayerHeadTexture getHead() {
-        return headTexture != null ? headTexture : PlayerHeadUtils.STEVE_HEAD;
+        return headTexture != null ? new PlayerHeadTexture(headTexture, false) : PlayerHeadUtils.STEVE_HEAD;
     }
 
     public void updateInfo() {

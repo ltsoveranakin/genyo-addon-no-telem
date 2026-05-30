@@ -83,6 +83,13 @@ public class GenyoAutoArmor extends GenyoModule {
     private final Queue<ArmorSlot> leggings = new PriorityQueue<>();
     private final Queue<ArmorSlot> boots = new PriorityQueue<>();
 
+    private static final EquipmentSlot[] ARMOR_SLOTS = {
+        EquipmentSlot.HEAD,
+        EquipmentSlot.CHEST,
+        EquipmentSlot.LEGS,
+        EquipmentSlot.FEET
+    };
+
     @EventHandler
     public void onTick(PlayerTickEvent event)
     {
@@ -123,7 +130,7 @@ public class GenyoAutoArmor extends GenyoModule {
         }
         for (int i = 0; i < 4; i++)
         {
-            ItemStack armorStack = mc.player.getInventory().getArmorStack(i);
+            ItemStack armorStack = mc.player.getEquippedStack(ARMOR_SLOTS[i]);
             if (elytraPriorityConfig.get() && armorStack.getItem() == Items.ELYTRA)
             {
                 continue;

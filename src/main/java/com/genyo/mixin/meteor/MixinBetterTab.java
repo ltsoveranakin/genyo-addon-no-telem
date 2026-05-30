@@ -24,7 +24,7 @@ public abstract class MixinBetterTab {
                 Color enemyColor = Enemies.get().getEnemyColor();
 
                 enemyName = playerListEntry.getDisplayName();
-                if (enemyName == null) enemyName = Text.literal(playerListEntry.getProfile().getName());
+                if (enemyName == null) enemyName = Text.literal(playerListEntry.getProfile().name());
 
                 String nameString = enemyName.getString();
 

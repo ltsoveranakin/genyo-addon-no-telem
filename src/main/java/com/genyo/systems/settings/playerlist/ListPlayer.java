@@ -9,8 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ public class ListPlayer implements ISerializable<ListPlayer>, Comparable<ListPla
 
     public volatile String name;
     private volatile @Nullable UUID id;
-    private volatile @Nullable PlayerHeadTexture headTexture;
+    private volatile byte[] headTexture;
     private volatile boolean updating;
 
     public ListPlayer(String name, @Nullable UUID id) {
@@ -45,7 +44,7 @@ public class ListPlayer implements ISerializable<ListPlayer>, Comparable<ListPla
     }
 
     public PlayerHeadTexture getHead() {
-        return headTexture != null ? headTexture : PlayerHeadUtils.STEVE_HEAD;
+        return headTexture != null ? new PlayerHeadTexture(headTexture, false) : PlayerHeadUtils.STEVE_HEAD;
     }
 
     public void updateInfo(boolean updateName) {

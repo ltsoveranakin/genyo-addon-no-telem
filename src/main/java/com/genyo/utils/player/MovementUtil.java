@@ -1,36 +1,29 @@
 package com.genyo.utils.player;
 
+import com.genyo.mixin.accessor.AccessorInput;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class MovementUtil {
 
-    public static void applySneak()
-    {
+    public static void applySneak() {
         final float modifier = MathHelper.clamp(0.3f + (EnchantmentUtil.getLevel(mc.player.getEquippedStack(EquipmentSlot.FEET), Enchantments.SWIFT_SNEAK) * 0.15F), 0.0f, 1.0f);
-        mc.player.input.movementForward *= modifier;
-        mc.player.input.movementSideways *= modifier;
+        Vec2f vec = mc.player.input.getMovementInput();
+        ((AccessorInput) mc.player.input).setMovementVector(new Vec2f(vec.x * modifier, vec.y * modifier));
     }
 
-    /**
-     * @return
-     */
-    public static boolean isInputtingMovement()
-    {
+    public static boolean isInputtingMovement() {
         return mc.options.forwardKey.isPressed()
             || mc.options.backKey.isPressed()
             || mc.options.leftKey.isPressed()
             || mc.options.rightKey.isPressed();
     }
 
-    /**
-     * @return
-     */
-    public static boolean isMoving()
-    {
+    public static boolean isMoving() {
         double d = mc.player.getX() - mc.player.lastRenderX;
         double e = mc.player.getY() - mc.player.lastRenderY;
         double f = mc.player.getZ() - mc.player.lastRenderZ;
@@ -45,8 +38,8 @@ public class MovementUtil {
     }
 
     public static double[] forward(final double d) {
-        float f = mc.player.input.movementForward;
-        float f2 = mc.player.input.movementSideways;
+        float f  = mc.player.input.getMovementInput().y;
+        float f2 = mc.player.input.getMovementInput().x;
         float f3 = mc.player.getYaw();
         if (f != 0.0f) {
             if (f2 > 0.0f) {
@@ -68,13 +61,8 @@ public class MovementUtil {
         return new double[]{d4, d5};
     }
 
-    /**
-     * @return
-     */
-    public static boolean isMovingInput()
-    {
-        return mc.player.input.movementForward != 0.0f
-            || mc.player.input.movementSideways != 0.0f;
+    public static boolean isMovingInput() {
+        Vec2f vec = mc.player.input.getMovementInput();
+        return vec.y != 0.0f || vec.x != 0.0f;
     }
-
 }

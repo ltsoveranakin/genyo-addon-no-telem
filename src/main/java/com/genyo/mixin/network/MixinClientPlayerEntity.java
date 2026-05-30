@@ -4,11 +4,11 @@ import com.genyo.events.StageEvent;
 import com.genyo.events.entity.SwingEvent;
 import com.genyo.events.network.*;
 import com.genyo.events.sync.SyncEvent;
-import com.genyo.events.network.*;
 import com.genyo.imixins.IClientPlayerEntity;
 import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,11 +30,6 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     private Runnable postAction;
 
     @Shadow
-    private float lastYaw;
-    @Shadow
-    private float lastPitch;
-
-    @Shadow
     protected abstract void sendMovementPackets();
 
     @Shadow
@@ -46,9 +41,6 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     @Shadow
     public Input input;
 
-    /**
-     * @param ci
-     */
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/" +
         "minecraft/client/network/AbstractClientPlayerEntity;tick()V",
         shift = At.Shift.BEFORE, ordinal = 0))
@@ -57,13 +49,9 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
         MeteorClient.EVENT_BUS.post(new PlayerTickEvent());
     }
 
-    /**
-     * @param ci
-     */
     @Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
     private void hookSendMovementPackets(CallbackInfo ci) {
-        //if (fullNullCheck()) return;
-        SyncEvent.Pre event = SyncEvent.Pre.get(getYaw(mc.getRenderTickCounter().getTickDelta(true)), getPitch(mc.getRenderTickCounter().getTickDelta(true)));
+        SyncEvent.Pre event = SyncEvent.Pre.get(getYaw(mc.getRenderTickCounter().getTickProgress(true)), getPitch(mc.getRenderTickCounter().getTickProgress(true)));
         MeteorClient.EVENT_BUS.post(event);
         postAction = event.postAction;
 
@@ -80,13 +68,10 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
 
     @Inject(method = "sendMovementPackets", at = @At("RETURN"), cancellable = true)
     private void sendMovementPacketsPostHook(CallbackInfo info) {
-        //if (fullNullCheck()) return;
-        //mc.player.lastSprinting = pre_sprint_state;
-
         SyncEvent.Post event = SyncEvent.Post.get();
         MeteorClient.EVENT_BUS.post(event);
 
-        if(postAction != null) {
+        if (postAction != null) {
             postAction.run();
             postAction = null;
         }
@@ -95,23 +80,13 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
             info.cancel();
     }
 
-    /**
-     * @param hand
-     * @param ci
-     */
     @Inject(method = "setCurrentHand", at = @At(value = "HEAD"))
     private void hookSetCurrentHand(Hand hand, CallbackInfo ci)
     {
         MeteorClient.EVENT_BUS.post(SetCurrentHandEvent.get(hand));
     }
 
-    /**
-     * @param x
-     * @param z
-     * @param ci
-     */
-    @Inject(method = "pushOutOfBlocks", at = @At(value = "HEAD"),
-        cancellable = true)
+    @Inject(method = "pushOutOfBlocks", at = @At(value = "HEAD"), cancellable = true)
     private void onPushOutOfBlocks(double x, double z, CallbackInfo ci)
     {
         PushOutOfBlocksEvent pushOutOfBlocksEvent = new PushOutOfBlocksEvent();
@@ -122,19 +97,12 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
         }
     }
 
-    /**
-     * @param hand
-     * @param ci
-     */
     @Inject(method = "swingHand", at = @At(value = "RETURN"))
     private void hookSwingHand(Hand hand, CallbackInfo ci)
     {
         MeteorClient.EVENT_BUS.post(SwingEvent.get(hand));
     }
 
-    /**
-     * @param ci
-     */
     @Inject(method = "tickMovement", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/client/input/Input;tick()V", shift = At.Shift.AFTER))
     private void hookTickMovementPost(CallbackInfo ci) {
@@ -144,13 +112,13 @@ public abstract class MixinClientPlayerEntity implements IClientPlayerEntity {
     @Override
     public float genyo_addon$getLastSpoofedYaw()
     {
-        return lastYaw;
+        return ((Entity) (Object) this).lastYaw;
     }
 
     @Override
     public float genyo_addon$getLastSpoofedPitch()
     {
-        return lastPitch;
+        return ((Entity) (Object) this).lastPitch;
     }
 
 }

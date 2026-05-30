@@ -29,7 +29,7 @@ public class AutoOminous extends GenyoModule {
     public void onTick(TickEvent.Pre event) {
         if (mc.player == null || mc.world == null || mc.interactionManager == null || mc.getServer() == null) return;
 
-        RaidManager raidManager = mc.getServer().getWorld(mc.player.getWorld().getRegistryKey()).getRaidManager();
+        RaidManager raidManager = mc.getServer().getWorld(mc.world.getRegistryKey()).getRaidManager();
         if (raidManager == null) return;
 
         Raid raid = raidManager.getRaidAt(mc.player.getBlockPos(), 50);
@@ -61,7 +61,7 @@ public class AutoOminous extends GenyoModule {
             return;
         }
 
-        selectedSlot = mc.player.getInventory().selectedSlot;
+        selectedSlot = mc.player.getInventory().getSelectedSlot();
         int itemSlot = result.slot();
         boolean wasHeld = result.isMainHand();
 

@@ -28,6 +28,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -198,7 +199,9 @@ public class GenyoVelocity extends GenyoModule {
         {
             if (packet.getEntityId() != mc.player.getId()) return;
 
-            if (concealVelocity && packet.getVelocityX() == 0 && packet.getVelocityZ() == 0 && packet.getVelocityZ() == 0) {
+            Vec3d vel = ((AccessorEntityVelocityUpdateS2CPacket) packet).getVelocity();
+
+            if (concealVelocity && vel.x == 0 && vel.z == 0) {
                 concealVelocity = false;
                 return;
             }
@@ -221,12 +224,11 @@ public class GenyoVelocity extends GenyoModule {
                         event.cancel();
                         return;
                     }
-                    ((AccessorEntityVelocityUpdateS2CPacket) packet).setVelocityX((int) (packet.getVelocityX()
-                        * (horizontalConfig.get() / 100.0f)));
-                    ((AccessorEntityVelocityUpdateS2CPacket) packet).setVelocityY((int) (packet.getVelocityY()
-                        * (verticalConfig.get() / 100.0f)));
-                    ((AccessorEntityVelocityUpdateS2CPacket) packet).setVelocityZ((int) (packet.getVelocityZ()
-                        * (horizontalConfig.get() / 100.0f)));
+                    ((AccessorEntityVelocityUpdateS2CPacket) packet).setVelocity(new Vec3d(
+                        vel.x * (horizontalConfig.get() / 100.0f),
+                        vel.y * (verticalConfig.get() / 100.0f),
+                        vel.z * (horizontalConfig.get() / 100.0f)
+                    ));
                 }
                 case GRIM ->
                 {
@@ -270,7 +272,6 @@ public class GenyoVelocity extends GenyoModule {
 
             if (event.isCancelled())
             {
-                // Dumb fix bc canceling explosion velocity removes explosion handling in 1.19
                 mc.executeSync(() -> ((AccessorClientWorld) mc.world).hookPlaySound(packet.center().getX(), packet.center().getY(), packet.center().getZ(),
                     SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS,
                     4.0f, (1.0f + (RANDOM.nextFloat() - RANDOM.nextFloat()) * 0.2f) * 0.7f, false, RANDOM.nextLong()));
@@ -341,7 +342,7 @@ public class GenyoVelocity extends GenyoModule {
                         if (!isPhased() && (!wallsTrappedConfig.get() || !isWallsTrapped()))
                         {
                             allowedBundle.add(packet1);
-                            return;
+                            continue; // was "return" — bug fix
                         }
 
                         if (wallsAirConfig.get() && !Managers.POSITION.isOnGround())
@@ -361,12 +362,12 @@ public class GenyoVelocity extends GenyoModule {
                             }
                             else
                             {
-                                ((AccessorEntityVelocityUpdateS2CPacket) packet2).setVelocityX((int) (packet2.getVelocityX()
-                                    * (horizontalConfig.get() / 100.0f)));
-                                ((AccessorEntityVelocityUpdateS2CPacket) packet2).setVelocityY((int) (packet2.getVelocityY()
-                                    * (verticalConfig.get() / 100.0f)));
-                                ((AccessorEntityVelocityUpdateS2CPacket) packet2).setVelocityZ((int) (packet2.getVelocityZ()
-                                    * (horizontalConfig.get() / 100.0f)));
+                                Vec3d vel2 = ((AccessorEntityVelocityUpdateS2CPacket) packet2).getVelocity();
+                                ((AccessorEntityVelocityUpdateS2CPacket) packet2).setVelocity(new Vec3d(
+                                    vel2.x * (horizontalConfig.get() / 100.0f),
+                                    vel2.y * (verticalConfig.get() / 100.0f),
+                                    vel2.z * (horizontalConfig.get() / 100.0f)
+                                ));
                             }
                         }
                         case GRIM ->
@@ -402,7 +403,6 @@ public class GenyoVelocity extends GenyoModule {
         {
             Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(false, mc.player.horizontalCollision));
             Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true, mc.player.horizontalCollision));
-            // Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround()));
         }
 
         else if (event.packet instanceof EntityStatusS2CPacket packet
@@ -415,7 +415,6 @@ public class GenyoVelocity extends GenyoModule {
             }
         }
     }
-
     @EventHandler
     public void onPlayerTick(PlayerTickEvent event)
     {

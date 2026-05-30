@@ -8,6 +8,7 @@ import com.genyo.utils.math.PerSecondCounter;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.*;
+import net.minecraft.client.world.ClientChunkLoadProgress;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 
@@ -51,14 +52,23 @@ public class NetworkManager {
         incomingCounter.updateCounter();
     }
 
-    public void connect(final ServerAddress address, final ServerInfo info)
-    {
-        if (mc.getNetworkHandler() == null)
-        {
-            return;
-        }
-        mc.getNetworkHandler().getConnection().connect(address.getAddress(), address.getPort(),
-            new ClientLoginNetworkHandler(mc.getNetworkHandler().getConnection(), mc, info, null, false, null, null, null));
+    public void connect(final ServerAddress address, final ServerInfo info) {
+        if (mc.getNetworkHandler() == null) return;
+        mc.getNetworkHandler().getConnection().connect(
+            address.getAddress(),
+            address.getPort(),
+            new ClientLoginNetworkHandler(
+                mc.getNetworkHandler().getConnection(),
+                mc,
+                info,
+                null,
+                false,
+                null,
+                text -> {},
+                new ClientChunkLoadProgress(),
+                null
+            )
+        );
     }
 
     public void sendQuietPacket(final Packet<?> p)
@@ -129,7 +139,7 @@ public class NetworkManager {
         if (mc.getNetworkHandler() != null)
         {
             final PlayerListEntry playerEntry =
-                mc.getNetworkHandler().getPlayerListEntry(mc.player.getGameProfile().getId());
+                mc.getNetworkHandler().getPlayerListEntry(mc.player.getGameProfile().id());
             if (playerEntry != null)
             {
                 return playerEntry.getLatency();

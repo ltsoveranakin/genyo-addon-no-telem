@@ -321,8 +321,8 @@ public class AutoCrawlTrap extends PlacerModule {
         int ticks = 0;
         while (ticks <= extrapolateTicks.get())
         {
-            double ox = (x - entity.prevX) * ticks;
-            double oz = (z - entity.prevZ) * ticks;
+            double ox = (x - entity.lastX) * ticks;
+            double oz = (z - entity.lastZ) * ticks;
             BlockPos blockPos = BlockPos.ofFloored(x + ox, y, z + oz);
             if (!crawlTrap.contains(blockPos.up()))
             {

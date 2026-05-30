@@ -38,7 +38,7 @@ public class GenyoAutoTool extends GenyoModule {
         {
             return slot;
         }
-        return mc.player.getInventory().selectedSlot;
+        return mc.player.getInventory().getSelectedSlot();
     }
 
     public int getBestToolNoFallback(final BlockState state)

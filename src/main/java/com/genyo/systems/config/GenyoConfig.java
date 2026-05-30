@@ -33,6 +33,33 @@ public class GenyoConfig extends System<GenyoConfig> {
         .build()
     );
 
+    // In sgSounds group, add these three:
+
+    public final Setting<Boolean> guiSounds = sgSounds.add(new BoolSetting.Builder()
+        .name("gui-sounds")
+        .description("Play sounds when hovering and clicking in Meteor's GUI.")
+        .defaultValue(true)
+        .build()
+    );
+
+    public final Setting<Integer> hoverVolume = sgSounds.add(new IntSetting.Builder()
+        .name("hover-volume")
+        .description("Volume of the hover sound.")
+        .min(1).defaultValue(60).max(100)
+        .sliderRange(1, 100)
+        .visible(guiSounds::get)
+        .build()
+    );
+
+    public final Setting<Integer> clickVolume = sgSounds.add(new IntSetting.Builder()
+        .name("click-volume")
+        .description("Volume of left/right click sounds.")
+        .min(1).defaultValue(80).max(100)
+        .sliderRange(1, 100)
+        .visible(guiSounds::get)
+        .build()
+    );
+
     public final Setting<Boolean> blackPerson = sgSounds.add(new BoolSetting.Builder()
         .name("black-person")
         .description("Detect when black person")
@@ -85,7 +112,7 @@ public class GenyoConfig extends System<GenyoConfig> {
 
     @Override
     public GenyoConfig fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
+        if (tag.contains("settings")) tag.getCompound("settings").ifPresent(settings::fromTag);
 
         return this;
     }

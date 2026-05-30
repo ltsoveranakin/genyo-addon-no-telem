@@ -23,6 +23,8 @@ import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.screen.sync.ComponentChangesHash;
+import net.minecraft.screen.sync.ItemStackHash;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
@@ -176,7 +178,7 @@ public class InventoryManager {
      */
     public void setClientSlot(final int barSlot)
     {
-        if (mc.player.getInventory().selectedSlot != barSlot
+        if (mc.player.getInventory().getSelectedSlot() != barSlot
             && PlayerInventory.isValidHotbarIndex(barSlot))
         {
             mc.player.getInventory().setSelectedSlot(barSlot);
@@ -201,7 +203,7 @@ public class InventoryManager {
     {
         if (isDesynced())
         {
-            setSlotForced(mc.player.getInventory().selectedSlot);
+            setSlotForced(mc.player.getInventory().getSelectedSlot());
 
             for (PreSwapData swapData : swapData)
             {
@@ -212,7 +214,7 @@ public class InventoryManager {
 
     public boolean isDesynced()
     {
-        return mc.player.getInventory().selectedSlot != slot;
+        return mc.player.getInventory().getSelectedSlot() != slot;
     }
 
     //
@@ -260,57 +262,68 @@ public class InventoryManager {
      * @param button
      * @param type
      */
-    public int click(int slot, int button, SlotActionType type)
-    {
-        if (slot < 0)
-        {
-            return -1;
-        }
+    public int click(int slot, int button, SlotActionType type) {
+        if (slot < 0) return -1;
+
         ScreenHandler screenHandler = mc.player.currentScreenHandler;
         DefaultedList<Slot> defaultedList = screenHandler.slots;
         int i = defaultedList.size();
         ArrayList<ItemStack> list = Lists.newArrayListWithCapacity(i);
-        for (Slot slot1 : defaultedList)
-        {
+        for (Slot slot1 : defaultedList) {
             list.add(slot1.getStack().copy());
         }
         screenHandler.onSlotClick(slot, button, type, mc.player);
-        Int2ObjectOpenHashMap<ItemStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
-        for (int j = 0; j < i; ++j)
-        {
-            ItemStack itemStack2;
+
+        ComponentChangesHash.ComponentHasher hasher = component -> component.value().hashCode();
+        Int2ObjectOpenHashMap<ItemStackHash> int2ObjectMap = new Int2ObjectOpenHashMap<>();
+        for (int j = 0; j < i; ++j) {
             ItemStack itemStack = list.get(j);
-            if (ItemStack.areEqual(itemStack, itemStack2 = defaultedList.get(j).getStack())) continue;
-            int2ObjectMap.put(j, itemStack2.copy());
+            ItemStack itemStack2 = defaultedList.get(j).getStack();
+            if (ItemStack.areEqual(itemStack, itemStack2)) continue;
+            int2ObjectMap.put(j, ItemStackHash.fromItemStack(itemStack2, hasher));
         }
-        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), slot, button, type, screenHandler.getCursorStack().copy(), int2ObjectMap));
+
+        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(
+            screenHandler.syncId,
+            screenHandler.getRevision(),
+            (short) slot,
+            (byte) button,
+            type,
+            int2ObjectMap,
+            ItemStackHash.fromItemStack(screenHandler.getCursorStack(), hasher)
+        ));
         return screenHandler.getRevision();
     }
 
-    public int click2(int slot, int button, SlotActionType type)
-    {
-        if (slot < 0)
-        {
-            return -1;
-        }
+    public int click2(int slot, int button, SlotActionType type) {
+        if (slot < 0) return -1;
+
         ScreenHandler screenHandler = mc.player.currentScreenHandler;
         DefaultedList<Slot> defaultedList = screenHandler.slots;
         int i = defaultedList.size();
         ArrayList<ItemStack> list = Lists.newArrayListWithCapacity(i);
-        for (Slot slot1 : defaultedList)
-        {
+        for (Slot slot1 : defaultedList) {
             list.add(slot1.getStack().copy());
         }
-        // screenHandler.onSlotClick(slot, button, type, mc.player);
-        Int2ObjectOpenHashMap<ItemStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
-        for (int j = 0; j < i; ++j)
-        {
-            ItemStack itemStack2;
+
+        ComponentChangesHash.ComponentHasher hasher = component -> component.value().hashCode();
+        Int2ObjectOpenHashMap<ItemStackHash> int2ObjectMap = new Int2ObjectOpenHashMap<>();
+        for (int j = 0; j < i; ++j) {
             ItemStack itemStack = list.get(j);
-            if (ItemStack.areEqual(itemStack, itemStack2 = defaultedList.get(j).getStack())) continue;
-            int2ObjectMap.put(j, itemStack2.copy());
+            ItemStack itemStack2 = defaultedList.get(j).getStack();
+            if (ItemStack.areEqual(itemStack, itemStack2)) continue;
+            int2ObjectMap.put(j, ItemStackHash.fromItemStack(itemStack2, hasher));
         }
-        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(screenHandler.syncId, screenHandler.getRevision(), slot, button, type, screenHandler.getCursorStack().copy(), int2ObjectMap));
+
+        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(
+            screenHandler.syncId,
+            screenHandler.getRevision(),
+            (short) slot,
+            (byte) button,
+            type,
+            int2ObjectMap,
+            ItemStackHash.fromItemStack(screenHandler.getCursorStack(), hasher)
+        ));
         return screenHandler.getRevision();
     }
 
@@ -324,7 +337,7 @@ public class InventoryManager {
 
     public int getClientSlot()
     {
-        return mc.player.getInventory().selectedSlot;
+        return mc.player.getInventory().getSelectedSlot();
     }
 
     /**

@@ -8,32 +8,32 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 public class SInterpolation {
 
     /**
-     * @param prev
+     * @param last
      * @param value
      * @param factor
      * @return
      */
-    public static double interpolateDouble(double prev, double value, double factor)
+    public static double interpolateDouble(double last, double value, double factor)
     {
-        return prev + ((value - prev) * factor);
+        return last + ((value - last) * factor);
     }
 
     /**
-     * @param prevBox
+     * @param lastBox
      * @param box
      * @return
      */
-    public static Box getInterpolatedBox(Box prevBox, Box box)
+    public static Box getInterpolatedBox(Box lastBox, Box box)
     {
 
-        double delta = mc.isPaused() ? 1f : mc.getRenderTickCounter().getTickDelta(true);
+        double delta = mc.isPaused() ? 1f : mc.getRenderTickCounter().getTickProgress(true);
 
-        return new Box(interpolateDouble(prevBox.minX, box.minX, delta),
-            interpolateDouble(prevBox.minY, box.minY, delta),
-            interpolateDouble(prevBox.minZ, box.minZ, delta),
-            interpolateDouble(prevBox.maxX, box.maxX, delta),
-            interpolateDouble(prevBox.maxY, box.maxY, delta),
-            interpolateDouble(prevBox.maxZ, box.maxZ, delta));
+        return new Box(interpolateDouble(lastBox.minX, box.minX, delta),
+            interpolateDouble(lastBox.minY, box.minY, delta),
+            interpolateDouble(lastBox.minZ, box.minZ, delta),
+            interpolateDouble(lastBox.maxX, box.maxX, delta),
+            interpolateDouble(lastBox.maxY, box.maxY, delta),
+            interpolateDouble(lastBox.maxZ, box.maxZ, delta));
     }
 
     /**
@@ -43,8 +43,8 @@ public class SInterpolation {
     public static Box getInterpolatedEntityBox(Entity entity)
     {
         Box box = entity.getBoundingBox();
-        Box prevBox = entity.getBoundingBox().offset(entity.prevX - entity.getX(), entity.prevY - entity.getY(), entity.prevZ - entity.getZ());
-        return getInterpolatedBox(prevBox, box);
+        Box lastBox = entity.getBoundingBox().offset(entity.lastX - entity.getX(), entity.lastY - entity.getY(), entity.lastZ - entity.getZ());
+        return getInterpolatedBox(lastBox, box);
     }
 
 }

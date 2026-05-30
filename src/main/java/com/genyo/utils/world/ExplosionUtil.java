@@ -24,6 +24,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -97,9 +99,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastRenderX) * extrapolationTicks;
+            double oy = (y - entity.lastRenderY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastRenderZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -150,9 +152,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastRenderX) * extrapolationTicks;
+            double oy = (y - entity.lastRenderY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastRenderZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -193,9 +195,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastRenderX) * extrapolationTicks;
+            double oy = (y - entity.lastRenderY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastRenderZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -231,9 +233,9 @@ public class ExplosionUtil {
         Vec3d vec3d2 = Vec3d.ZERO;
         if (extrapolationTicks != 0)
         {
-            double ox = (x - entity.prevX) * extrapolationTicks;
-            double oy = (y - entity.prevY) * extrapolationTicks * 0.3;
-            double oz = (z - entity.prevZ) * extrapolationTicks;
+            double ox = (x - entity.lastRenderX) * extrapolationTicks;
+            double oy = (y - entity.lastRenderY) * extrapolationTicks * 0.3;
+            double oz = (z - entity.lastRenderZ) * extrapolationTicks;
             x += ox;
             y += oy;
             z += oz;
@@ -312,7 +314,12 @@ public class ExplosionUtil {
 
     private static float getProtectionReduction(Entity player, double damage, DamageSource source, boolean assumeBestArmor) {
         if (player instanceof LivingEntity livingEntity) {
-            float protLevel = getProtectionAmount(livingEntity.getArmorItems(), assumeBestArmor);
+            List<ItemStack> armorItems = new ArrayList<>();
+            armorItems.add(livingEntity.getEquippedStack(EquipmentSlot.HEAD));
+            armorItems.add(livingEntity.getEquippedStack(EquipmentSlot.CHEST));
+            armorItems.add(livingEntity.getEquippedStack(EquipmentSlot.LEGS));
+            armorItems.add(livingEntity.getEquippedStack(EquipmentSlot.FEET));
+            float protLevel = getProtectionAmount(armorItems, assumeBestArmor);
             return DamageUtil.getInflictedDamage((float) damage, protLevel);
         }
         return 0.0f;

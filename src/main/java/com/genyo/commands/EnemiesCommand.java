@@ -23,12 +23,12 @@ public class EnemiesCommand extends Command {
             .then((argument("player", PlayerListEntryArgumentTypeEx.create())
                 .executes(context -> {
                     GameProfile profile = PlayerListEntryArgumentTypeEx.get(context).getProfile();
-                    if (profile.getName().equals(mc.player.getGameProfile().getName())) {
+                    if (profile.name().equals(mc.player.getGameProfile().name())) {
                         GenyoChatUtils.sendError("You can't add yourself as enemy.");
                         return SINGLE_SUCCESS;
                     }
 
-                    Enemy enemy = new Enemy(profile.getName(), profile.getId());
+                    Enemy enemy = new Enemy(profile.name(), profile.id());
 
                     if (Enemies.get().add(enemy)) {
                         GenyoChatUtils.sendMessage(Formatting.GRAY + "Added %s to enemies.".formatted(enemy.getName()));

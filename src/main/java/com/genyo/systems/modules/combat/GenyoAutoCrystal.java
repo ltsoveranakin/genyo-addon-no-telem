@@ -7,6 +7,7 @@ import com.genyo.systems.modules.PlacerModule;
 import com.genyo.systems.modules.misc.FastLatency;
 import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.player.RotationUtil;
+import com.genyo.utils.world.ExplosionUtil;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -24,7 +25,6 @@ import com.genyo.utils.math.timer.Timer;
 import com.genyo.utils.player.InventoryUtil;
 import com.genyo.utils.player.PlayerUtil;
 import com.genyo.utils.world.BlastResistantBlocks;
-import com.genyo.utils.world.ExplosionUtil;
 import com.google.common.collect.Lists;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render2DEvent;
@@ -38,7 +38,6 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.entity.*;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -701,7 +700,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         }
         renderPos = null;
         ArrayList<Entity> entities = Lists.newArrayList(mc.world.getEntities());
-        List<BlockPos> blocks = getSphere(placeRangeEye.get() ? mc.player.getEyePos() : mc.player.getPos());
+        List<BlockPos> blocks = getSphere(placeRangeEye.get() ? mc.player.getEyePos() : mc.player.getEntityPos());
         long timePre = System.nanoTime();
         if (place.get())
         {
@@ -718,7 +717,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 EndCrystalEntity crystalEntity = intersectingCrystalCheck(placeCrystal.getDamageData());
                 if (crystalEntity != null)
                 {
-                    double self = ExplosionUtil.getDamageTo(mc.player, crystalEntity.getPos(),
+                    double self = ExplosionUtil.getDamageTo(mc.player, crystalEntity.getEntityPos(),
                         blockDestruction.get(), selfExtrapolate.get() ? extrapolateTicks.get() : 0, false);
                     if (!safety.get() || !playerDamageCheck(self))
                     {
@@ -757,7 +756,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         attackRotate = attackCrystal != null && attackDelay.get() <= 0.0 && lastAttackTimer.passed(breakDelay);
         if (attackCrystal != null)
         {
-            crystalRotation = attackCrystal.damageData.getPos();
+            crystalRotation = attackCrystal.damageData.getEntityPos();
         }
         else if (placeCrystal != null)
         {
@@ -1017,7 +1016,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         {
             return;
         }
-        Vec3d crystalPos = crystalEntity.getPos();
+        Vec3d crystalPos = crystalEntity.getEntityPos();
         BlockPos blockPos = BlockPos.ofFloored(crystalPos.add(0.0, -1.0, 0.0));
         renderSpawnPos = blockPos;
         Long time = placePackets.remove(blockPos);
@@ -1061,7 +1060,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 {
                     continue;
                 }
-                double crystalDist = crystalPos.squaredDistanceTo(entity.getPos());
+                double crystalDist = crystalPos.squaredDistanceTo(entity.getEntityPos());
                 if (crystalDist > 144.0f)
                 {
                     continue;
@@ -1135,9 +1134,9 @@ public class GenyoAutoCrystal extends PlacerModule {
             for (int i = 0; i < 9; ++i)
             {
                 ItemStack stack = mc.player.getInventory().getStack(i);
-                if (!stack.isEmpty() && (stack.getItem() instanceof SwordItem
+                if (!stack.isEmpty() && (stack.isIn(ItemTags.SWORDS)
                     || stack.getItem() instanceof AxeItem
-                    || stack.getItem() instanceof PickaxeItem))
+                    || stack.isIn(ItemTags.PICKAXES)))
                 {
                     slot = i;
                     break;
@@ -1151,7 +1150,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (antiWeakness.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            slot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
+                            slot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
                     }
                     else if (antiWeakness.get() == Swap.SILENT)
                     {
@@ -1168,7 +1167,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (antiWeakness.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            slot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
+                            slot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
                     }
                     else if (antiWeakness.get() == Swap.SILENT)
                     {
@@ -1279,7 +1278,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (autoSwap.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            crystalSlot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
+                            crystalSlot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
                     }
                     else if (autoSwap.get() == Swap.SILENT)
                     {
@@ -1297,7 +1296,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     if (autoSwap.get() == Swap.SILENT_ALT)
                     {
                         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                            crystalSlot + 36, mc.player.getInventory().selectedSlot, SlotActionType.SWAP, mc.player);
+                            crystalSlot + 36, mc.player.getInventory().getSelectedSlot(), SlotActionType.SWAP, mc.player);
                     }
                     else if (autoSwap.get() == Swap.SILENT)
                     {
@@ -1437,7 +1436,7 @@ public class GenyoAutoCrystal extends PlacerModule {
             {
                 continue;
             }
-            double selfDamage = ExplosionUtil.getDamageTo(mc.player, crystal.getPos(),
+            double selfDamage = ExplosionUtil.getDamageTo(mc.player, crystal.getEntityPos(),
                 blockDestruction.get(), selfExtrapolate.get() ? extrapolateTicks.get() : 0, false);
             boolean unsafeToPlayer = playerDamageCheck(selfDamage);
             if (unsafeToPlayer && !safetyOverride.get())
@@ -1495,7 +1494,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                     }
                 }
 
-                double damage = ExplosionUtil.getDamageTo(entity, crystal.getPos(), blockDestruction.get(),
+                double damage = ExplosionUtil.getDamageTo(entity, crystal.getEntityPos(), blockDestruction.get(),
                     extrapolateTicks.get(), assumeArmor.get());
                 if (checkOverrideSafety(unsafeToPlayer, damage, entity))
                 {
@@ -1528,7 +1527,7 @@ public class GenyoAutoCrystal extends PlacerModule {
 
     private boolean attackRangeCheck(EndCrystalEntity entity)
     {
-        return attackRangeCheck(entity.getPos());
+        return attackRangeCheck(entity.getEntityPos());
     }
 
     /**
@@ -1587,7 +1586,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 {
                     continue;
                 }
-                double blockDist = pos.getSquaredDistance(entity.getPos());
+                double blockDist = pos.getSquaredDistance(entity.getEntityPos());
                 if (blockDist > 144.0f)
                 {
                     continue;
@@ -1670,7 +1669,7 @@ public class GenyoAutoCrystal extends PlacerModule {
     {
         double placeRange = placeRangeC.get();
         double placeWallRange = placeWallRangeC.get();
-        Vec3d player = placeRangeEye.get() ? mc.player.getEyePos() : mc.player.getPos();
+        Vec3d player = placeRangeEye.get() ? mc.player.getEyePos() : mc.player.getEntityPos();
         double dist = placeRangeCenter.get() ?
             player.squaredDistanceTo(pos.toCenterPos()) : pos.getSquaredDistance(player.x, player.y, player.z);
         if (dist > placeRange * placeRange)
@@ -1812,8 +1811,9 @@ public class GenyoAutoCrystal extends PlacerModule {
         }
         if (armorBreaker.get())
         {
-            for (ItemStack armorStack : entity.getArmorItems())
+            for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET})
             {
+                ItemStack armorStack = entity.getEquippedStack(slot);
                 int n = armorStack.getDamage();
                 int n1 = armorStack.getMaxDamage();
                 float durability = ((n1 - n) / (float) n1) * 100.0f;
@@ -1827,7 +1827,7 @@ public class GenyoAutoCrystal extends PlacerModule {
         // Antiregear
         if (shulkers.get() && entity instanceof PlayerEntity)
         {
-            for (BlockPos pos : getSphere(3.0f, entity.getPos()))
+            for (BlockPos pos : getSphere(3.0f, entity.getEntityPos()))
             {
                 BlockState state = mc.world.getBlockState(pos);
                 if (state.getBlock() instanceof ShulkerBoxBlock)
@@ -1954,7 +1954,7 @@ public class GenyoAutoCrystal extends PlacerModule {
                 else
                 {
                     double dist = mc.player.squaredDistanceTo(entity1);
-                    stuckCrystals.add(new AntiStuckData(entity1.getId(), entity1.getBlockPos(), entity1.getPos(), dist));
+                    stuckCrystals.add(new AntiStuckData(entity1.getId(), entity1.getBlockPos(), entity1.getEntityPos(), dist));
                 }
             }
         }

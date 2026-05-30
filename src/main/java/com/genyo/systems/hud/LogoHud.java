@@ -1,7 +1,6 @@
 package com.genyo.systems.hud;
 
 import com.genyo.Genyo;
-import meteordevelopment.meteorclient.renderer.GL;
 import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -9,8 +8,9 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
+import net.minecraft.client.MinecraftClient;
 import meteordevelopment.meteorclient.utils.render.color.Color;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.util.Identifier;
 
 public class LogoHud extends HudElement {
@@ -36,11 +36,11 @@ public class LogoHud extends HudElement {
     @Override
     public void render(HudRenderer renderer) {
         setSize(256 * scale.get(), 256 * scale.get());
-        MatrixStack matrices = new MatrixStack();
 
-        GL.bindTexture(logo);
+        AbstractTexture texture = MinecraftClient.getInstance().getTextureManager().getTexture(logo);
+
         Renderer2D.TEXTURE.begin();
         Renderer2D.TEXTURE.texQuad(x, y, 256 * scale.get(), 256 * scale.get(), new Color(255, 255, 255, 255));
-        Renderer2D.TEXTURE.render(matrices);
+        Renderer2D.TEXTURE.render(texture.getGlTextureView(), texture.getSampler());
     }
 }
