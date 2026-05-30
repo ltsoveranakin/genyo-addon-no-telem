@@ -34,6 +34,8 @@ public class InfoExporter {
             return;
         }
 
+        //asd
+
         // Modules
         for (String category : categories) {
             List<ExModule> currentModules = acquireModules(category);
