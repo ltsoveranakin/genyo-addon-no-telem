@@ -5,7 +5,6 @@ import com.genyo.managers.anticheat.AntiCheatManager;
 import com.genyo.managers.combat.CombatManager;
 import com.genyo.managers.combat.PearlManager;
 import com.genyo.managers.combat.TotemManager;
-import com.genyo.managers.network.GDTogglerManager;
 import com.genyo.managers.network.NetworkManager;
 import com.genyo.managers.player.InteractionManager;
 import com.genyo.managers.player.InventoryManager;
@@ -17,7 +16,7 @@ import com.genyo.managers.world.SocialManager;
 import com.genyo.managers.world.tick.TickManager;
 import com.genyo.render.Render3DEngine;
 
-import static meteordevelopment.meteorclient.MeteorClient.*;
+import static meteordevelopment.meteorclient.MeteorClient.EVENT_BUS;
 
 public class Managers {
 
@@ -46,7 +45,6 @@ public class Managers {
         EVENT_BUS.subscribe(TOTEM);
         EVENT_BUS.subscribe(MOVEMENT);
         EVENT_BUS.subscribe(INTERACT);
-        EVENT_BUS.subscribe(new GDTogglerManager());
         EVENT_BUS.subscribe(ROTATION);
         EVENT_BUS.subscribe(POSITION);
         EVENT_BUS.subscribe(ANTICHEAT);

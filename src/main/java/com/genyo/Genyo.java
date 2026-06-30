@@ -1,20 +1,24 @@
 package com.genyo;
 
+import com.genyo.commands.EnemiesCommand;
 import com.genyo.commands.ExportCommand;
 import com.genyo.core.Core;
-import com.genyo.commands.EnemiesCommand;
-import com.genyo.core.stats.ClientIdManager;
-import com.genyo.core.stats.WebStats;
+import com.genyo.managers.Managers;
 import com.genyo.systems.config.GenyoConfig;
 import com.genyo.systems.config.GenyoTab;
+import com.genyo.systems.enemies.Enemies;
+import com.genyo.systems.enemies.EnemiesTab;
 import com.genyo.systems.hud.*;
 import com.genyo.systems.modules.combat.*;
 import com.genyo.systems.modules.misc.*;
-import com.genyo.systems.modules.movement.*;
-import com.genyo.systems.modules.visual.*;
-import com.genyo.systems.enemies.EnemiesTab;
-import com.genyo.managers.Managers;
-import com.genyo.systems.enemies.Enemies;
+import com.genyo.systems.modules.movement.AntiLadder;
+import com.genyo.systems.modules.movement.GenyoNoSlow;
+import com.genyo.systems.modules.movement.GenyoPhase;
+import com.genyo.systems.modules.movement.GenyoVelocity;
+import com.genyo.systems.modules.visual.GenyoCapes;
+import com.genyo.systems.modules.visual.GenyoNametags;
+import com.genyo.systems.modules.visual.Parkinsons;
+import com.genyo.systems.modules.visual.PenisESP;
 import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
@@ -27,14 +31,12 @@ import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.misc.DiscordPresence;
 import meteordevelopment.meteorclient.utils.misc.Version;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +62,6 @@ public class Genyo extends MeteorAddon {
     public static final Version VERSION;
 
     public static Core core;
-    public static String clientId;
-    private static WebStats STATS;
 
     static {
         MOD_META = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata();
@@ -80,11 +80,6 @@ public class Genyo extends MeteorAddon {
     @Override
     public void onInitialize() {
         LOG.info("Welcome to Genyo :D");
-
-        if (Modules.get().isActive(DiscordPresence.class)) {
-            Modules.get().get(DiscordPresence.class).toggle();
-            LOG.info("oh no la policia");
-        }
 
         // Tabs
         initTabs();
@@ -112,14 +107,6 @@ public class Genyo extends MeteorAddon {
         CATEGORIES.add(WORLD);
 
         core = new Core();
-
-        Path configDir = FabricLoader.getInstance().getConfigDir();
-        clientId = ClientIdManager.getClientId(configDir);
-        LOG.info("Client ID: {}", clientId);
-        STATS = new WebStats(clientId);
-
-        STATS.sendLogin();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> STATS.sendLogout()));
     }
 
     private void initTabs() {
