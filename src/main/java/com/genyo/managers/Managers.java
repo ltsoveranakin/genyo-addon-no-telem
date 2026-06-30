@@ -1,6 +1,5 @@
 package com.genyo.managers;
 
-import com.genyo.core.sound.SoundManager;
 import com.genyo.managers.anticheat.AntiCheatManager;
 import com.genyo.managers.combat.CombatManager;
 import com.genyo.managers.combat.PearlManager;
@@ -34,7 +33,6 @@ public class Managers {
     public static final TickManager TICK = new TickManager();
     public static final SocialManager SOCIAL = new SocialManager();
     public static final PearlManager PEARL = new PearlManager();
-    public static final SoundManager SOUND = new SoundManager();
 
     public static void subscribe() {
         EVENT_BUS.subscribe(COMBAT);
@@ -51,7 +49,6 @@ public class Managers {
         EVENT_BUS.subscribe(TICK);
         EVENT_BUS.subscribe(PEARL);
         EVENT_BUS.subscribe(SOCIAL);
-        EVENT_BUS.subscribe(SOUND);
     }
 
     public static void init() {

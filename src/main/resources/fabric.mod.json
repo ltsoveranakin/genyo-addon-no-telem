@@ -18,7 +18,7 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "com.genyo.core.sound.SoundLoader"
+      "com.genyo.core.entry.GenyoEntry"
     ],
     "meteor": [
       "com.genyo.Genyo"
@@ -33,7 +33,9 @@
   },
   "depends": {
     "java": ">=21",
-    "minecraft": ["${mc_version}"],
+    "minecraft": [
+      "${mc_version}"
+    ],
     "meteor-client": "*"
   }
 }

@@ -2,7 +2,6 @@ package com.genyo;
 
 import com.genyo.commands.EnemiesCommand;
 import com.genyo.commands.ExportCommand;
-import com.genyo.core.Core;
 import com.genyo.managers.Managers;
 import com.genyo.systems.config.GenyoConfig;
 import com.genyo.systems.config.GenyoTab;
@@ -61,8 +60,6 @@ public class Genyo extends MeteorAddon {
     public static final String NAME;
     public static final Version VERSION;
 
-    public static Core core;
-
     static {
         MOD_META = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata();
 
@@ -105,8 +102,6 @@ public class Genyo extends MeteorAddon {
         CATEGORIES.add(MOVEMENT);
         CATEGORIES.add(VISUAL);
         CATEGORIES.add(WORLD);
-
-        core = new Core();
     }
 
     private void initTabs() {

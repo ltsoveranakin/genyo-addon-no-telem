@@ -2,8 +2,6 @@ package com.genyo.managers.combat;
 
 import com.genyo.events.TotemPopEvent;
 import com.genyo.events.UnderCombatEvent;
-import com.genyo.managers.Managers;
-import com.genyo.core.sound.SoundManager;
 import com.genyo.utils.GenyoChatUtils;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.entity.player.AttackEntityEvent;
@@ -60,8 +58,6 @@ public class CombatManager {
                 GenyoChatUtils.sendMessage(Formatting.GRAY + "You have very dead. Oh no." +
                     "\n\nReason: " + Formatting.GREEN + "ewrhjfkjerkjfhrejkgkregr" + Formatting.GRAY +
                     "\nConclusion: " + Formatting.GREEN + "Skill issue. :(");
-
-                Managers.SOUND.playSound(SoundManager.SCREAM, 80);
             }
         }
     }
