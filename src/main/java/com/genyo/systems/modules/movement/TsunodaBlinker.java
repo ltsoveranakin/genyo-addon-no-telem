@@ -22,26 +22,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TsunodaBlinker extends GenyoModule {
 
-    public TsunodaBlinker() {
-        super(Genyo.MOVEMENT, "tsunoda-blinker", "Yuki's short as fuck");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<LagMode> mode = sgGeneral.add(new EnumSetting.Builder<LagMode>()
         .name("Mode")
         .description("The mode for caching packets")
         .defaultValue(LagMode.BLINK)
         .build()
     );
-
     private final Setting<Boolean> pulse = sgGeneral.add(new BoolSetting.Builder()
         .name("Pulse")
         .description("Releases packets at intervals")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Float> factor = sgGeneral.add(new FloatSetting.Builder()
         .name("Factor")
         .description("The factor for packet intervals")
@@ -49,23 +42,22 @@ public class TsunodaBlinker extends GenyoModule {
         .visible(pulse::get)
         .build()
     );
-
     private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders the serverside player position")
         .defaultValue(true)
         .build()
     );
-
+    private final Queue<Packet<?>> packets = new LinkedBlockingQueue<>();
     private FakePlayerEntity serverModel;
     private boolean blinking;
-    private final Queue<Packet<?>> packets = new LinkedBlockingQueue<>();
+    public TsunodaBlinker() {
+        super(Genyo.MOVEMENT, "tsunoda-blinker", "");
+    }
 
     @Override
-    public void onActivate()
-    {
-        if (mc.player != null && render.get())
-        {
+    public void onActivate() {
+        if (mc.player != null && render.get()) {
             serverModel = new FakePlayerEntity(mc.player, mc.player.getGameProfile().name(), 20, true);
             serverModel.spawn();
             serverModel.setUuid(mc.player.getUuid());
@@ -73,22 +65,17 @@ public class TsunodaBlinker extends GenyoModule {
     }
 
     @Override
-    public void onDeactivate()
-    {
-        if (mc.player == null)
-        {
+    public void onDeactivate() {
+        if (mc.player == null) {
             return;
         }
-        if (!packets.isEmpty())
-        {
-            for (Packet<?> p : packets)
-            {
+        if (!packets.isEmpty()) {
+            for (Packet<?> p : packets) {
                 Managers.NETWORK.sendPacket(p);
             }
             packets.clear();
         }
-        if (serverModel != null)
-        {
+        if (serverModel != null) {
             serverModel.setUuid(UUID.fromString("8667ba71-b85a-4004-af54-457a9734eed7"));
             serverModel.despawn();
         }
@@ -104,8 +91,7 @@ public class TsunodaBlinker extends GenyoModule {
                 }
             }
             packets.clear();
-            if (serverModel != null)
-            {
+            if (serverModel != null) {
                 serverModel.copyPositionAndRotation(mc.player);
                 serverModel.setHeadYaw(mc.player.headYaw);
             }
@@ -114,30 +100,25 @@ public class TsunodaBlinker extends GenyoModule {
     }
 
     @EventHandler
-    public void onDisconnectEvent(DisconnectEvent event)
-    {
+    public void onDisconnectEvent(DisconnectEvent event) {
         toggle();
     }
 
     @EventHandler
-    public void onPacketSend(PacketEvent.Send event)
-    {
-        if (mc.player == null || mc.player.isRiding() || blinking)
-        {
+    public void onPacketSend(PacketEvent.Send event) {
+        if (mc.player == null || mc.player.isRiding() || blinking) {
             return;
         }
         if (event.packet instanceof PlayerActionC2SPacket || event.packet instanceof PlayerMoveC2SPacket
             || event.packet instanceof ClientCommandC2SPacket || event.packet instanceof HandSwingC2SPacket
             || event.packet instanceof PlayerInteractEntityC2SPacket || event.packet instanceof PlayerInteractBlockC2SPacket
-            || event.packet instanceof PlayerInteractItemC2SPacket)
-        {
+            || event.packet instanceof PlayerInteractItemC2SPacket) {
             event.cancel();
             packets.add(event.packet);
         }
     }
 
-    public enum LagMode
-    {
+    public enum LagMode {
         BLINK
     }
 

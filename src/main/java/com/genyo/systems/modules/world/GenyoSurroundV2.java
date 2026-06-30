@@ -2,8 +2,8 @@ package com.genyo.systems.modules.world;
 
 import com.genyo.Genyo;
 import com.genyo.managers.Managers;
-import com.genyo.systems.modules.PlacerModule;
 import com.genyo.render.animation.Animation;
+import com.genyo.systems.modules.PlacerModule;
 import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.math.GPositionUtils;
 import com.genyo.utils.math.MathUtil;
@@ -41,26 +41,19 @@ import java.util.*;
 
 public class GenyoSurroundV2 extends PlacerModule {
 
-    public GenyoSurroundV2() {
-        super(Genyo.WORLD, "genyo-surround-v2", "Today I am the shit after I wake the shit is Yes");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate")
-        .description("ekwjfkljweklfjewfew")
+        .description("rotation mode")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Timing> timing = sgGeneral.add(new EnumSetting.Builder<Timing>()
         .name("Timing")
         .description("Timing for replacing blocks")
         .defaultValue(Timing.VANILLA)
         .build()
     );
-
     private final Setting<Boolean> buggy = sgGeneral.add(new BoolSetting.Builder()
         .name("Buggy Placing")
         .description("not a bug, its a genyo feature")
@@ -68,7 +61,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
-
     private final Setting<Boolean> prePlaceExplosion = sgGeneral.add(new BoolSetting.Builder()
         .name("Pre Place Explosions")
         .description("Pre places before explosions")
@@ -76,7 +68,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
-
     private final Setting<Boolean> prePlaceTick = sgGeneral.add(new BoolSetting.Builder()
         .name("Pre Place Tick")
         .description("Pre places before ticks")
@@ -84,7 +75,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .visible(() -> timing.get() == Timing.SEQUENTIAL)
         .build()
     );
-
     private final Setting<Float> placeRange = sgGeneral.add(new FloatSetting.Builder()
         .name("Place Range")
         .description("The placement range for surround")
@@ -93,28 +83,24 @@ public class GenyoSurroundV2 extends PlacerModule {
         .max(6.0f)
         .build()
     );
-
     private final Setting<Boolean> attack = sgGeneral.add(new BoolSetting.Builder()
         .name("Attack")
         .description("Attacks crystals in the way of surround")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> extend = sgGeneral.add(new BoolSetting.Builder()
         .name("Extend")
         .description("Extends surround if the player is not in the center of a block")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> head = sgGeneral.add(new BoolSetting.Builder()
         .name("Cover Head")
         .description("Place a block at your head")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> mineExtend = sgGeneral.add(new BoolSetting.Builder()
         .name("Mine Extend")
         .description("Extends surround if the block is being mined")
@@ -127,7 +113,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Float> mineProtectThreshold = sgGeneral.add(new FloatSetting.Builder()
         .name("Mine Threshold")
         .description("Mining progress % at which to place a protective block (0-100)")
@@ -137,14 +122,12 @@ public class GenyoSurroundV2 extends PlacerModule {
         .visible(() -> mineProtect.get())
         .build()
     );
-
     private final Setting<Boolean> support = sgGeneral.add(new BoolSetting.Builder()
         .name("Support")
         .description("Creates a floor for the surround if there is none")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Integer> shiftTicks = sgGeneral.add(new IntSetting.Builder()
         .name("Shift Ticks")
         .description("The number of blocks to place per tick")
@@ -153,7 +136,6 @@ public class GenyoSurroundV2 extends PlacerModule {
         .max(10)
         .build()
     );
-
     private final Setting<Float> shiftDelay = sgGeneral.add(new FloatSetting.Builder()
         .name("Shift Delay")
         .description("The delay between each block placement interval")
@@ -162,21 +144,18 @@ public class GenyoSurroundV2 extends PlacerModule {
         .max(5.0f)
         .build()
     );
-
     private final Setting<Boolean> jumpDisable = sgGeneral.add(new BoolSetting.Builder()
         .name("Auto Disable")
         .description("Disables after moving out of the hole")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> render = sgGeneral.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders where scaffold is placing blocks")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Integer> fadeTime = sgGeneral.add(new IntSetting.Builder()
         .name("Fade Time")
         .description("Time to fade")
@@ -186,22 +165,24 @@ public class GenyoSurroundV2 extends PlacerModule {
         .visible(() -> false) // ????
         .build()
     );
-
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
         .name("Render Color")
         .description("asdsadsadsadsadsa")
         .defaultValue(new Color(236, 243, 122, 40))
         .build()
     );
-
-    private int blocksPlaced;
-    private List<BlockPos> surround = new ArrayList<>();
-    private List<BlockPos> placements = new ArrayList<>();
     private final Map<BlockPos, Long> packets = new HashMap<>();
     private final Map<BlockPos, Animation> fadeList = new HashMap<>();
     private final Map<Integer, long[]> mineProgress = new HashMap<>();
     private final Map<BlockPos, Long> mineProtectCooldown = new HashMap<>();
+    private int blocksPlaced;
+    private List<BlockPos> surround = new ArrayList<>();
+    private List<BlockPos> placements = new ArrayList<>();
     private double prevY;
+
+    public GenyoSurroundV2() {
+        super(Genyo.WORLD, "genyo-surround-v2", "surrounds your feet with obsidian");
+    }
 
     @Override
     public void onActivate() {
@@ -252,8 +233,7 @@ public class GenyoSurroundV2 extends PlacerModule {
         if (placements.isEmpty()) return;
 
         if (support.get()) {
-            for (BlockPos block : new ArrayList<>(placements))
-            {
+            for (BlockPos block : new ArrayList<>(placements)) {
                 if (block.getY() > mc.player.getBlockY() + 1.0) {
                     continue;
                 }
@@ -265,8 +245,7 @@ public class GenyoSurroundV2 extends PlacerModule {
         }
         placements.sort(Comparator.comparingInt(Vec3i::getY));
         while (blocksPlaced < shiftTicks.get()) {
-            if (blocksPlaced >= placements.size())
-            {
+            if (blocksPlaced >= placements.size()) {
                 break;
             }
             BlockPos targetPos = placements.get(blocksPlaced);
@@ -275,8 +254,7 @@ public class GenyoSurroundV2 extends PlacerModule {
             placeBlock(targetPos, slot);
         }
 
-        if (rotate.get())
-        {
+        if (rotate.get()) {
             Rotation.get().setRotationSilentSync();
         }
     }
@@ -292,8 +270,7 @@ public class GenyoSurroundV2 extends PlacerModule {
         }
     }
 
-    private void handlePackets(Packet<?> serverPacket)
-    {
+    private void handlePackets(Packet<?> serverPacket) {
         if (serverPacket instanceof BlockBreakingProgressS2CPacket packet && mineProtect.get()) {
             BlockPos minedPos = packet.getPos();
             int entityId = packet.getEntityId();
@@ -329,20 +306,15 @@ public class GenyoSurroundV2 extends PlacerModule {
 
         if (timing.get() != Timing.SEQUENTIAL) return;
 
-        if (serverPacket instanceof BlockUpdateS2CPacket packet)
-        {
+        if (serverPacket instanceof BlockUpdateS2CPacket packet) {
             final BlockState blockState = packet.getState();
             final BlockPos targetPos = packet.getPos();
-            if (surround.contains(targetPos))
-            {
-                if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
-                {
+            if (surround.contains(targetPos)) {
+                if (blockState.isReplaceable() && Objects.requireNonNull(mc.world).canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent())) {
                     final int slot = getResistantBlockItem();
                     if (slot == -1) return;
                     placeBlock(targetPos, slot);
-                }
-                else if (BlastResistantBlocks.isBlastResistant(blockState))
-                {
+                } else if (BlastResistantBlocks.isBlastResistant(blockState)) {
                     packets.remove(targetPos);
                 }
             }
@@ -350,11 +322,9 @@ public class GenyoSurroundV2 extends PlacerModule {
 
         if (blocksPlaced > shiftTicks.get() * 2) return;
 
-        if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosion.get())
-        {
+        if (serverPacket instanceof ExplosionS2CPacket packet && prePlaceExplosion.get()) {
             BlockPos pos = BlockPos.ofFloored(packet.center().getX(), packet.center().getY(), packet.center().getZ());
-            if (surround.contains(pos))
-            {
+            if (surround.contains(pos)) {
                 final int slot = getResistantBlockItem();
                 if (slot == -1) return;
                 placeBlock(pos, slot);
@@ -362,10 +332,8 @@ public class GenyoSurroundV2 extends PlacerModule {
         }
 
         if (serverPacket instanceof EntitySpawnS2CPacket packet
-            && packet.getEntityType().equals(EntityType.END_CRYSTAL) && prePlaceTick.get())
-        {
-            for (BlockPos pos : surround)
-            {
+            && packet.getEntityType().equals(EntityType.END_CRYSTAL) && prePlaceTick.get()) {
+            for (BlockPos pos : surround) {
                 if (!pos.equals(BlockPos.ofFloored(packet.getX(), packet.getY(), packet.getZ()))) continue;
 
                 final int slot = getResistantBlockItem();
@@ -376,11 +344,9 @@ public class GenyoSurroundV2 extends PlacerModule {
         }
     }
 
-    private List<BlockPos> getAdjacentPlacements(BlockPos minedPos)
-    {
+    private List<BlockPos> getAdjacentPlacements(BlockPos minedPos) {
         List<BlockPos> result = new ArrayList<>();
-        for (Direction dir : Direction.values())
-        {
+        for (Direction dir : Direction.values()) {
             BlockPos adjacent = minedPos.offset(dir);
 
             if (adjacent.equals(mc.player.getBlockPos()) || adjacent.equals(mc.player.getBlockPos().up())) continue;
@@ -392,8 +358,7 @@ public class GenyoSurroundV2 extends PlacerModule {
         return result;
     }
 
-    private void placeBlock(BlockPos pos, int slot)
-    {
+    private void placeBlock(BlockPos pos, int slot) {
         if (!buggy.get()) {
             Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
             {
@@ -412,14 +377,11 @@ public class GenyoSurroundV2 extends PlacerModule {
         blocksPlaced++;
     }
 
-    public void attackBlockingCrystals(List<BlockPos> posList)
-    {
-        for (BlockPos pos : posList)
-        {
+    public void attackBlockingCrystals(List<BlockPos> posList) {
+        for (BlockPos pos : posList) {
             Entity crystalEntity = mc.world.getOtherEntities(null, new Box(pos)).stream()
                 .filter(e -> e instanceof EndCrystalEntity).findFirst().orElse(null);
-            if (crystalEntity == null)
-            {
+            if (crystalEntity == null) {
                 continue;
             }
             mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(crystalEntity, mc.player.isSneaking()));
@@ -428,50 +390,39 @@ public class GenyoSurroundV2 extends PlacerModule {
         }
     }
 
-    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround)
-    {
+    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround) {
         List<BlockPos> placements = new ArrayList<>();
-        for (BlockPos surroundPos : surround)
-        {
+        for (BlockPos surroundPos : surround) {
             Long placed = packets.get(surroundPos);
-            if (shiftDelay.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelay.get() * 50.0f)
-            {
+            if (shiftDelay.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelay.get() * 50.0f) {
                 continue;
             }
-            if (!mc.world.getBlockState(surroundPos).isReplaceable())
-            {
+            if (!mc.world.getBlockState(surroundPos).isReplaceable()) {
                 continue;
             }
             double dist = mc.player.squaredDistanceTo(surroundPos.toCenterPos());
-            if (dist > MathUtil.squared(placeRange.get()))
-            {
+            if (dist > MathUtil.squared(placeRange.get())) {
                 continue;
             }
 
-            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent()))
-            {
+            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent())) {
                 placements.add(surroundPos);
             }
         }
         return placements;
     }
 
-    public List<BlockPos> getSurround(PlayerEntity player)
-    {
+    public List<BlockPos> getSurround(PlayerEntity player) {
         List<BlockPos> surroundBlocks = getSurroundNoDown(player);
         List<BlockPos> playerBlocks = getPlayerBlocks(player);
-        for (BlockPos playerPos : playerBlocks)
-        {
-            if (playerPos.equals(player.getBlockPos()))
-            {
+        for (BlockPos playerPos : playerBlocks) {
+            if (playerPos.equals(player.getBlockPos())) {
                 continue;
             }
             surroundBlocks.add(playerPos.down());
         }
-        if (mineExtend.get())
-        {
-            for (BlockPos surroundPos : new ArrayList<>(surroundBlocks))
-            {
+        if (mineExtend.get()) {
+            for (BlockPos surroundPos : new ArrayList<>(surroundBlocks)) {
                 if (!Managers.BLOCK.isPassed(surroundPos, 0.7f)) continue;
 
                 for (Direction direction : Direction.values()) {
@@ -479,7 +430,7 @@ public class GenyoSurroundV2 extends PlacerModule {
 
                     BlockPos blockerPos = surroundPos.offset(direction);
                     if (playerBlocks.contains(blockerPos)
-                        || Modules.get().get(GenyoAutoMine.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
+                        || Modules.get().get(GenyoAutoCity.class).getMiningBlock() == blockerPos) // Dont want to help our opponent surround
                     {
                         continue;
                     }
@@ -495,30 +446,23 @@ public class GenyoSurroundV2 extends PlacerModule {
         return surroundBlocks;
     }
 
-    public List<BlockPos> getSurroundNoDown(PlayerEntity player)
-    {
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player) {
         return getSurroundNoDown(player, 0.0f);
     }
 
-    public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range)
-    {
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range) {
         List<BlockPos> surroundBlocks = new ArrayList<>();
         List<BlockPos> playerBlocks = getPlayerBlocks(player);
-        for (BlockPos pos : playerBlocks)
-        {
-            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range)
-            {
+        for (BlockPos pos : playerBlocks) {
+            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range) {
                 continue;
             }
-            for (Direction dir : Direction.values())
-            {
-                if (!dir.getAxis().isHorizontal())
-                {
+            for (Direction dir : Direction.values()) {
+                if (!dir.getAxis().isHorizontal()) {
                     continue;
                 }
                 BlockPos pos1 = pos.offset(dir);
-                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1))
-                {
+                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1)) {
                     continue;
                 }
                 surroundBlocks.add(pos1);
@@ -527,16 +471,12 @@ public class GenyoSurroundV2 extends PlacerModule {
         return surroundBlocks;
     }
 
-    public List<BlockPos> getPlayerBlocks(PlayerEntity entity)
-    {
+    public List<BlockPos> getPlayerBlocks(PlayerEntity entity) {
         BlockPos playerPos = GPositionUtils.getRoundedBlockPos(entity.getX(), entity.getY(), entity.getZ());
         final List<BlockPos> playerBlocks = new ArrayList<>();
-        if (extend.get())
-        {
+        if (extend.get()) {
             playerBlocks.addAll(GPositionUtils.getAllInBox(entity.getBoundingBox(), playerPos));
-        }
-        else
-        {
+        } else {
             playerBlocks.add(playerPos);
         }
         return playerBlocks;
@@ -546,10 +486,8 @@ public class GenyoSurroundV2 extends PlacerModule {
     public void onRender3D(Render3DEvent event) {
         if (mc.world == null && mc.player == null) return;
 
-        if (render.get())
-        {
-            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
-            {
+        if (render.get()) {
+            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet()) {
                 set.getValue().setState(false);
                 int boxAlpha = (int) (40 * set.getValue().getFactor());
                 int lineAlpha = (int) (100 * set.getValue().getFactor());
@@ -560,13 +498,11 @@ public class GenyoSurroundV2 extends PlacerModule {
                 event.renderer.box(set.getKey(), boxColor, lineColor, ShapeMode.Both, 1);
             }
 
-            if (placements.isEmpty())
-            {
+            if (placements.isEmpty()) {
                 return;
             }
 
-            for (BlockPos pos : placements)
-            {
+            for (BlockPos pos : placements) {
                 Animation animation = new Animation(true, fadeTime.get());
                 fadeList.put(pos, animation);
             }
@@ -576,8 +512,7 @@ public class GenyoSurroundV2 extends PlacerModule {
             e.getValue().getFactor() == 0.0);
     }
 
-    public boolean isPlacing()
-    {
+    public boolean isPlacing() {
         return !placements.isEmpty();
     }
 
@@ -585,14 +520,13 @@ public class GenyoSurroundV2 extends PlacerModule {
         return placements.contains(pos);
     }
 
-    public enum Timing
-    {
-        VANILLA,
-        SEQUENTIAL
+    private float square(float value) {
+        return value * value;
     }
 
-    private float square(float value) {
-        return value*value;
+    public enum Timing {
+        VANILLA,
+        SEQUENTIAL
     }
 
 }

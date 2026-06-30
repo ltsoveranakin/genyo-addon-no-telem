@@ -27,12 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GenyoReplenish extends GenyoModule {
 
-    public GenyoReplenish() {
-        super(Genyo.COMBAT, "genyo-replenish", "fwejhfkljwefklwejfklkwlefjlwefl");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Integer> percentConfig = sgGeneral.add(new IntSetting.Builder()
         .name("Percent")
         .description("The minimum percent of total stack before replenishing")
@@ -41,152 +36,121 @@ public class GenyoReplenish extends GenyoModule {
         .max(80)
         .build()
     );
-
     private final Setting<Boolean> resistantConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Allow Resistant")
         .description("Refills obsidian with other types of resistant blocks")
         .defaultValue(false)
         .build()
     );
-
     // Cached hotbar in case the hotbar slot becomes empty
     private final Map<Integer, ItemStack> hotbarCache = new ConcurrentHashMap<>();
-
     private final Timer lastDroppedTimer = new CacheTimer();
 
+    public GenyoReplenish() {
+        super(Genyo.COMBAT, "genyo-hotbar-replenish", "Refills your hotbar with materials as needed");
+    }
+
     @Override
-    public void onDeactivate()
-    {
+    public void onDeactivate() {
         hotbarCache.clear();
     }
 
     @EventHandler
-    public void onDisconnect(DisconnectEvent event)
-    {
+    public void onDisconnect(DisconnectEvent event) {
         hotbarCache.clear();
     }
 
     @EventHandler
-    public void onEntityDeath(EntityDeathEvent event)
-    {
-        if (event.entity instanceof ClientPlayerEntity)
-        {
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (event.entity instanceof ClientPlayerEntity) {
             hotbarCache.clear();
         }
     }
 
     @EventHandler
-    public void onTick(PlayerTickEvent event)
-    {
-        if (mc.options.dropKey.isPressed())
-        {
+    public void onTick(PlayerTickEvent event) {
+        if (mc.options.dropKey.isPressed()) {
             lastDroppedTimer.reset();
         }
 
         boolean pauseReplenish = isInInventoryScreen() || !lastDroppedTimer.passed(100);
 
-        if (!pauseReplenish)
-        {
-            for (int i = 0; i < 9; i++)
-            {
+        if (!pauseReplenish) {
+            for (int i = 0; i < 9; i++) {
                 ItemStack stack = mc.player.getInventory().getStack(i);
-                if (stack.isEmpty())
-                {
+                if (stack.isEmpty()) {
                     ItemStack cachedStack = hotbarCache.getOrDefault(i, null);
-                    if (cachedStack != null && !cachedStack.isEmpty())
-                    {
+                    if (cachedStack != null && !cachedStack.isEmpty()) {
                         replenishStack(i, cachedStack);
                         break;
                     }
                     continue;
                 }
 
-                if (!stack.isStackable())
-                {
+                if (!stack.isStackable()) {
                     continue;
                 }
 
                 double percentage = ((double) stack.getCount() / stack.getMaxCount()) * 100.0;
-                if (percentage <= percentConfig.get())
-                {
+                if (percentage <= percentConfig.get()) {
                     replenishStack(i, stack);
                     break;
                 }
             }
         }
 
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isEmpty() && !pauseReplenish)
-            {
+            if (stack.isEmpty() && !pauseReplenish) {
                 continue;
             }
 
-            if (hotbarCache.containsKey(i))
-            {
+            if (hotbarCache.containsKey(i)) {
                 hotbarCache.replace(i, stack.copy());
-            }
-            else
-            {
+            } else {
                 hotbarCache.put(i, stack.copy());
             }
         }
     }
 
-    public boolean isInInventoryScreen()
-    {
+    public boolean isInInventoryScreen() {
         return mc.currentScreen instanceof GenericContainerScreen || mc.currentScreen instanceof ShulkerBoxScreen || mc.currentScreen instanceof InventoryScreen;
     }
 
-    private void replenishStack(int slot, ItemStack stack)
-    {
+    private void replenishStack(int slot, ItemStack stack) {
         int slot1 = -1;
         boolean outOfObsidian = stack.getItem() == Items.OBSIDIAN && InventoryUtil.count(Items.OBSIDIAN) <= 1;
-        for (int i = 9; i < 36; ++i)
-        {
+        for (int i = 9; i < 36; ++i) {
             ItemStack itemStack = mc.player.getInventory().getStack(i);
 
-            if (itemStack.isEmpty())
-            {
+            if (itemStack.isEmpty()) {
                 continue;
             }
 
-            if (!isSame(stack, itemStack, outOfObsidian) || !itemStack.isStackable())
-            {
+            if (!isSame(stack, itemStack, outOfObsidian) || !itemStack.isStackable()) {
                 continue;
             }
 
             slot1 = i;
         }
 
-        if (slot1 != -1)
-        {
+        if (slot1 != -1) {
             // sendModuleError("slot: " + slot + ", stack:" + stack.getName().getString());
             mc.interactionManager.clickSlot(0, slot1, 0, SlotActionType.PICKUP, mc.player);
             mc.interactionManager.clickSlot(0, slot + 36, 0, SlotActionType.PICKUP, mc.player);
-            if (!mc.player.currentScreenHandler.getCursorStack().isEmpty())
-            {
+            if (!mc.player.currentScreenHandler.getCursorStack().isEmpty()) {
                 mc.interactionManager.clickSlot(0, slot1, 0, SlotActionType.PICKUP, mc.player);
             }
         }
     }
 
-    public boolean isSame(ItemStack stack1, ItemStack stack2, boolean outOfObsidian)
-    {
-        if (resistantConfig.get() && stack1.getItem() == Items.OBSIDIAN && outOfObsidian)
-        {
+    public boolean isSame(ItemStack stack1, ItemStack stack2, boolean outOfObsidian) {
+        if (resistantConfig.get() && stack1.getItem() == Items.OBSIDIAN && outOfObsidian) {
             return stack2.getItem() == Items.ENDER_CHEST || stack2.getItem() == Items.CRYING_OBSIDIAN;
-        }
-
-        else if (stack1.getItem() instanceof BlockItem blockItem
-            && (!(stack2.getItem() instanceof BlockItem blockItem1) || blockItem.getBlock() != blockItem1.getBlock()))
-        {
+        } else if (stack1.getItem() instanceof BlockItem blockItem
+            && (!(stack2.getItem() instanceof BlockItem blockItem1) || blockItem.getBlock() != blockItem1.getBlock())) {
             return false;
-        }
-
-        else if (!stack1.getName().getString().equals(stack2.getName().getString()))
-        {
+        } else if (!stack1.getName().getString().equals(stack2.getName().getString())) {
             return false;
         }
 

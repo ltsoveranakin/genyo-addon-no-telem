@@ -3,7 +3,7 @@ package com.genyo.systems.modules.combat;
 import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.modules.world.GenyoAutoMine;
+import com.genyo.systems.modules.world.GenyoAutoCity;
 import com.genyo.systems.modules.world.GenyoSelfTrap;
 import com.genyo.systems.modules.world.GenyoSurroundV2;
 import com.genyo.utils.GEntityUtils;
@@ -32,27 +32,19 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
 public class GenyoCriticals extends GenyoModule {
-
-    public GenyoCriticals() {
-        super(Genyo.COMBAT, "genyo-criticals", "crrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Boolean> multitaskConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Multitask")
         .description("Allows crits when other combat modules are enabled")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<CritMode> modeConfig = sgGeneral.add(new EnumSetting.Builder<CritMode>()
         .name("Mode")
         .description("Mode for critical attack modifier")
         .defaultValue(CritMode.PACKET)
         .build()
     );
-
     private final Setting<Boolean> phaseOnlyConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Phased Only")
         .description("Only attempts criticals when phased")
@@ -60,7 +52,6 @@ public class GenyoCriticals extends GenyoModule {
         .visible(() -> modeConfig.get() == CritMode.GRIM_V3 || modeConfig.get() == CritMode.GRIM)
         .build()
     );
-
     private final Setting<Boolean> wallsOnlyConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Walls Only")
         .description("Only attempts criticals in walls")
@@ -68,7 +59,6 @@ public class GenyoCriticals extends GenyoModule {
         .visible(() -> (modeConfig.get() == CritMode.GRIM_V3 || modeConfig.get() == CritMode.GRIM) && phaseOnlyConfig.get())
         .build()
     );
-
     private final Setting<Boolean> moveFixConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Move Fix")
         .description("Pauses crits when moving")
@@ -76,15 +66,16 @@ public class GenyoCriticals extends GenyoModule {
         .visible(() -> modeConfig.get() == CritMode.GRIM_V3 || modeConfig.get() == CritMode.GRIM)
         .build()
     );
-
     //
     private final Timer attackTimer = new CacheTimer();
     private boolean postUpdateGround;
     private boolean postUpdateSprint;
+    public GenyoCriticals() {
+        super(Genyo.COMBAT, "genyo-criticals", "Makes all hits criticals");
+    }
 
     @Override
-    public void onDeactivate()
-    {
+    public void onDeactivate() {
         postUpdateGround = false;
         postUpdateSprint = false;
     }
@@ -93,49 +84,40 @@ public class GenyoCriticals extends GenyoModule {
      * @param event
      */
     @EventHandler
-    public void onPacketSend(PacketEvent.Send event)
-    {
+    public void onPacketSend(PacketEvent.Send event) {
         // Custom aura crit handling
         if (mc.player == null || mc.world == null) return;
 
-        if (Modules.get().get(GenyoAutoCrystal.class).isAttacking() || Modules.get().get(GenyoAutoCrystal.class).isPlacing())
-        {
+        if (Modules.get().get(GenyoAutoCrystal.class).isAttacking() || Modules.get().get(GenyoAutoCrystal.class).isPlacing()) {
             return;
         }
 
         // All combat modules have priority
         if (!multitaskConfig.get() && (Modules.get().get(GenyoSurroundV2.class).isPlacing()
             || Modules.get().get(GenyoSelfTrap.class).isPlacing()
-            || Modules.get().isActive(GenyoAutoMine.class)))
-        {
+            || Modules.get().isActive(GenyoAutoCity.class))) {
             return;
         }
 
         if (event.packet instanceof IPlayerInteractEntityC2SPacket packet
-            && packet.meteor$getType() == PlayerInteractEntityC2SPacket.InteractType.ATTACK)
-        {
+            && packet.meteor$getType() == PlayerInteractEntityC2SPacket.InteractType.ATTACK) {
             if (mc.player.isRiding()
                 || mc.player.isTouchingWater()
                 || mc.player.isInLava()
                 || mc.player.isHoldingOntoLadder()
                 || mc.player.hasStatusEffect(StatusEffects.BLINDNESS)
-                || InventoryUtil.isHolding32k())
-            {
+                || InventoryUtil.isHolding32k()) {
                 return;
             }
 
             // Attacked entity
             final Entity e = packet.meteor$getEntity();
-            if (e == null || !e.isAlive() || !(e instanceof LivingEntity))
-            {
+            if (e == null || !e.isAlive() || !(e instanceof LivingEntity)) {
                 return;
             }
-            if (GEntityUtils.isVehicle(e))
-            {
-                if (modeConfig.get() == CritMode.PACKET)
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
+            if (GEntityUtils.isVehicle(e)) {
+                if (modeConfig.get() == CritMode.PACKET) {
+                    for (int i = 0; i < 5; ++i) {
                         Managers.NETWORK.sendQuietPacket(PlayerInteractEntityC2SPacket.attack(e,
                             Managers.POSITION.isSneaking()));
                         Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
@@ -145,8 +127,7 @@ public class GenyoCriticals extends GenyoModule {
             }
 
             postUpdateSprint = mc.player.isSprinting();
-            if (postUpdateSprint)
-            {
+            if (postUpdateSprint) {
                 Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.STOP_SPRINTING));
             }
 
@@ -155,17 +136,13 @@ public class GenyoCriticals extends GenyoModule {
     }
 
 
-    public void attackSpoofJump(Entity e)
-    {
+    public void attackSpoofJump(Entity e) {
         double x = Managers.POSITION.getX();
         double y = Managers.POSITION.getY();
         double z = Managers.POSITION.getZ();
-        switch (modeConfig.get())
-        {
-            case VANILLA ->
-            {
-                if (mc.player.isOnGround() && !mc.player.input.playerInput.jump())
-                {
+        switch (modeConfig.get()) {
+            case VANILLA -> {
+                if (mc.player.isOnGround() && !mc.player.input.playerInput.jump()) {
                     double d = 1.0e-7 + 1.0e-7 * (1.0 + RANDOM.nextInt(RANDOM.nextBoolean() ? 34 : 43));
                     Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
                         x, y + 0.1016f + d * 3.0f, z, false, mc.player.horizontalCollision));
@@ -176,10 +153,8 @@ public class GenyoCriticals extends GenyoModule {
                     mc.player.addCritParticles(e);
                 }
             }
-            case PACKET ->
-            {
-                if (mc.player.isOnGround() && !mc.player.input.playerInput.jump())
-                {
+            case PACKET -> {
+                if (mc.player.isOnGround() && !mc.player.input.playerInput.jump()) {
                     Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
                         x, y + 0.0625f, z, false, mc.player.horizontalCollision));
                     Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
@@ -187,36 +162,29 @@ public class GenyoCriticals extends GenyoModule {
                     mc.player.addCritParticles(e);
                 }
             }
-            case PACKET_STRICT ->
-            {
-                if (attackTimer.passed(500) && mc.player.isOnGround() && !mc.player.input.playerInput.jump())
-                {
+            case PACKET_STRICT -> {
+                if (attackTimer.passed(500) && mc.player.isOnGround() && !mc.player.input.playerInput.jump()) {
                     Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
-                        x, y + 1.1e-7f, z,false, mc.player.horizontalCollision));
+                        x, y + 1.1e-7f, z, false, mc.player.horizontalCollision));
                     Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
                         x, y + 1.0e-8f, z, false, mc.player.horizontalCollision));
                     postUpdateGround = true;
                     attackTimer.reset();
                 }
             }
-            case GRIM ->
-            {
-                if (phaseOnlyConfig.get() && (wallsOnlyConfig.get() ? !isDoublePhased() : !isPhased()))
-                {
+            case GRIM -> {
+                if (phaseOnlyConfig.get() && (wallsOnlyConfig.get() ? !isDoublePhased() : !isPhased())) {
                     return;
                 }
 
-                if (moveFixConfig.get() && MovementUtil.isMovingInput())
-                {
+                if (moveFixConfig.get() && MovementUtil.isMovingInput()) {
                     return;
                 }
 
-                if (attackTimer.passed(250) && mc.player.isOnGround() && !mc.player.isCrawling())
-                {
+                if (attackTimer.passed(250) && mc.player.isOnGround() && !mc.player.isCrawling()) {
                     float yaw = Managers.ROTATION.getServerYaw();
                     float pitch = Managers.ROTATION.getServerPitch();
-                    if (Managers.ROTATION.isRotating())
-                    {
+                    if (Managers.ROTATION.isRotating()) {
                         yaw = Managers.ROTATION.getRotationYaw();
                         pitch = Managers.ROTATION.getRotationPitch();
                     }
@@ -235,20 +203,16 @@ public class GenyoCriticals extends GenyoModule {
 //                Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.Full(
 //                        x, y + 0.001150000001304f, z, mc.player.getYaw(), mc.player.getPitch(), false));
             }
-            case GRIM_V3 ->
-            {
-                if (phaseOnlyConfig.get() && (wallsOnlyConfig.get() ? !isDoublePhased() : !isPhased()))
-                {
+            case GRIM_V3 -> {
+                if (phaseOnlyConfig.get() && (wallsOnlyConfig.get() ? !isDoublePhased() : !isPhased())) {
                     return;
                 }
 
-                if (moveFixConfig.get() && MovementUtil.isMovingInput())
-                {
+                if (moveFixConfig.get() && MovementUtil.isMovingInput()) {
                     return;
                 }
 
-                if (mc.player.isOnGround() && !mc.player.isCrawling())
-                {
+                if (mc.player.isOnGround() && !mc.player.isCrawling()) {
 //                    Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
 //                            x, y + 0.00001058293536f, z, false));
 //                    Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
@@ -257,8 +221,7 @@ public class GenyoCriticals extends GenyoModule {
 //                            x, y + 0.00000010371854f, z, false));
                     float yaw = Managers.ROTATION.getServerYaw();
                     float pitch = Managers.ROTATION.getServerPitch();
-                    if (Managers.ROTATION.isRotating())
-                    {
+                    if (Managers.ROTATION.isRotating()) {
                         yaw = Managers.ROTATION.getRotationYaw();
                         pitch = Managers.ROTATION.getRotationPitch();
                     }
@@ -270,8 +233,7 @@ public class GenyoCriticals extends GenyoModule {
                         x, y + 0.04535f, z, yaw, pitch, false, mc.player.horizontalCollision));
                 }
             }
-            case LOW_HOP ->
-            {
+            case LOW_HOP -> {
                 // mc.player.jump();
                 Managers.MOVEMENT.setMotionY(0.3425);
             }
@@ -282,47 +244,37 @@ public class GenyoCriticals extends GenyoModule {
     public void onPacketSent(PacketEvent.Sent event) {
         if (mc.player == null) return;
 
-        if (event.packet instanceof PlayerInteractEntityC2SPacket)
-        {
-            if (postUpdateGround)
-            {
+        if (event.packet instanceof PlayerInteractEntityC2SPacket) {
+            if (postUpdateGround) {
                 Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY(), mc.player.getZ(), false, mc.player.horizontalCollision));
                 postUpdateGround = false;
             }
 
-            if (postUpdateSprint)
-            {
+            if (postUpdateSprint) {
                 Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_SPRINTING));
                 postUpdateSprint = false;
             }
         }
     }
 
-    public boolean isGrim()
-    {
+    public boolean isGrim() {
         return modeConfig.get() == CritMode.GRIM;
     }
 
-    public boolean isDoublePhased()
-    {
-        for (BlockPos pos : GPositionUtils.getAllInBox(mc.player.getBoundingBox(), mc.player.getBlockPos()))
-        {
+    public boolean isDoublePhased() {
+        for (BlockPos pos : GPositionUtils.getAllInBox(mc.player.getBoundingBox(), mc.player.getBlockPos())) {
             BlockState state = mc.world.getBlockState(pos);
             BlockState state2 = mc.world.getBlockState(pos.up());
-            if (state.blocksMovement() && state2.blocksMovement())
-            {
+            if (state.blocksMovement() && state2.blocksMovement()) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean isPhased()
-    {
-        for (BlockPos pos : GPositionUtils.getAllInBox(mc.player.getBoundingBox()))
-        {
-            if (mc.world.getBlockState(pos).blocksMovement())
-            {
+    public boolean isPhased() {
+        for (BlockPos pos : GPositionUtils.getAllInBox(mc.player.getBoundingBox())) {
+            if (mc.world.getBlockState(pos).blocksMovement()) {
                 return true;
             }
         }
@@ -330,8 +282,7 @@ public class GenyoCriticals extends GenyoModule {
         return false;
     }
 
-    public enum CritMode
-    {
+    public enum CritMode {
         PACKET,
         PACKET_STRICT,
         VANILLA,

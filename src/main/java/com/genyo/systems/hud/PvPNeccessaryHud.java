@@ -16,14 +16,24 @@ import java.util.List;
 
 public class PvPNeccessaryHud extends HudElement {
 
-    public static final HudElementInfo<PvPNeccessaryHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "pvp-neccessary", "Fasz fasz fasz fasz fasz fasz.", PvPNeccessaryHud::new);
-
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PvPNeccessaryHud> INFO = new HudElementInfo<>(Genyo.HUD_GROUP, "pvp-neccessary", "Genyo pvp hud", PvPNeccessaryHud::new);
     private final SettingGroup sgScale = settings.createGroup("Scale");
     private final SettingGroup sgBackground = settings.createGroup("Background");
+    public final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
+        .name("background")
+        .description("Displays background.")
+        .defaultValue(false)
+        .build()
+    );
 
     // General
-
+    public final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
+        .name("background-color")
+        .description("Color used for the background.")
+        .visible(background::get)
+        .defaultValue(new SettingColor(25, 25, 25, 50))
+        .build()
+    );
     private final Setting<List<Item>> items = sgGeneral.add(new ItemListSetting.Builder()
         .name("items")
         .description("Itemek amiket kiír.")
@@ -31,16 +41,13 @@ public class PvPNeccessaryHud extends HudElement {
         .build()
     );
 
+    // Scale
     private final Setting<SettingColor> textColor = sgGeneral.add(new ColorSetting.Builder()
         .name("text-color")
         .description("Brasil")
         .defaultValue(new SettingColor(255, 255, 255, 255))
         .build()
-    );
-
-    // Scale
-
-    public final Setting<Integer> margin = sgScale.add(new IntSetting.Builder()
+    );    public final Setting<Integer> margin = sgScale.add(new IntSetting.Builder()
         .name("margin")
         .description("Két dolog közötti hely")
         .defaultValue(0)
@@ -50,7 +57,11 @@ public class PvPNeccessaryHud extends HudElement {
         .build()
     );
 
-    public final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
+    private PvPNeccessaryHud() {
+        super(INFO);
+
+        calculateSize();
+    }    public final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
         .name("custom-scale")
         .description("Applies a custom scale to this hud element.")
         .defaultValue(false)
@@ -58,7 +69,10 @@ public class PvPNeccessaryHud extends HudElement {
         .build()
     );
 
-    public final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
+    private void calculateSize() {
+        int offset = items.get().size();
+        setSize(23 * getScale() * offset, 17 * getScale() + 20);
+    }    public final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
         .description("Custom scale.")
         .visible(customScale::get)
@@ -71,38 +85,12 @@ public class PvPNeccessaryHud extends HudElement {
 
     // Backgroundx
 
-    public final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
-        .name("background")
-        .description("Displays background.")
-        .defaultValue(false)
-        .build()
-    );
-
-    public final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
-        .name("background-color")
-        .description("Color used for the background.")
-        .visible(background::get)
-        .defaultValue(new SettingColor(25, 25, 25, 50))
-        .build()
-    );
-
-    private PvPNeccessaryHud() {
-        super(INFO);
-
-        calculateSize();
-    }
-
-    private void calculateSize() {
-        int offset = items.get().size();
-        setSize(23 * getScale() * offset, 17 * getScale() + 20);
-    }
-
     @Override
     public void render(HudRenderer renderer) {
         calculateSize();
         int itemsLength = items.get().size();
 
-        for  (int i = 0; i < itemsLength; i++) {
+        for (int i = 0; i < itemsLength; i++) {
             Item item = items.get().get(i);
 
             //ItemStack itemStack = new ItemStack(item, GInvUtils.find(item).count();
@@ -110,7 +98,7 @@ public class PvPNeccessaryHud extends HudElement {
 
             int scaleOffset = (int) (getScale() * 10);
             int intScale = (int) (getScale());
-            int offset = i+1 != 1 ? i * 50 * scaleOffset / (20 - margin.get()) : 0;
+            int offset = i + 1 != 1 ? i * 50 * scaleOffset / (20 - margin.get()) : 0;
 
             int textXOffset = 6 * intScale;
             int textYOffset = 17 * intScale;
@@ -168,5 +156,13 @@ public class PvPNeccessaryHud extends HudElement {
     private float getScale() {
         return customScale.get() ? scale.get().floatValue() : scale.getDefaultValue().floatValue();
     }
+
+
+
+
+
+
+
+
 
 }

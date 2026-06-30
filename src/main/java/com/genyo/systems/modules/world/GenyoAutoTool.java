@@ -13,43 +13,38 @@ import net.minecraft.item.ShearsItem;
 import net.minecraft.registry.tag.ItemTags;
 
 public class GenyoAutoTool extends GenyoModule {
-
     public GenyoAutoTool() {
-        super(Genyo.WORLD, "genyo-auto-tool", "Yés");
+        super(Genyo.WORLD, "genyo-auto-tool", "Automatically switches to the best tool");
+    }
+
+    public static boolean isTool(ItemStack itemStack) {
+        return itemStack.isIn(ItemTags.AXES) || itemStack.isIn(ItemTags.HOES) || itemStack.isIn(ItemTags.PICKAXES) || itemStack.isIn(ItemTags.SHOVELS) || itemStack.getItem() instanceof ShearsItem;
     }
 
     @EventHandler
-    public void onBreakBlock(AttackBlockEvent event)
-    {
+    public void onBreakBlock(AttackBlockEvent event) {
         if (mc.world == null) return;
 
         final BlockState state = mc.world.getBlockState(event.pos);
         final int blockSlot = getBestToolNoFallback(state);
-        if (blockSlot != -1)
-        {
+        if (blockSlot != -1) {
             mc.player.getInventory().setSelectedSlot(blockSlot);
         }
     }
 
-    public int getBestTool(final BlockState state)
-    {
+    public int getBestTool(final BlockState state) {
         int slot = getBestToolNoFallback(state);
-        if (slot != -1)
-        {
+        if (slot != -1) {
             return slot;
         }
         return mc.player.getInventory().getSelectedSlot();
     }
 
-    public int getBestToolNoFallback(final BlockState state)
-    {
-        if (state.getBlock() == Blocks.COBWEB)
-        {
-            for (int i = 0; i < 9; i++)
-            {
+    public int getBestToolNoFallback(final BlockState state) {
+        if (state.getBlock() == Blocks.COBWEB) {
+            for (int i = 0; i < 9; i++) {
                 final ItemStack stack = mc.player.getInventory().getStack(i);
-                if (stack.isEmpty() || !(stack.isIn(ItemTags.SWORDS)))
-                {
+                if (stack.isEmpty() || !(stack.isIn(ItemTags.SWORDS))) {
                     continue;
                 }
                 return i;
@@ -57,30 +52,22 @@ public class GenyoAutoTool extends GenyoModule {
         }
         int slot = -1;
         float bestTool = 0.0f;
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isEmpty() || !isTool(stack))
-            {
+            if (stack.isEmpty() || !isTool(stack)) {
                 continue;
             }
             float speed = stack.getMiningSpeedMultiplier(state);
             final int efficiency = EnchantmentUtil.getLevel(stack, Enchantments.EFFICIENCY);
-            if (efficiency > 0)
-            {
+            if (efficiency > 0) {
                 speed += efficiency * efficiency + 1.0f;
             }
-            if (speed > bestTool)
-            {
+            if (speed > bestTool) {
                 bestTool = speed;
                 slot = i;
             }
         }
         return slot;
-    }
-
-    public static boolean isTool(ItemStack itemStack) {
-        return itemStack.isIn(ItemTags.AXES) || itemStack.isIn(ItemTags.HOES) || itemStack.isIn(ItemTags.PICKAXES) || itemStack.isIn(ItemTags.SHOVELS) || itemStack.getItem() instanceof ShearsItem;
     }
 
 }

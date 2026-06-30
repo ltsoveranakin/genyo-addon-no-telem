@@ -13,12 +13,7 @@ import meteordevelopment.orbit.EventHandler;
 
 public class GenyoTimer extends GenyoModule {
 
-    public GenyoTimer() {
-        super(Genyo.MISC, "genyo-timer", "Changes the change to the change and change.");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Float> ticksConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Ticks")
         .description("The of the if the of if the.")
@@ -28,19 +23,20 @@ public class GenyoTimer extends GenyoModule {
         .sliderRange(0.1f, 50.0f)
         .build()
     );
-
     private final Setting<Boolean> tpsSyncConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("TPS Sync")
         .description("Syncs game tick speed to server tick speed")
         .defaultValue(false)
         .build()
     );
-
-    //TODO: fasz speed module
-
     //
     private float prevTimer = -1.0f;
+
+    //TODO: speed module
     private float timer = 1.0f;
+    public GenyoTimer() {
+        super(Genyo.MISC, "genyo-timer", "Changes the change to the change and change.");
+    }
 
     @Override
     public String getInfoString() {
@@ -48,15 +44,13 @@ public class GenyoTimer extends GenyoModule {
     }
 
     @Override
-    public void onDeactivate()
-    {
+    public void onDeactivate() {
         Managers.TICK.setClientTick(1.0f);
     }
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
-        if (tpsSyncConfig.get())
-        {
+        if (tpsSyncConfig.get()) {
             timer = Math.max(Managers.TICK.getTpsCurrent() / 20.0f, 0.1f);
             return;
         }
@@ -64,10 +58,8 @@ public class GenyoTimer extends GenyoModule {
     }
 
     @EventHandler
-    public void onTickCounter(TickCounterEvent event)
-    {
-        if (timer != 1.0f)
-        {
+    public void onTickCounter(TickCounterEvent event) {
+        if (timer != 1.0f) {
             event.cancel();
             event.ticks = timer;
         }
@@ -76,24 +68,20 @@ public class GenyoTimer extends GenyoModule {
     /**
      * @return
      */
-    public float getTimer()
-    {
+    public float getTimer() {
         return timer;
     }
 
     /**
      * @param timer
      */
-    public void setTimer(float timer)
-    {
+    public void setTimer(float timer) {
         prevTimer = this.timer;
         this.timer = timer;
     }
 
-    public void resetTimer()
-    {
-        if (prevTimer > 0.0f)
-        {
+    public void resetTimer() {
+        if (prevTimer > 0.0f) {
             this.timer = prevTimer;
             prevTimer = -1.0f;
         }

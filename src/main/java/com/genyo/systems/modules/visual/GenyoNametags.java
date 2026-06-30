@@ -3,7 +3,6 @@ package com.genyo.systems.modules.visual;
 import com.genyo.Genyo;
 import com.genyo.managers.Managers;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.modules.misc.GenyoAutoEZ;
 import com.genyo.utils.GenyoChatUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
@@ -15,7 +14,6 @@ import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.friends.Friends;
-import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.player.NameProtect;
 import meteordevelopment.meteorclient.systems.modules.render.Freecam;
@@ -51,17 +49,10 @@ import java.util.*;
 
 public class GenyoNametags extends GenyoModule {
 
-    public GenyoNametags() {
-        super(Genyo.VISUAL, "genyo-nametags", "Same as Meteor Nametags, pop counter included");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPlayers = settings.createGroup("Players");
     private final SettingGroup sgItems = settings.createGroup("Items");
     private final SettingGroup sgRender = settings.createGroup("Render");
-
-    // General
-
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
         .name("entities")
         .description("Select entities to draw nametags on.")
@@ -69,6 +60,7 @@ public class GenyoNametags extends GenyoModule {
         .build()
     );
 
+    // General
     private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
         .name("scale")
         .description("The scale of the nametag.")
@@ -76,35 +68,30 @@ public class GenyoNametags extends GenyoModule {
         .min(0.1)
         .build()
     );
-
     private final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
         .name("ignore-self")
         .description("Ignore yourself when in third person or freecam.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> ignoreFriends = sgGeneral.add(new BoolSetting.Builder()
         .name("ignore-friends")
         .description("Ignore rendering nametags for friends.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> ignoreBots = sgGeneral.add(new BoolSetting.Builder()
         .name("ignore-bots")
         .description("Only render non-bot nametags.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> culling = sgGeneral.add(new BoolSetting.Builder()
         .name("culling")
         .description("Only render a certain number of nametags at a certain distance.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Double> maxCullRange = sgGeneral.add(new DoubleSetting.Builder()
         .name("culling-range")
         .description("Only render nametags within this distance of your player.")
@@ -114,7 +101,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(culling::get)
         .build()
     );
-
     private final Setting<Integer> maxCullCount = sgGeneral.add(new IntSetting.Builder()
         .name("culling-count")
         .description("Only render this many nametags.")
@@ -124,9 +110,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(culling::get)
         .build()
     );
-
-    //Players
-
     private final Setting<Boolean> displayHealth = sgPlayers.add(new BoolSetting.Builder()
         .name("health")
         .description("Shows the player's health.")
@@ -134,41 +117,59 @@ public class GenyoNametags extends GenyoModule {
         .build()
     );
 
+    //Players
     private final Setting<Boolean> displayGameMode = sgPlayers.add(new BoolSetting.Builder()
         .name("gamemode")
         .description("Shows the player's GameMode.")
         .defaultValue(false)
         .build()
     );
-
+    private final Setting<SettingColor> gamemodeColor = sgRender.add(new ColorSetting.Builder()
+        .name("gamemode-color")
+        .description("The color of the nametag gamemode.")
+        .defaultValue(new SettingColor(232, 185, 35))
+        .visible(displayGameMode::get)
+        .build()
+    );
     private final Setting<Boolean> displayDistance = sgPlayers.add(new BoolSetting.Builder()
         .name("distance")
         .description("Shows the distance between you and the player.")
         .defaultValue(false)
         .build()
     );
-
+    private final Setting<Nametags.DistanceColorMode> distanceColorMode = sgRender.add(new EnumSetting.Builder<Nametags.DistanceColorMode>()
+        .name("distance-color-mode")
+        .description("The mode to color the nametag distance with.")
+        .defaultValue(Nametags.DistanceColorMode.Gradient)
+        .visible(displayDistance::get)
+        .build()
+    );
+    private final Setting<SettingColor> distanceColor = sgRender.add(new ColorSetting.Builder()
+        .name("distance-color")
+        .description("The color of the nametag distance.")
+        .defaultValue(new SettingColor(150, 150, 150))
+        .visible(() -> displayDistance.get() && distanceColorMode.get() == Nametags.DistanceColorMode.Flat)
+        .build()
+    );
     private final Setting<Boolean> displayPing = sgPlayers.add(new BoolSetting.Builder()
         .name("ping")
         .description("Shows the player's ping.")
         .defaultValue(true)
         .build()
     );
-
+    private final Setting<SettingColor> pingColor = sgRender.add(new ColorSetting.Builder()
+        .name("ping-color")
+        .description("The color of the nametag ping.")
+        .defaultValue(new SettingColor(20, 170, 170))
+        .visible(displayPing::get)
+        .build()
+    );
     private final Setting<Boolean> displayItems = sgPlayers.add(new BoolSetting.Builder()
         .name("items")
         .description("Displays armor and hand items above the name tags.")
         .defaultValue(true)
         .build()
     );
-
-    private final Setting<Boolean> displayPops = sgPlayers.add(new BoolSetting.Builder()
-        .name("display-pops")
-        .description("Display a pop-counter")
-        .defaultValue(true)
-        .build()
-    );
-
     private final Setting<Double> itemSpacing = sgPlayers.add(new DoubleSetting.Builder()
         .name("item-spacing")
         .description("The spacing between items.")
@@ -177,7 +178,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(displayItems::get)
         .build()
     );
-
     private final Setting<Boolean> ignoreEmpty = sgPlayers.add(new BoolSetting.Builder()
         .name("ignore-empty-slots")
         .description("Doesn't add spacing where an empty item stack would be.")
@@ -185,7 +185,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(displayItems::get)
         .build()
     );
-
     private final Setting<Nametags.Durability> itemDurability = sgPlayers.add(new EnumSetting.Builder<Nametags.Durability>()
         .name("durability")
         .description("Displays item durability as either a total, percentage, or neither.")
@@ -193,7 +192,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(displayItems::get)
         .build()
     );
-
     private final Setting<Boolean> displayEnchants = sgPlayers.add(new BoolSetting.Builder()
         .name("display-enchants")
         .description("Displays item enchantments on the items.")
@@ -201,7 +199,6 @@ public class GenyoNametags extends GenyoModule {
         .visible(displayItems::get)
         .build()
     );
-
     private final Setting<Set<RegistryKey<Enchantment>>> shownEnchantments = sgPlayers.add(new EnchantmentListSetting.Builder()
         .name("shown-enchantments")
         .description("The enchantments that are shown on nametags.")
@@ -214,7 +211,6 @@ public class GenyoNametags extends GenyoModule {
         )
         .build()
     );
-
     private final Setting<Nametags.Position> enchantPos = sgPlayers.add(new EnumSetting.Builder<Nametags.Position>()
         .name("enchantment-position")
         .description("Where the enchantments are rendered.")
@@ -223,6 +219,7 @@ public class GenyoNametags extends GenyoModule {
         .build()
     );
 
+    //Items
     private final Setting<Integer> enchantLength = sgPlayers.add(new IntSetting.Builder()
         .name("enchant-name-length")
         .description("The length enchantment names are trimmed to.")
@@ -233,6 +230,7 @@ public class GenyoNametags extends GenyoModule {
         .build()
     );
 
+    // Render
     private final Setting<Double> enchantTextScale = sgPlayers.add(new DoubleSetting.Builder()
         .name("enchant-text-scale")
         .description("The scale of the enchantment text.")
@@ -242,74 +240,42 @@ public class GenyoNametags extends GenyoModule {
         .visible(() -> displayItems.get() && displayEnchants.get())
         .build()
     );
-
-    //Items
-
+    private final Setting<Boolean> displayPops = sgPlayers.add(new BoolSetting.Builder()
+        .name("display-pops")
+        .description("Display a pop-counter")
+        .defaultValue(true)
+        .build()
+    );
     private final Setting<Boolean> itemCount = sgItems.add(new BoolSetting.Builder()
         .name("show-count")
         .description("Displays the number of items in the stack.")
         .defaultValue(true)
         .build()
     );
-
-    // Render
-
     private final Setting<SettingColor> background = sgRender.add(new ColorSetting.Builder()
         .name("background-color")
         .description("The color of the nametag background.")
         .defaultValue(new SettingColor(0, 0, 0, 75))
         .build()
     );
-
     private final Setting<SettingColor> nameColor = sgRender.add(new ColorSetting.Builder()
         .name("name-color")
         .description("The color of the nametag names.")
         .defaultValue(new SettingColor())
         .build()
     );
-
-    private final Setting<SettingColor> pingColor = sgRender.add(new ColorSetting.Builder()
-        .name("ping-color")
-        .description("The color of the nametag ping.")
-        .defaultValue(new SettingColor(20, 170, 170))
-        .visible(displayPing::get)
-        .build()
-    );
-
-    private final Setting<SettingColor> gamemodeColor = sgRender.add(new ColorSetting.Builder()
-        .name("gamemode-color")
-        .description("The color of the nametag gamemode.")
-        .defaultValue(new SettingColor(232, 185, 35))
-        .visible(displayGameMode::get)
-        .build()
-    );
-
-    private final Setting<Nametags.DistanceColorMode> distanceColorMode = sgRender.add(new EnumSetting.Builder<Nametags.DistanceColorMode>()
-        .name("distance-color-mode")
-        .description("The mode to color the nametag distance with.")
-        .defaultValue(Nametags.DistanceColorMode.Gradient)
-        .visible(displayDistance::get)
-        .build()
-    );
-
-    private final Setting<SettingColor> distanceColor = sgRender.add(new ColorSetting.Builder()
-        .name("distance-color")
-        .description("The color of the nametag distance.")
-        .defaultValue(new SettingColor(150, 150, 150))
-        .visible(() -> displayDistance.get() && distanceColorMode.get() == Nametags.DistanceColorMode.Flat)
-        .build()
-    );
-
     private final Color WHITE = new Color(255, 255, 255);
     private final Color RED = new Color(255, 25, 25);
     private final Color AMBER = new Color(255, 105, 25);
     private final Color GREEN = new Color(25, 252, 25);
     private final Color GOLD = new Color(232, 185, 35);
-
     private final Vector3d pos = new Vector3d();
     private final double[] itemWidths = new double[6];
-
     private final List<Entity> entityList = new ArrayList<>();
+
+    public GenyoNametags() {
+        super(Genyo.VISUAL, "genyo-nametags", "Same as Meteor Nametags, pop counter included");
+    }
 
     private static String ticksToTime(int ticks) {
         if (ticks > 20 * 3600) {
@@ -401,7 +367,8 @@ public class GenyoNametags extends GenyoModule {
     private double getHeight(Entity entity) {
         double height = entity.getEyeHeight(entity.getPose());
 
-        if (entity.getType() == EntityType.ITEM || entity.getType() == EntityType.ITEM_FRAME || entity.getType() == EntityType.GLOW_ITEM_FRAME) height += 0.2;
+        if (entity.getType() == EntityType.ITEM || entity.getType() == EntityType.ITEM_FRAME || entity.getType() == EntityType.GLOW_ITEM_FRAME)
+            height += 0.2;
         else height += 0.5;
 
         return height;
@@ -504,7 +471,7 @@ public class GenyoNametags extends GenyoModule {
         if (displayPing.get()) hX = text.render(pingText, hX, hY, pingColor.get(), shadow);
         if (displayDistance.get() && renderPlayerDistance) {
             switch (distanceColorMode.get()) {
-                case Flat ->  text.render(distText, hX, hY, distanceColor.get(), shadow);
+                case Flat -> text.render(distText, hX, hY, distanceColor.get(), shadow);
                 case Gradient -> text.render(distText, hX, hY, EntityUtils.getColorFromDistance(player), shadow);
             }
         }
@@ -532,7 +499,8 @@ public class GenyoNametags extends GenyoModule {
 
                     int size = 0;
                     for (RegistryEntry<Enchantment> enchantment : enchantments.getEnchantments()) {
-                        if (enchantment.getKey().isPresent() && !shownEnchantments.get().contains(enchantment.getKey().get())) continue;
+                        if (enchantment.getKey().isPresent() && !shownEnchantments.get().contains(enchantment.getKey().get()))
+                            continue;
                         String enchantName = Utils.getEnchantSimpleName(enchantment, enchantLength.get()) + " " + enchantments.getLevel(enchantment);
                         itemWidths[i] = Math.max(itemWidths[i], (text.getWidth(enchantName, shadow) / 2));
                         size++;
@@ -560,7 +528,8 @@ public class GenyoNametags extends GenyoModule {
                     text.begin(0.75, false, true);
 
                     String damageText = switch (itemDurability.get()) {
-                        case Percentage -> String.format("%.0f%%", ((stack.getMaxDamage() - stack.getDamage()) * 100f) / (float) stack.getMaxDamage());
+                        case Percentage ->
+                            String.format("%.0f%%", ((stack.getMaxDamage() - stack.getDamage()) * 100f) / (float) stack.getMaxDamage());
                         case Total -> Integer.toString(stack.getMaxDamage() - stack.getDamage());
                         default -> "err";
                     };
@@ -750,6 +719,14 @@ public class GenyoNametags extends GenyoModule {
         Renderer2D.COLOR.render();
     }
 
+    public boolean excludeBots() {
+        return ignoreBots.get();
+    }
+
+    public boolean playerNametags() {
+        return isActive() && entities.get().contains(EntityType.PLAYER);
+    }
+
     public enum Position {
         Above,
         OnTop
@@ -764,14 +741,6 @@ public class GenyoNametags extends GenyoModule {
     public enum DistanceColorMode {
         Gradient,
         Flat
-    }
-
-    public boolean excludeBots() {
-        return ignoreBots.get();
-    }
-
-    public boolean playerNametags() {
-        return isActive() && entities.get().contains(EntityType.PLAYER);
     }
 
 }

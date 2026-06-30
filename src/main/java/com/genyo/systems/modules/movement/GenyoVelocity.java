@@ -35,26 +35,13 @@ import java.util.List;
 
 public class GenyoVelocity extends GenyoModule {
 
-    public GenyoVelocity() {
-        super(Genyo.MOVEMENT, "genyo-velocity", "efhewhfjkhewfjhkewfh jekw");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
-    private final Setting<Boolean> knockbackConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Knockback")
-        .description("Removes player knockback velocity")
-        .defaultValue(true)
-        .build()
-    );
-
     public final Setting<Boolean> explosionConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Explosion")
         .description("Removes player explosion velocity")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<Double> explosionsHorizontal = sgGeneral.add(new DoubleSetting.Builder()
         .name("explosions-horizontal")
         .description("How much velocity you will take from explosions horizontally.")
@@ -63,7 +50,6 @@ public class GenyoVelocity extends GenyoModule {
         .visible(explosionConfig::get)
         .build()
     );
-
     public final Setting<Double> explosionsVertical = sgGeneral.add(new DoubleSetting.Builder()
         .name("explosions-vertical")
         .description("How much velocity you will take from explosions vertically.")
@@ -72,14 +58,18 @@ public class GenyoVelocity extends GenyoModule {
         .visible(explosionConfig::get)
         .build()
     );
-
-    private final Setting<VelocityMode> modeConfig   = sgGeneral.add(new EnumSetting.Builder<VelocityMode>()
+    private final Setting<Boolean> knockbackConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Knockback")
+        .description("Removes player knockback velocity")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<VelocityMode> modeConfig = sgGeneral.add(new EnumSetting.Builder<VelocityMode>()
         .name("Mode")
         .description("The mode for velocity")
         .defaultValue(VelocityMode.NORMAL)
         .build()
     );
-
     private final Setting<Float> horizontalConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Horizontal")
         .description("How much horizontal knock-back to take")
@@ -89,7 +79,6 @@ public class GenyoVelocity extends GenyoModule {
         .visible(() -> modeConfig.get() == VelocityMode.NORMAL || modeConfig.get() == VelocityMode.WALLS)
         .build()
     );
-
     private final Setting<Float> verticalConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Vertical")
         .description("How much vertical knock-back to take")
@@ -99,14 +88,6 @@ public class GenyoVelocity extends GenyoModule {
         .visible(() -> modeConfig.get() == VelocityMode.NORMAL || modeConfig.get() == VelocityMode.WALLS)
         .build()
     );
-
-    private final Setting<Boolean> concealConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Conceal")
-        .description("Fixes velocity on servers with excessive setbacks")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> wallsAirConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Ground Only")
         .description("Only applies velocity in walls while on ground")
@@ -114,7 +95,6 @@ public class GenyoVelocity extends GenyoModule {
         .visible(() -> modeConfig.get() == VelocityMode.WALLS)
         .build()
     );
-
     private final Setting<Boolean> wallsTrappedConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Trapped")
         .description("Applies velocity while player head is trapped")
@@ -122,38 +102,42 @@ public class GenyoVelocity extends GenyoModule {
         .visible(() -> modeConfig.get() == VelocityMode.WALLS)
         .build()
     );
-
+    private final Setting<Boolean> concealConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Conceal")
+        .description("Fixes velocity on servers with excessive setbacks")
+        .defaultValue(false)
+        .build()
+    );
     private final Setting<Boolean> pushEntitiesConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("NoPush-Entities")
         .description("Prevents being pushed away from entities")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> pushBlocksConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("NoPush-Blocks")
         .description("Prevents being pushed out of blocks")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> pushLiquidsConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("NoPush-Liquids")
         .description("Prevents being pushed by flowing liquids")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> pushFishhookConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("NoPush-Fishhook")
         .description("Prevents being pulled by fishing rod hooks")
         .defaultValue(true)
         .build()
     );
-
     //
     private boolean cancelVelocity;
     private boolean concealVelocity;
+    public GenyoVelocity() {
+        super(Genyo.MOVEMENT, "genyo-velocity", "Prevents server from applying velocity");
+    }
 
     @Override
     public void onActivate() {
@@ -163,12 +147,10 @@ public class GenyoVelocity extends GenyoModule {
     @Override
     public void onDeactivate() {
         if (cancelVelocity) {
-            if (modeConfig.get() == VelocityMode.GRIM)
-            {
+            if (modeConfig.get() == VelocityMode.GRIM) {
                 float yaw = mc.player.getYaw();
                 float pitch = mc.player.getPitch();
-                if (Managers.ROTATION.isRotating())
-                {
+                if (Managers.ROTATION.isRotating()) {
                     yaw = Managers.ROTATION.getRotationYaw();
                     pitch = Managers.ROTATION.getRotationPitch();
                 }
@@ -189,14 +171,12 @@ public class GenyoVelocity extends GenyoModule {
     }
 
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event)
-    {
+    public void onPacketReceive(PacketEvent.Receive event) {
         if (mc.player == null || mc.world == null) return;
 
         if (event.packet instanceof PlayerPositionLookS2CPacket && concealConfig.get()) concealVelocity = true;
 
-        if (event.packet instanceof EntityVelocityUpdateS2CPacket packet && knockbackConfig.get())
-        {
+        if (event.packet instanceof EntityVelocityUpdateS2CPacket packet && knockbackConfig.get()) {
             if (packet.getEntityId() != mc.player.getId()) return;
 
             Vec3d vel = ((AccessorEntityVelocityUpdateS2CPacket) packet).getVelocity();
@@ -209,18 +189,14 @@ public class GenyoVelocity extends GenyoModule {
             if (modeConfig.get() == VelocityMode.WALLS) {
                 if (!isPhased() && (!wallsTrappedConfig.get() || !isWallsTrapped())) return;
 
-                if (wallsAirConfig.get() && !Managers.POSITION.isOnGround())
-                {
+                if (wallsAirConfig.get() && !Managers.POSITION.isOnGround()) {
                     return;
                 }
             }
 
-            switch (modeConfig.get())
-            {
-                case NORMAL, WALLS ->
-                {
-                    if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f)
-                    {
+            switch (modeConfig.get()) {
+                case NORMAL, WALLS -> {
+                    if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f) {
                         event.cancel();
                         return;
                     }
@@ -230,8 +206,7 @@ public class GenyoVelocity extends GenyoModule {
                         vel.z * (horizontalConfig.get() / 100.0f)
                     ));
                 }
-                case GRIM ->
-                {
+                case GRIM -> {
                     if (!Managers.ANTICHEAT.hasPassed(100)) return;
                     event.cancel();
                     cancelVelocity = true;
@@ -239,28 +214,21 @@ public class GenyoVelocity extends GenyoModule {
 
                 case GRIM_V3 -> event.setCancelled(isPhased());
             }
-        }
-        else if (event.packet instanceof ExplosionS2CPacket packet && explosionConfig.get())
-        {
-            if (modeConfig.get() == VelocityMode.WALLS && !isPhased())
-            {
+        } else if (event.packet instanceof ExplosionS2CPacket packet && explosionConfig.get()) {
+            if (modeConfig.get() == VelocityMode.WALLS && !isPhased()) {
                 return;
             }
 
-            switch (modeConfig.get())
-            {
-                case NORMAL, WALLS ->
-                {
+            switch (modeConfig.get()) {
+                case NORMAL, WALLS -> {
                     if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f) {
                         event.cancel();
                     } else {
 
                     }
                 }
-                case GRIM ->
-                {
-                    if (!Managers.ANTICHEAT.hasPassed(100))
-                    {
+                case GRIM -> {
+                    if (!Managers.ANTICHEAT.hasPassed(100)) {
                         return;
                     }
                     event.cancel();
@@ -270,49 +238,35 @@ public class GenyoVelocity extends GenyoModule {
                 case GRIM_V3 -> event.setCancelled(isPhased());
             }
 
-            if (event.isCancelled())
-            {
+            if (event.isCancelled()) {
                 mc.executeSync(() -> ((AccessorClientWorld) mc.world).hookPlaySound(packet.center().getX(), packet.center().getY(), packet.center().getZ(),
                     SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS,
                     4.0f, (1.0f + (RANDOM.nextFloat() - RANDOM.nextFloat()) * 0.2f) * 0.7f, false, RANDOM.nextLong()));
             }
-        }
-
-        else if (event.packet instanceof BundleS2CPacket packet)
-        {
+        } else if (event.packet instanceof BundleS2CPacket packet) {
             List<Packet<?>> allowedBundle = new ArrayList<>();
 
-            for (Packet<?> packet1 : packet.getPackets())
-            {
-                if (packet1 instanceof ExplosionS2CPacket packet2 && explosionConfig.get())
-                {
+            for (Packet<?> packet1 : packet.getPackets()) {
+                if (packet1 instanceof ExplosionS2CPacket packet2 && explosionConfig.get()) {
                     mc.executeSync(() -> ((AccessorClientWorld) mc.world).hookPlaySound(packet2.center().getX(), packet2.center().getY(), packet2.center().getZ(),
                         SoundEvents.ENTITY_GENERIC_EXPLODE.value(), SoundCategory.BLOCKS,
                         4.0f, (1.0f + (RANDOM.nextFloat() - RANDOM.nextFloat()) * 0.2f) * 0.7f, false, RANDOM.nextLong()));
 
-                    if (modeConfig.get() == VelocityMode.WALLS && !isPhased())
-                    {
+                    if (modeConfig.get() == VelocityMode.WALLS && !isPhased()) {
                         allowedBundle.add(packet1);
                         continue;
                     }
 
-                    switch (modeConfig.get())
-                    {
-                        case NORMAL, WALLS ->
-                        {
-                            if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f)
-                            {
+                    switch (modeConfig.get()) {
+                        case NORMAL, WALLS -> {
+                            if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f) {
                                 continue;
-                            }
-                            else
-                            {
+                            } else {
 
                             }
                         }
-                        case GRIM ->
-                        {
-                            if (Managers.ANTICHEAT.hasPassed(100))
-                            {
+                        case GRIM -> {
+                            if (Managers.ANTICHEAT.hasPassed(100)) {
                                 allowedBundle.add(packet1);
                                 continue;
                             }
@@ -320,48 +274,35 @@ public class GenyoVelocity extends GenyoModule {
                             cancelVelocity = true;
                             continue;
                         }
-                        case GRIM_V3 ->
-                        {
-                            if (isPhased())
-                            {
+                        case GRIM_V3 -> {
+                            if (isPhased()) {
                                 continue;
                             }
                         }
                     }
-                }
-                else if (packet1 instanceof EntityVelocityUpdateS2CPacket packet2 && knockbackConfig.get())
-                {
-                    if (packet2.getEntityId() != mc.player.getId())
-                    {
+                } else if (packet1 instanceof EntityVelocityUpdateS2CPacket packet2 && knockbackConfig.get()) {
+                    if (packet2.getEntityId() != mc.player.getId()) {
                         allowedBundle.add(packet1);
                         continue;
                     }
 
-                    if (modeConfig.get() == VelocityMode.WALLS)
-                    {
-                        if (!isPhased() && (!wallsTrappedConfig.get() || !isWallsTrapped()))
-                        {
+                    if (modeConfig.get() == VelocityMode.WALLS) {
+                        if (!isPhased() && (!wallsTrappedConfig.get() || !isWallsTrapped())) {
                             allowedBundle.add(packet1);
                             continue; // was "return" — bug fix
                         }
 
-                        if (wallsAirConfig.get() && !Managers.POSITION.isOnGround())
-                        {
+                        if (wallsAirConfig.get() && !Managers.POSITION.isOnGround()) {
                             allowedBundle.add(packet1);
                             continue;
                         }
                     }
 
-                    switch (modeConfig.get())
-                    {
-                        case NORMAL, WALLS ->
-                        {
-                            if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f)
-                            {
+                    switch (modeConfig.get()) {
+                        case NORMAL, WALLS -> {
+                            if (horizontalConfig.get() == 0.0f && verticalConfig.get() == 0.0f) {
                                 continue;
-                            }
-                            else
-                            {
+                            } else {
                                 Vec3d vel2 = ((AccessorEntityVelocityUpdateS2CPacket) packet2).getVelocity();
                                 ((AccessorEntityVelocityUpdateS2CPacket) packet2).setVelocity(new Vec3d(
                                     vel2.x * (horizontalConfig.get() / 100.0f),
@@ -370,10 +311,8 @@ public class GenyoVelocity extends GenyoModule {
                                 ));
                             }
                         }
-                        case GRIM ->
-                        {
-                            if (!Managers.ANTICHEAT.hasPassed(100))
-                            {
+                        case GRIM -> {
+                            if (!Managers.ANTICHEAT.hasPassed(100)) {
                                 allowedBundle.add(packet1);
                                 continue;
                             }
@@ -381,10 +320,8 @@ public class GenyoVelocity extends GenyoModule {
                             cancelVelocity = true;
                             continue;
                         }
-                        case GRIM_V3 ->
-                        {
-                            if (isPhased())
-                            {
+                        case GRIM_V3 -> {
+                            if (isPhased()) {
                                 continue;
                             }
                         }
@@ -395,40 +332,30 @@ public class GenyoVelocity extends GenyoModule {
             }
 
             ((AccessorBundlePacket) packet).setIterable(allowedBundle);
-        }
-
-        else if (event.packet instanceof EntityDamageS2CPacket packet
+        } else if (event.packet instanceof EntityDamageS2CPacket packet
             && packet.entityId() == mc.player.getId()
-            && modeConfig.get() == VelocityMode.GRIM_V3 && isPhased())
-        {
+            && modeConfig.get() == VelocityMode.GRIM_V3 && isPhased()) {
             Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(false, mc.player.horizontalCollision));
             Managers.NETWORK.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true, mc.player.horizontalCollision));
-        }
-
-        else if (event.packet instanceof EntityStatusS2CPacket packet
-            && packet.getStatus() == EntityStatuses.PULL_HOOKED_ENTITY && pushFishhookConfig.get())
-        {
+        } else if (event.packet instanceof EntityStatusS2CPacket packet
+            && packet.getStatus() == EntityStatuses.PULL_HOOKED_ENTITY && pushFishhookConfig.get()) {
             Entity entity = packet.getEntity(mc.world);
-            if (entity instanceof FishingBobberEntity hook && hook.getHookedEntity() == mc.player)
-            {
+            if (entity instanceof FishingBobberEntity hook && hook.getHookedEntity() == mc.player) {
                 event.cancel();
             }
         }
     }
+
     @EventHandler
-    public void onPlayerTick(PlayerTickEvent event)
-    {
+    public void onPlayerTick(PlayerTickEvent event) {
         concealVelocity = false;
 
-        if (cancelVelocity)
-        {
-            if (modeConfig.get() == VelocityMode.GRIM)
-            {
+        if (cancelVelocity) {
+            if (modeConfig.get() == VelocityMode.GRIM) {
                 // Fixes issue with rotations
                 float yaw = Managers.ROTATION.getServerYaw();
                 float pitch = Managers.ROTATION.getServerPitch();
-                if (Managers.ROTATION.isRotating())
-                {
+                if (Managers.ROTATION.isRotating()) {
                     yaw = Managers.ROTATION.getRotationYaw();
                     pitch = Managers.ROTATION.getRotationPitch();
                 }
@@ -463,11 +390,9 @@ public class GenyoVelocity extends GenyoModule {
         if (pushLiquidsConfig.get()) event.cancel();
     }
 
-    private boolean isWallsTrapped()
-    {
+    private boolean isWallsTrapped() {
         BlockPos headPos = mc.player.getBlockPos().up(mc.player.isCrawling() ? 1 : 2);
-        if (mc.world.getBlockState(headPos).isReplaceable())
-        {
+        if (mc.world.getBlockState(headPos).isReplaceable()) {
             return false;
         }
 
@@ -475,18 +400,9 @@ public class GenyoVelocity extends GenyoModule {
             .noneMatch(blockPos -> mc.world.getBlockState(mc.player.isCrawling() ? blockPos : blockPos.up()).isReplaceable());
     }
 
-    private boolean isPhased()
-    {
+    private boolean isPhased() {
         return GPositionUtils.getAllInBox(mc.player.getBoundingBox()).stream()
             .anyMatch(blockPos -> !mc.world.getBlockState(blockPos).isReplaceable());
-    }
-
-    private enum VelocityMode
-    {
-        NORMAL,
-        WALLS,
-        GRIM,
-        GRIM_V3
     }
 
     public double getHorizontal(Setting<Double> setting) {
@@ -495,6 +411,13 @@ public class GenyoVelocity extends GenyoModule {
 
     public double getVertical(Setting<Double> setting) {
         return isActive() ? setting.get() : 1;
+    }
+
+    private enum VelocityMode {
+        NORMAL,
+        WALLS,
+        GRIM,
+        GRIM_V3
     }
 
 }

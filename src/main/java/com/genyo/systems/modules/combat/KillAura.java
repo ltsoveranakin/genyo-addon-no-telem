@@ -7,7 +7,7 @@ import com.genyo.events.world.RemoveEntityEvent;
 import com.genyo.managers.Managers;
 import com.genyo.managers.world.tick.TickSync;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.systems.modules.world.GenyoAutoMine;
+import com.genyo.systems.modules.world.GenyoAutoCity;
 import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.entity.EntityUtil;
 import com.genyo.utils.math.timer.CacheTimer;
@@ -26,7 +26,6 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -54,52 +53,42 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public class KFCSpawnKill extends GenyoModule {
-
-    public KFCSpawnKill() {
-        super(Genyo.COMBAT, "KFC Spawn Kill", "ask about the name, i won't tell you.");
-    }
+public class KillAura extends GenyoModule {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRotate = settings.createGroup("Rotate");
     private final SettingGroup sgTarget = settings.createGroup("Target");
     private final SettingGroup sgRender = settings.createGroup("Render");
-
     private final Setting<Boolean> multitaskConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Multitask")
         .description("tesco")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> swingConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Swing")
         .description("Swings the hand after attacking")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> ignoreNametags = sgGeneral.add(new BoolSetting.Builder()
         .name("Ignore Nametags")
         .description("Ignore entities that have nametags equipped")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<TargetMode> modeConfig = sgGeneral.add(new EnumSetting.Builder<TargetMode>()
         .name("Mode")
         .description("The mode for targeting entities to attack")
         .defaultValue(TargetMode.SWITCH)
         .build()
     );
-
     private final Setting<Priority> priorityConfig = sgGeneral.add(new EnumSetting.Builder<Priority>()
         .name("Priority")
         .description("The value to prioritize when searching for targets")
         .defaultValue(Priority.HEALTH)
         .build()
     );
-
     private final Setting<Float> searchRangeConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Enemy Range")
         .description("Range to search for targets")
@@ -108,7 +97,6 @@ public class KFCSpawnKill extends GenyoModule {
         .max(10.0f)
         .build()
     );
-
     private final Setting<Float> rangeConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Range")
         .description("Range to attack entities")
@@ -117,7 +105,6 @@ public class KFCSpawnKill extends GenyoModule {
         .max(6.0f)
         .build()
     );
-
     private final Setting<Float> wallRangeConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Wall Range")
         .description("Range to attack entities through walls")
@@ -126,14 +113,12 @@ public class KFCSpawnKill extends GenyoModule {
         .max(6.0f)
         .build()
     );
-
     private final Setting<Boolean> vanillaRangeConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Vanilla Range")
         .description("Only attack within vanilla range")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Float> fovConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("FOV")
         .description("Field of view to attack entities")
@@ -142,14 +127,12 @@ public class KFCSpawnKill extends GenyoModule {
         .max(180.0f)
         .build()
     );
-
     private final Setting<Boolean> attackDelayConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Attack Delay")
         .description("Delays attacks according to minecraft hit delays for maximum damage per attack")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Float> attackSpeedConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Attack Speed")
         .description("Delay for attacks (Only functions if AttackDelay is off)")
@@ -159,7 +142,6 @@ public class KFCSpawnKill extends GenyoModule {
         .visible(() -> !attackDelayConfig.get())
         .build()
     );
-
     private final Setting<Float> randomSpeedConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Random Speed")
         .description("Randomized delay for attacks (Only functions if AttackDelay is off)")
@@ -169,7 +151,6 @@ public class KFCSpawnKill extends GenyoModule {
         .visible(() -> !attackDelayConfig.get())
         .build()
     );
-
     private final Setting<Float> swapDelayConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Swap Penalty")
         .description("Delay for attacking after swapping items which prevents NCP flags")
@@ -178,30 +159,31 @@ public class KFCSpawnKill extends GenyoModule {
         .max(10.0f)
         .build()
     );
-
     private final Setting<TickSync> tpsSyncConfig = sgGeneral.add(new EnumSetting.Builder<TickSync>()
         .name("TPS Sync")
         .description("Syncs the attacks with the server TPS")
         .defaultValue(TickSync.NONE)
         .build()
     );
-
     private final Setting<Swap> autoSwapConfig = sgGeneral.add(new EnumSetting.Builder<Swap>()
         .name("Auto Swap")
         .description("Automatically swaps to a weapon before attacking")
         .defaultValue(Swap.OFF)
         .build()
     );
-
+    private final Setting<Boolean> maceBreachConfig = sgRotate.add(new BoolSetting.Builder()
+        .name("Mace Breach")
+        .description("Abuses vanilla exploit to apply breach enchantment to swords")
+        .defaultValue(false)
+        .visible(() -> autoSwapConfig.get() != Swap.SILENT)
+        .build()
+    );
     private final Setting<Boolean> swordCheckConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Sword-Check")
         .description("Checks if a weapon is in the hand before attacking")
         .defaultValue(true)
         .build()
     );
-
-    // Rotate
-
     private final Setting<Vector> hitVectorConfig = sgRotate.add(new EnumSetting.Builder<Vector>()
         .name("Hit Vector")
         .description("The vector to aim for when attacking entities")
@@ -209,13 +191,13 @@ public class KFCSpawnKill extends GenyoModule {
         .build()
     );
 
+    // Rotate
     private final Setting<Boolean> rotateConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Rotate")
         .description("Rotate before attacking")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> silentRotateConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Rotate Silent")
         .description("Rotates silently to server")
@@ -223,7 +205,6 @@ public class KFCSpawnKill extends GenyoModule {
         .visible(rotateConfig::get)
         .build()
     );
-
     private final Setting<Boolean> strictRotateConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Yaw Step")
         .description("Rotates yaw over multiple ticks to prevent certain rotation flags in NCP")
@@ -231,7 +212,6 @@ public class KFCSpawnKill extends GenyoModule {
         .visible(rotateConfig::get)
         .build()
     );
-
     private final Setting<Integer> rotateLimitConfig = sgRotate.add(new IntSetting.Builder()
         .name("YawStep-Limit")
         .description("Maximum yaw rotation in degrees for one tick")
@@ -240,7 +220,6 @@ public class KFCSpawnKill extends GenyoModule {
         .max(180)
         .build()
     );
-
     private final Setting<Integer> ticksExistedConfig = sgRotate.add(new IntSetting.Builder()
         .name("Ticks Existed")
         .description("The minimum age of the entity to be considered for attack")
@@ -249,111 +228,88 @@ public class KFCSpawnKill extends GenyoModule {
         .max(200)
         .build()
     );
-
     private final Setting<Boolean> armorCheckConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Armor Check")
         .description("Checks if target has armor before attacking")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> stopSprintConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Stop Sprint")
         .description("Stops sprinting before attacking to maintain vanilla behavior")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> stopShieldConfig = sgRotate.add(new BoolSetting.Builder()
         .name("Stop Shield")
         .description("Automatically handles shielding before attacking")
         .defaultValue(false)
         .build()
     );
-
-    private final Setting<Boolean> maceBreachConfig = sgRotate.add(new BoolSetting.Builder()
-        .name("Mace Breach")
-        .description("Abuses vanilla exploit to apply breach enchantment to swords")
-        .defaultValue(false)
-        .visible(() -> autoSwapConfig.get() != Swap.SILENT)
-        .build()
-    );
-
-    // Target
-
     private final Setting<Boolean> playersConfig = sgTarget.add(new BoolSetting.Builder()
         .name("Players")
         .description("Target players")
         .defaultValue(true)
         .build()
     );
-
+    // Target
     private final Setting<Boolean> monstersConfig = sgTarget.add(new BoolSetting.Builder()
         .name("Monsters")
         .description("Target monsters")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> neutralsConfig = sgTarget.add(new BoolSetting.Builder()
         .name("Neutrals")
         .description("Target neutrals")
         .defaultValue(false)
         .build()
     );
-
-
     private final Setting<Boolean> animalsConfig = sgTarget.add(new BoolSetting.Builder()
         .name("Animals")
         .description("Target animals")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> invisiblesConfig = sgTarget.add(new BoolSetting.Builder()
         .name("Invisibles")
         .description("Target invisible entities")
         .defaultValue(true)
         .build()
     );
-
-    // Render
-
     private final Setting<Boolean> renderConfig = sgRender.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders an indicator over the target")
         .defaultValue(true)
         .build()
     );
-
+    // Render
     private final Setting<Boolean> disableDeathConfig = sgRender.add(new BoolSetting.Builder()
         .name("Disable on Death")
         .description("Disables during disconnect/death")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
         .name("Render Color")
         .description("asdsadsadsadsadsa")
         .defaultValue(new Color(236, 243, 122, 255))
         .build()
     );
-
-    private Entity entityTarget;
-    private long randomDelay = -1;
-
-    private boolean shielding;
-    private boolean sneaking;
-    private boolean sprinting;
-
-    private long lastAttackTime;
     private final Timer critTimer = new CacheTimer();
     private final Timer autoSwapTimer = new CacheTimer();
     private final Timer switchTimer = new CacheTimer();
+    private Entity entityTarget;
+    private long randomDelay = -1;
+    private boolean shielding;
+    private boolean sneaking;
+    private boolean sprinting;
+    private long lastAttackTime;
     private boolean rotated;
-
     private float[] silentRotations;
+    public KillAura() {
+        super(Genyo.COMBAT, "G-KAura", "Automatically attacks enemies");
+    }
 
     @Override
     public void onDeactivate() {
@@ -362,8 +318,7 @@ public class KFCSpawnKill extends GenyoModule {
     }
 
     @EventHandler
-    public void onDisconnect(DisconnectEvent event)
-    {
+    public void onDisconnect(DisconnectEvent event) {
         if (disableDeathConfig.get()) {
             sendDisableMsg("Disabled because Auto Disable.");
             toggle();
@@ -371,8 +326,7 @@ public class KFCSpawnKill extends GenyoModule {
     }
 
     @EventHandler
-    public void onRemoveEntity(RemoveEntityEvent event)
-    {
+    public void onRemoveEntity(RemoveEntityEvent event) {
         if (disableDeathConfig.get() && event.entity == mc.player) {
             sendDisableMsg("Disabled because Auto Disable.");
             toggle();
@@ -380,118 +334,92 @@ public class KFCSpawnKill extends GenyoModule {
     }
 
     @EventHandler
-    public void onPlayerUpdate(PlayerTickEvent event)
-    {
+    public void onPlayerUpdate(PlayerTickEvent event) {
         if (Modules.get().get(GenyoAutoCrystal.class).isAttacking()
             || Modules.get().get(GenyoAutoCrystal.class).isPlacing()
-            || autoSwapConfig.get() == Swap.SILENT && Modules.get().get(GenyoAutoMine.class).isSilentSwapping()
-            || mc.player.isSpectator())
-        {
+            || autoSwapConfig.get() == Swap.SILENT && Modules.get().get(GenyoAutoCity.class).isSilentSwapping()
+            || mc.player.isSpectator()) {
             return;
         }
 
         if (!multitaskConfig.get() && checkMultitask(true)) return;
 
         final Vec3d eyepos = Managers.POSITION.getEyePos();
-        entityTarget = switch (modeConfig.get())
-        {
+        entityTarget = switch (modeConfig.get()) {
             case SWITCH -> getAttackTarget(eyepos);
-            case SINGLE ->
-            {
+            case SINGLE -> {
                 if (entityTarget == null || !entityTarget.isAlive()
-                    || !isInAttackRange(eyepos, entityTarget))
-                {
+                    || !isInAttackRange(eyepos, entityTarget)) {
                     yield getAttackTarget(eyepos);
                 }
                 yield entityTarget;
             }
         };
-        if (entityTarget == null || !switchTimer.passed(swapDelayConfig.get() * 25.0f))
-        {
+        if (entityTarget == null || !switchTimer.passed(swapDelayConfig.get() * 25.0f)) {
             silentRotations = null;
             return;
         }
         if (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND
-            || mc.options.attackKey.isPressed() || PlayerUtil.isHotbarKeysPressed())
-        {
+            || mc.options.attackKey.isPressed() || PlayerUtil.isHotbarKeysPressed()) {
             autoSwapTimer.reset();
         }
 
         int slot = getSwordSlot();
         // END PRE
         boolean silentSwapped = false;
-        if (!(mc.player.getMainHandStack().isIn(ItemTags.SWORDS)) && slot != -1)
-        {
-            switch (autoSwapConfig.get())
-            {
-                case NORMAL ->
-                {
-                    if (autoSwapTimer.passed(500))
-                    {
+        if (!(mc.player.getMainHandStack().isIn(ItemTags.SWORDS)) && slot != -1) {
+            switch (autoSwapConfig.get()) {
+                case NORMAL -> {
+                    if (autoSwapTimer.passed(500)) {
                         Managers.INVENTORY.setClientSlot(slot);
                     }
                 }
-                case SILENT ->
-                {
+                case SILENT -> {
                     Managers.INVENTORY.setSlot(slot);
                     silentSwapped = true;
                 }
             }
         }
-        if (!isHoldingSword() && autoSwapConfig.get() != Swap.SILENT)
-        {
+        if (!isHoldingSword() && autoSwapConfig.get() != Swap.SILENT) {
             return;
         }
-        if (rotateConfig.get())
-        {
+        if (rotateConfig.get()) {
             float[] rotation = RotationUtil.getRotationsTo(mc.player.getEyePos(),
                 getAttackRotateVec(entityTarget));
-            if (!silentRotateConfig.get() && strictRotateConfig.get())
-            {
+            if (!silentRotateConfig.get() && strictRotateConfig.get()) {
                 float serverYaw = Managers.ROTATION.getWrappedYaw();
                 float diff = serverYaw - rotation[0];
                 float diff1 = Math.abs(diff);
-                if (diff1 > 180.0f)
-                {
+                if (diff1 > 180.0f) {
                     diff += diff > 0.0f ? -360.0f : 360.0f;
                 }
                 int dir = diff > 0.0f ? -1 : 1;
                 float deltaYaw = dir * rotateLimitConfig.get();
                 float yaw;
-                if (diff1 > rotateLimitConfig.get())
-                {
+                if (diff1 > rotateLimitConfig.get()) {
                     yaw = serverYaw + deltaYaw;
                     rotated = false;
-                }
-                else
-                {
+                } else {
                     yaw = rotation[0];
                     rotated = true;
                 }
                 rotation[0] = yaw;
-            }
-            else
-            {
+            } else {
                 rotated = true;
             }
             // what what you cannot hop in my car
             // bentley coupe ridin with stars
-            if (silentRotateConfig.get())
-            {
+            if (silentRotateConfig.get()) {
                 silentRotations = rotation;
-            }
-            else
-            {
+            } else {
                 setRotation(rotation[0], rotation[1]);
             }
         }
-        if (isRotationBlocked() || !rotated && rotateConfig.get() || !isInAttackRange(eyepos, entityTarget))
-        {
+        if (isRotationBlocked() || !rotated && rotateConfig.get() || !isInAttackRange(eyepos, entityTarget)) {
             Managers.INVENTORY.syncToClient();
             return;
         }
-        if (attackDelayConfig.get())
-        {
+        if (attackDelayConfig.get()) {
             PlayerInventory inventory = mc.player.getInventory();
             ItemStack itemStack = inventory.getStack((slot == -1 || !swordCheckConfig.get()) ? mc.player.getInventory().getSelectedSlot() : slot);
 
@@ -500,12 +428,10 @@ public class KFCSpawnKill extends GenyoModule {
 
             AttributeModifiersComponent attributeModifiers =
                 itemStack.get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-            if (attributeModifiers != null)
-            {
+            if (attributeModifiers != null) {
                 attributeModifiers.applyModifiers(EquipmentSlot.MAINHAND, (entry, modifier) ->
                 {
-                    if (entry == EntityAttributes.ATTACK_SPEED)
-                    {
+                    if (entry == EntityAttributes.ATTACK_SPEED) {
                         attackSpeed.add(modifier.value());
                     }
                 });
@@ -514,52 +440,42 @@ public class KFCSpawnKill extends GenyoModule {
             double attackCooldownTicks = 1.0 / attackSpeed.getValue() * 20.0;
 
             int breachSlot = getBreachMaceSlot();
-            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1)
-            {
+            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1) {
                 Managers.INVENTORY.setSlot(breachSlot);
             }
 
             float ticks = 20.0f - Managers.TICK.getTickSync(tpsSyncConfig.get());
             float currentTime = (System.currentTimeMillis() - lastAttackTime) + (ticks * 50.0f);
-            if ((currentTime / 50.0f) >= attackCooldownTicks && attackTarget(entityTarget))
-            {
+            if ((currentTime / 50.0f) >= attackCooldownTicks && attackTarget(entityTarget)) {
                 lastAttackTime = System.currentTimeMillis();
             }
 
-            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1)
-            {
+            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1) {
                 Managers.INVENTORY.syncToClient();
             }
-        }
-        else
-        {
-            if (randomDelay < 0)
-            {
+        } else {
+            if (randomDelay < 0) {
                 randomDelay = (long) RANDOM.nextFloat((randomSpeedConfig.get() * 10.0f) + 1.0f);
             }
             float delay = (attackSpeedConfig.get() * 50.0f) + randomDelay;
 
             int breachSlot = getBreachMaceSlot();
-            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1)
-            {
+            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1) {
                 Managers.INVENTORY.setSlot(breachSlot);
             }
 
             long currentTime = System.currentTimeMillis() - lastAttackTime;
-            if (currentTime >= 1000.0f - delay && attackTarget(entityTarget))
-            {
+            if (currentTime >= 1000.0f - delay && attackTarget(entityTarget)) {
                 randomDelay = -1;
                 lastAttackTime = System.currentTimeMillis();
             }
 
-            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1)
-            {
+            if (autoSwapConfig.get() != Swap.SILENT && maceBreachConfig.get() && breachSlot != -1) {
                 Managers.INVENTORY.syncToClient();
             }
         }
 
-        if (autoSwapConfig.get() == Swap.SILENT && silentSwapped)
-        {
+        if (autoSwapConfig.get() == Swap.SILENT && silentSwapped) {
             Managers.INVENTORY.syncToClient();
         }
     }
@@ -576,13 +492,11 @@ public class KFCSpawnKill extends GenyoModule {
     @EventHandler
     public void onRender3D(Render3DEvent event) {
         if (Modules.get().get(GenyoAutoCrystal.class).isAttacking()
-            || Modules.get().get(GenyoAutoCrystal.class).isPlacing() || mc.player.isSpectator())
-        {
+            || Modules.get().get(GenyoAutoCrystal.class).isPlacing() || mc.player.isSpectator()) {
             return;
         }
 
-        if (entityTarget != null && renderConfig.get() && (isHoldingSword() || autoSwapConfig.get() == Swap.SILENT))
-        {
+        if (entityTarget != null && renderConfig.get() && (isHoldingSword() || autoSwapConfig.get() == Swap.SILENT)) {
             long currentTime = System.currentTimeMillis() - lastAttackTime;
             float animFactor = 1.0f - MathHelper.clamp(currentTime / 1000f, 0.0f, 1.0f);
             int attackDelay = (int) (70.0 * animFactor);
@@ -592,8 +506,7 @@ public class KFCSpawnKill extends GenyoModule {
         }
     }
 
-    private boolean attackTarget(Entity entity)
-    {
+    private boolean attackTarget(Entity entity) {
 /*
         Entity castEntity;
         // validate our server-sided rotations
@@ -611,77 +524,59 @@ public class KFCSpawnKill extends GenyoModule {
 */
         preAttackTarget();
 
-        if (silentRotateConfig.get() && silentRotations != null)
-        {
+        if (silentRotateConfig.get() && silentRotations != null) {
             setRotationSilent(silentRotations[0], silentRotations[1]);
         }
 
         PlayerInteractEntityC2SPacket packet = PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking());
         Managers.NETWORK.sendPacket(packet);
-        if (swingConfig.get())
-        {
+        if (swingConfig.get()) {
             mc.player.swingHand(Hand.MAIN_HAND);
-        }
-        else
-        {
+        } else {
             Managers.NETWORK.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
         }
         postAttackTarget(entity);
 
-        if (silentRotateConfig.get())
-        {
+        if (silentRotateConfig.get()) {
             Managers.ROTATION.setRotationSilentSync();
         }
         return true;
     }
 
-    private int getSwordSlot()
-    {
+    private int getSwordSlot() {
         float sharp = 0.0f;
         int slot = -1;
         // Maximize item attack damage
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             final ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isIn(ItemTags.SWORDS))
-            {
+            if (stack.isIn(ItemTags.SWORDS)) {
                 float sharpness = EnchantmentUtil.getLevel(stack, Enchantments.SHARPNESS) * 0.5f + 0.5f;
                 float dmg = stack.getItem().getDefaultStack().getDamage() + sharpness;
-                if (dmg > sharp)
-                {
+                if (dmg > sharp) {
                     sharp = dmg;
                     slot = i;
                 }
-            }
-            else if (stack.getItem() instanceof AxeItem axeItem)
-            {
+            } else if (stack.getItem() instanceof AxeItem axeItem) {
                 float sharpness = EnchantmentUtil.getLevel(stack,
                     Enchantments.SHARPNESS) * 0.5f + 0.5f;
                 float dmg = axeItem.getDefaultStack().getDamage() + sharpness;
-                if (dmg > sharp)
-                {
+                if (dmg > sharp) {
                     sharp = dmg;
                     slot = i;
                 }
-            }
-            else if (stack.getItem() instanceof TridentItem)
-            {
+            } else if (stack.getItem() instanceof TridentItem) {
                 float sharpness = EnchantmentUtil.getLevel(stack,
                     Enchantments.SHARPNESS) * 0.5f + 0.5f;
                 float dmg = TridentItem.ATTACK_DAMAGE + sharpness;
-                if (dmg > sharp)
-                {
+                if (dmg > sharp) {
                     sharp = dmg;
                     slot = i;
                 }
-            }
-            else if (stack.getItem() instanceof MaceItem)
-            {
+            } else if (stack.getItem() instanceof MaceItem) {
                 float sharpness = EnchantmentUtil.getLevel(stack,
                     Enchantments.SHARPNESS) * 0.5f + 0.5f;
                 float dmg = 5.0f + sharpness;
-                if (dmg > sharp)
-                {
+                if (dmg > sharp) {
                     sharp = dmg;
                     slot = i;
                 }
@@ -690,20 +585,16 @@ public class KFCSpawnKill extends GenyoModule {
         return slot;
     }
 
-    private int getBreachMaceSlot()
-    {
+    private int getBreachMaceSlot() {
         int slot = -1;
         int maxBreach = 0;
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.player.getInventory().getStack(i);
-            if (!(stack.getItem() instanceof MaceItem))
-            {
+            if (!(stack.getItem() instanceof MaceItem)) {
                 continue;
             }
             int breach = EnchantmentUtil.getLevel(stack, Enchantments.BREACH);
-            if (breach > maxBreach)
-            {
+            if (breach > maxBreach) {
                 slot = i;
                 maxBreach = breach;
             }
@@ -711,16 +602,13 @@ public class KFCSpawnKill extends GenyoModule {
         return slot;
     }
 
-    private void preAttackTarget()
-    {
+    private void preAttackTarget() {
         final ItemStack offhand = mc.player.getOffHandStack();
         // Shield state
         shielding = false;
-        if (stopShieldConfig.get())
-        {
+        if (stopShieldConfig.get()) {
             shielding = offhand.getItem() == Items.SHIELD && mc.player.isBlocking();
-            if (shielding)
-            {
+            if (shielding) {
                 Managers.NETWORK.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM,
                     Managers.POSITION.getBlockPos(), Direction.getFacing(mc.player.getX(),
                     mc.player.getY(), mc.player.getZ())));
@@ -728,16 +616,13 @@ public class KFCSpawnKill extends GenyoModule {
         }
         sneaking = false;
         sprinting = false;
-        if (stopSprintConfig.get())
-        {
+        if (stopSprintConfig.get()) {
             sneaking = Managers.POSITION.isSneaking();
-            if (sneaking)
-            {
+            if (sneaking) {
                 mc.player.setSneaking(false);
             }
             sprinting = Managers.POSITION.isSprinting();
-            if (sprinting)
-            {
+            if (sprinting) {
                 Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
                     ClientCommandC2SPacket.Mode.STOP_SPRINTING));
             }
@@ -745,19 +630,15 @@ public class KFCSpawnKill extends GenyoModule {
     }
 
     // RELEASE
-    private void postAttackTarget(Entity entity)
-    {
-        if (shielding)
-        {
+    private void postAttackTarget(Entity entity) {
+        if (shielding) {
             Managers.NETWORK.sendSequencedPacket(s ->
                 new PlayerInteractItemC2SPacket(Hand.OFF_HAND, s, mc.player.getYaw(), mc.player.getPitch()));
         }
-        if (sneaking)
-        {
+        if (sneaking) {
             mc.player.setSneaking(true);
         }
-        if (sprinting)
-        {
+        if (sprinting) {
             Managers.NETWORK.sendPacket(new ClientCommandC2SPacket(mc.player,
                 ClientCommandC2SPacket.Mode.START_SPRINTING));
         }
@@ -776,8 +657,7 @@ public class KFCSpawnKill extends GenyoModule {
 //        }
     }
 
-    private Entity getAttackTarget(Vec3d pos)
-    {
+    private Entity getAttackTarget(Vec3d pos) {
         double min = Double.MAX_VALUE;
         Entity attackTarget = null;
         for (Entity entity : mc.world.getEntities()) {
@@ -788,52 +668,39 @@ public class KFCSpawnKill extends GenyoModule {
                 || entity instanceof ItemEntity
                 || entity instanceof ArrowEntity
                 || entity instanceof ExperienceBottleEntity
-                || (ignoreNametags.get() && entity.hasCustomName()))
-            {
+                || (ignoreNametags.get() && entity.hasCustomName())) {
                 continue;
             }
             if (armorCheckConfig.get()
                 && entity instanceof LivingEntity livingEntity
-                && !Stream.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET).anyMatch(s -> !livingEntity.getEquippedStack(s).isEmpty()))
-            {
+                && !Stream.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET).anyMatch(s -> !livingEntity.getEquippedStack(s).isEmpty())) {
                 continue;
             }
             double dist = pos.distanceTo(entity.getEntityPos());
-            if (dist <= searchRangeConfig.get())
-            {
-                if (entity.age < ticksExistedConfig.get())
-                {
+            if (dist <= searchRangeConfig.get()) {
+                if (entity.age < ticksExistedConfig.get()) {
                     continue;
                 }
-                switch (priorityConfig.get())
-                {
-                    case DISTANCE ->
-                    {
-                        if (dist < min)
-                        {
+                switch (priorityConfig.get()) {
+                    case DISTANCE -> {
+                        if (dist < min) {
                             min = dist;
                             attackTarget = entity;
                         }
                     }
-                    case HEALTH ->
-                    {
-                        if (entity instanceof LivingEntity e)
-                        {
+                    case HEALTH -> {
+                        if (entity instanceof LivingEntity e) {
                             float health = e.getHealth() + e.getAbsorptionAmount();
-                            if (health < min)
-                            {
+                            if (health < min) {
                                 min = health;
                                 attackTarget = entity;
                             }
                         }
                     }
-                    case ARMOR ->
-                    {
-                        if (entity instanceof LivingEntity e)
-                        {
+                    case ARMOR -> {
+                        if (entity instanceof LivingEntity e) {
                             float armor = getArmorDurability(e);
-                            if (armor < min)
-                            {
+                            if (armor < min) {
                                 min = armor;
                                 attackTarget = entity;
                             }
@@ -845,15 +712,12 @@ public class KFCSpawnKill extends GenyoModule {
         return attackTarget;
     }
 
-    private float getArmorDurability(LivingEntity e)
-    {
+    private float getArmorDurability(LivingEntity e) {
         float edmg = 0.0f;
         float emax = 0.0f;
-        for (EquipmentSlot s : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET})
-        {
+        for (EquipmentSlot s : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
             ItemStack armor = e.getEquippedStack(s);
-            if (armor != null && !armor.isEmpty())
-            {
+            if (armor != null && !armor.isEmpty()) {
                 edmg += armor.getDamage();
                 emax += armor.getMaxDamage();
             }
@@ -861,8 +725,7 @@ public class KFCSpawnKill extends GenyoModule {
         return 100.0f - edmg / emax;
     }
 
-    public boolean isInAttackRange(Vec3d pos, Entity entity)
-    {
+    public boolean isInAttackRange(Vec3d pos, Entity entity) {
         final Vec3d entityPos = getAttackRotateVec(entity);
         double dist = pos.distanceTo(entityPos);
         return isInAttackRange(dist, pos, entityPos);
@@ -873,26 +736,21 @@ public class KFCSpawnKill extends GenyoModule {
      * @param pos
      * @return
      */
-    public boolean isInAttackRange(double dist, Vec3d pos, Vec3d entityPos)
-    {
-        if (vanillaRangeConfig.get() && dist > 3.0f)
-        {
+    public boolean isInAttackRange(double dist, Vec3d pos, Vec3d entityPos) {
+        if (vanillaRangeConfig.get() && dist > 3.0f) {
             return false;
         }
-        if (dist > rangeConfig.get())
-        {
+        if (dist > rangeConfig.get()) {
             return false;
         }
         BlockHitResult result = mc.world.raycast(new RaycastContext(
             pos, entityPos,
             RaycastContext.ShapeType.COLLIDER,
             RaycastContext.FluidHandling.NONE, mc.player));
-        if (result != null && !result.getBlockPos().equals(BlockPos.ofFloored(entityPos)) && dist > wallRangeConfig.get())
-        {
+        if (result != null && !result.getBlockPos().equals(BlockPos.ofFloored(entityPos)) && dist > wallRangeConfig.get()) {
             return false;
         }
-        if (fovConfig.get() != 180.0f)
-        {
+        if (fovConfig.get() != 180.0f) {
             float[] rots = RotationUtil.getRotationsTo(pos, entityPos);
             float diff = MathHelper.wrapDegrees(mc.player.getYaw()) - rots[0];
             float magnitude = Math.abs(diff);
@@ -901,24 +759,20 @@ public class KFCSpawnKill extends GenyoModule {
         return true;
     }
 
-    public boolean isHoldingSword()
-    {
+    public boolean isHoldingSword() {
         return !swordCheckConfig.get() || mc.player.getMainHandStack().isIn(ItemTags.SWORDS)
             || mc.player.getMainHandStack().getItem() instanceof AxeItem
             || mc.player.getMainHandStack().getItem() instanceof TridentItem
             || mc.player.getMainHandStack().getItem() instanceof MaceItem;
     }
 
-    private Vec3d getAttackRotateVec(Entity entity)
-    {
+    private Vec3d getAttackRotateVec(Entity entity) {
         Vec3d feetPos = entity.getEntityPos();
-        return switch (hitVectorConfig.get())
-        {
+        return switch (hitVectorConfig.get()) {
             case FEET -> feetPos;
             case TORSO -> feetPos.add(0.0, entity.getHeight() / 2.0f, 0.0);
             case EYES -> entity.getEyePos();
-            case AUTO ->
-            {
+            case AUTO -> {
                 Vec3d torsoPos = feetPos.add(0.0, entity.getHeight() / 2.0f, 0.0);
                 Vec3d eyesPos = entity.getEyePos();
                 yield Stream.of(feetPos, torsoPos, eyesPos).min(Comparator.comparing(b -> mc.player.getEyePos().squaredDistanceTo(b))).orElse(eyesPos);
@@ -933,8 +787,7 @@ public class KFCSpawnKill extends GenyoModule {
      * @return <tt>true</tt> if the entity is an enemy
      * @see EntityUtil
      */
-    private boolean isEnemy(Entity e)
-    {
+    private boolean isEnemy(Entity e) {
         return (!e.isInvisible() || invisiblesConfig.get())
             && e instanceof PlayerEntity && playersConfig.get()
             || EntityUtil.isMonster(e) && monstersConfig.get()
@@ -942,34 +795,29 @@ public class KFCSpawnKill extends GenyoModule {
             || EntityUtil.isPassive(e) && animalsConfig.get();
     }
 
-    public Entity getEntityTarget()
-    {
+    public Entity getEntityTarget() {
         return entityTarget;
     }
 
-    public enum TargetMode
-    {
+    public enum TargetMode {
         SWITCH,
         SINGLE
     }
 
-    public enum Swap
-    {
+    public enum Swap {
         NORMAL,
         SILENT,
         OFF
     }
 
-    public enum Vector
-    {
+    public enum Vector {
         EYES,
         TORSO,
         FEET,
         AUTO
     }
 
-    public enum Priority
-    {
+    public enum Priority {
         HEALTH,
         DISTANCE,
         ARMOR

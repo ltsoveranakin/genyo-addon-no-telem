@@ -17,7 +17,7 @@ import com.genyo.systems.modules.movement.GenyoVelocity;
 import com.genyo.systems.modules.visual.GenyoCapes;
 import com.genyo.systems.modules.visual.GenyoNametags;
 import com.genyo.systems.modules.visual.Parkinsons;
-import com.genyo.systems.modules.visual.PenisESP;
+
 import com.genyo.systems.modules.world.*;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
@@ -115,29 +115,22 @@ public class Genyo extends MeteorAddon {
     }
 
     private void initModules(Modules modules) {
-        modules.add(new GenyoAutoEZ());
         modules.add(new GenyoSurround());
-        modules.add(new GenyoWelcome());
-        modules.add(new GenyoSkinBlink());
-        modules.add(new GenyoGoodbye());
         modules.add(new GenyoSurroundV2());
         modules.add(new GenyoAutoCrystal());
-        modules.add(new GenyoDiscord());
         modules.add(new GenyoSpeedmine());
         modules.add(new GenyoAutoTool());
         modules.add(new GenyoReplenish());
         modules.add(new GenyoScaffold());
-        modules.add(new PenisESP());
         modules.add(new GenyoAutoTotem());
         modules.add(new GenyoVelocity());
-        modules.add(new KFCSpawnKill());
+        modules.add(new KillAura());
         modules.add(new GenyoCriticals());
         modules.add(new GenyoGhostBlocks());
         modules.add(new GenyoSelfTrap());
-        modules.add(new CombatBrainrot());
         modules.add(new PacketDebug());
-        modules.add(new GenyoAutoMine());
-        modules.add(new GenyoAutoMineV2());
+        modules.add(new GenyoAutoCity());
+        modules.add(new GenyoAutoCityV2());
         modules.add(new GenyoAutoXP());
         modules.add(new GenyoAutoArmor());
         modules.add(new GenyoAutoTrap());
@@ -145,13 +138,8 @@ public class Genyo extends MeteorAddon {
         modules.add(new GenyoPhase());
         //modules.add(new GenyoMainMenu());
         modules.add(new GenyoTimer());
-        modules.add(new AutoSigma());
-        modules.add(new Einstein());
-        modules.add(new GenyoAutoWindmill());
-        modules.add(new GenyoAutoPenis());
         modules.add(new NoPacketKick());
         modules.add(new AntiLadder());
-        modules.add(new AutoBrainrot());
         modules.add(new GenyoNoSlow());
         //modules.add(new TsunodaBlinker());
         modules.add(new GenyoSwing());

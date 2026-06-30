@@ -1,6 +1,5 @@
 package com.genyo.systems.enemies;
 
-import com.genyo.Genyo;
 import com.mojang.util.UndashedUuid;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.System;
@@ -9,7 +8,6 @@ import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.misc.Keybind;
 import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.client.network.PlayerListEntry;
@@ -29,52 +27,25 @@ import static meteordevelopment.meteorclient.utils.player.ChatUtils.info;
 
 public class Enemies extends System<Enemies> implements Iterable<Enemy> {
 
-    private final List<Enemy> enemies = new ArrayList<>();
-
     public final Settings settings = new Settings();
-
+    private final List<Enemy> enemies = new ArrayList<>();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgMessage = settings.createGroup("Message");
-
     private final Setting<SettingColor> enemyColor = sgGeneral.add(new ColorSetting.Builder()
         .name("esp-color")
-        .description("Brasil")
+        .description("Color of the ESP")
         .defaultValue(new SettingColor(255, 100, 89, 255))
         .build()
     );
-
     private final Setting<Keybind> keybind = sgGeneral.add(new KeybindSetting.Builder()
         .name("Keybind")
-        .description("Ecuadór")
+        .description("Keybinding to use")
         .defaultValue(Keybind.fromKey(GLFW.GLFW_KEY_X))
         .action(this::genyo)
         .build()
     );
+    private final SettingGroup sgMessage = settings.createGroup("Message");
 
     // Message
-
-    private final Setting<Boolean> message = sgMessage.add(new BoolSetting.Builder()
-        .name("send-message")
-        .description("Send a message when adding an enemy")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<MessageMode> messageMode = sgMessage.add(new EnumSetting.Builder<MessageMode>()
-        .name("message-mode")
-        .description("Shabala babala /whisper oder /msg")
-        .defaultValue(MessageMode.Whisper)
-        .visible(message::get)
-        .build()
-    );
-
-    private final Setting<String> customMessage = sgMessage.add(new StringSetting.Builder()
-        .name("custom-message")
-        .description("To send")
-        .defaultValue("shabala babala niger biger.")
-        .visible(message::get)
-        .build()
-    );
 
     public Enemies() {
         super("enemies");
@@ -201,20 +172,9 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
         if (!isEnemy(player)) {
             add(new Enemy(player));
             info("Added %s to enemies", player.getName().getString());
-            if (getMessageBool()) {
-                String message = getCustomMessage();
-
-                switch (getMessageMode()) {
-                    case MessageMode.Whisper:
-                        ChatUtils.sendPlayerMsg("/whisper " + player.getName().getString() + " " + message);
-                        Genyo.LOG.info("/whisper " + player.getName().getString() + " " + message);
-                    case MessageMode.Msg:
-                        ChatUtils.sendPlayerMsg("/msg " + player.getName().getString() + " " + message);
-                }
-            }
         } else {
             remove(get(player));
-            info("Removed %s from opps.", player.getName().getString());
+            info("Removed %s from enemies.", player.getName().getString());
         }
     }
 
@@ -224,18 +184,6 @@ public class Enemies extends System<Enemies> implements Iterable<Enemy> {
 
     public Keybind getKeybind() {
         return keybind.get();
-    }
-
-    public boolean getMessageBool() {
-        return message.get();
-    }
-
-    public String getCustomMessage() {
-        return customMessage.get();
-    }
-
-    public MessageMode getMessageMode() {
-        return messageMode.get();
     }
 
     public enum MessageMode {

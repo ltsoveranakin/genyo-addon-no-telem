@@ -1,9 +1,7 @@
 package com.genyo.mixin.network;
 
-import com.genyo.Genyo;
-import com.genyo.mixin.accessor.AccessorClientConnection;
 import com.genyo.imixins.IClientPlayNetworkHandler;
-import com.genyo.systems.modules.misc.Einstein;
+import com.genyo.mixin.accessor.AccessorClientConnection;
 import com.genyo.systems.modules.movement.GenyoVelocity;
 import meteordevelopment.meteorclient.mixininterface.IExplosionS2CPacket;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -26,10 +24,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mixin(ClientPlayNetworkHandler.class)
-public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler implements IClientPlayNetworkHandler  {
+public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler implements IClientPlayNetworkHandler {
 
     @Unique
     private boolean ignoreChatMessage;
+
+    protected MixinClientPlayNetworkHandler(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
+        super(client, connection, connectionState);
+    }
 
     @Shadow
     public abstract void sendChatMessage(String content);
@@ -37,10 +39,6 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     @Shadow
     public ClientConnection getConnection() {
         return null;
-    }
-
-    protected MixinClientPlayNetworkHandler(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
-        super(client, connection, connectionState);
     }
 
     @Inject(method = "onExplosion", at = @At("HEAD"))
@@ -55,27 +53,8 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     }
 
     @Override
-    public void sendQuietPacket(Packet<?> packet)
-    {
+    public void sendQuietPacket(Packet<?> packet) {
         ((AccessorClientConnection) getConnection()).hookSendInternal(packet, null, true);
-    }
-
-    @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
-    private void onSendChatMessage(String message, CallbackInfo ci) {
-        if (ignoreChatMessage) return;
-
-        Einstein einstein = Modules.get().get(Einstein.class);
-        if (Modules.get().isActive(Einstein.class)) {
-            String answer = message.toUpperCase();
-
-            if (einstein.isInGame() && isChoice(answer)) {
-                ci.cancel();
-
-                String correct = einstein.getCorrectChoice();
-
-                einstein.endGame(answer.equals(correct));
-            }
-        }
     }
 
     @Unique

@@ -3,8 +3,8 @@ package com.genyo.systems.modules.combat;
 import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
-import com.genyo.systems.modules.PlacerModule;
 import com.genyo.render.animation.Animation;
+import com.genyo.systems.modules.PlacerModule;
 import com.genyo.systems.settings.FloatSetting;
 import com.genyo.utils.math.GPositionUtils;
 import com.genyo.utils.math.MathUtil;
@@ -38,14 +38,8 @@ import net.minecraft.util.math.Vec3i;
 import java.util.*;
 
 public class GenyoAutoTrap extends PlacerModule {
-
-    public GenyoAutoTrap() {
-        super(Genyo.COMBAT, "genyo-auto-trap", "Fully traps enemies with blocks.");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
-
     private final Setting<Float> placeRangeConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Place Range")
         .description("The placement range for trap")
@@ -54,49 +48,42 @@ public class GenyoAutoTrap extends PlacerModule {
         .max(6.0f)
         .build()
     );
-
     private final Setting<Boolean> rotateConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate")
         .description("Rotates to block before placing")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> attackConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Attack")
         .description("Attacks crystals in the way of trap")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> extendConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Extend")
         .description("Extends trap if the player is not in the center of a block")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> supportConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Support")
         .description("Creates a floor for the trap if there is none")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> headConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Head")
         .description("Place a block at targets head")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> antiStepConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Prevent Step")
         .description("Prevents target from stepping out of the trap")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Integer> shiftTicksConfig = sgGeneral.add(new IntSetting.Builder()
         .name("Shift Ticks")
         .description("The number of blocks to place per tick")
@@ -105,7 +92,6 @@ public class GenyoAutoTrap extends PlacerModule {
         .max(10)
         .build()
     );
-
     private final Setting<Float> shiftDelayConfig = sgGeneral.add(new FloatSetting.Builder()
         .name("Shift Delay")
         .description("The delay between each block placement interval")
@@ -114,16 +100,12 @@ public class GenyoAutoTrap extends PlacerModule {
         .max(5.0f)
         .build()
     );
-
     private final Setting<Boolean> autoDisableConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Auto Disable")
         .description("Disables after placing the blocks")
         .defaultValue(true)
         .build()
     );
-
-    // Render
-
     private final Setting<Boolean> renderConfig = sgRender.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders where trap is placing blocks")
@@ -131,13 +113,13 @@ public class GenyoAutoTrap extends PlacerModule {
         .build()
     );
 
+    // Render
     private final Setting<SettingColor> color = sgRender.add(new ColorSetting.Builder()
         .name("Render Color")
         .description("asdsadsadsadsadsa")
         .defaultValue(new Color(236, 243, 122, 40))
         .build()
     );
-
     private final Setting<Integer> fadeTimeConfig = sgRender.add(new IntSetting.Builder()
         .name("Fade-Time")
         .description("Time to fade")
@@ -147,16 +129,17 @@ public class GenyoAutoTrap extends PlacerModule {
         .visible(() -> false)
         .build()
     );
-
-    private List<BlockPos> surround = new ArrayList<>();
-    private List<BlockPos> placements = new ArrayList<>();
     private final Map<BlockPos, Long> packets = new HashMap<>();
     private final Map<BlockPos, Animation> fadeList = new HashMap<>();
+    private List<BlockPos> surround = new ArrayList<>();
+    private List<BlockPos> placements = new ArrayList<>();
     private int blocksPlaced;
+    public GenyoAutoTrap() {
+        super(Genyo.COMBAT, "genyo-auto-trap", "Fully traps enemies with blocks.");
+    }
 
     @Override
-    public void onDeactivate()
-    {
+    public void onDeactivate() {
         surround.clear();
         placements.clear();
         packets.clear();
@@ -164,27 +147,23 @@ public class GenyoAutoTrap extends PlacerModule {
     }
 
     @EventHandler
-    public void onPlayerTick(PlayerTickEvent event)
-    {
+    public void onPlayerTick(PlayerTickEvent event) {
         blocksPlaced = 0;
 
-        if (!multitask.get() && mc.player.isUsingItem())
-        {
+        if (!multitask.get() && mc.player.isUsingItem()) {
             surround.clear();
             placements.clear();
             return;
         }
 
         final int slot = getResistantBlockItem();
-        if (slot == -1)
-        {
+        if (slot == -1) {
             surround.clear();
             placements.clear();
             return;
         }
         PlayerEntity trapTarget = getTrapTarget();
-        if (trapTarget == null)
-        {
+        if (trapTarget == null) {
             surround.clear();
             placements.clear();
             return;
@@ -192,44 +171,34 @@ public class GenyoAutoTrap extends PlacerModule {
 
         BlockPos targetBlockPos = GPositionUtils.getRoundedBlockPos(trapTarget.getX(), trapTarget.getY(), trapTarget.getZ());
         surround = getSurround(targetBlockPos, trapTarget);
-        if (surround.isEmpty())
-        {
+        if (surround.isEmpty()) {
             return;
         }
-        if (attackConfig.get())
-        {
+        if (attackConfig.get()) {
             attackBlockingCrystals(surround);
         }
         placements = getPlacementsFromSurround(surround);
-        if (placements.isEmpty())
-        {
-            if (autoDisableConfig.get())
-            {
+        if (placements.isEmpty()) {
+            if (autoDisableConfig.get()) {
                 toggle();
                 sendDisableMsg("No placements found.");
             }
             return;
         }
-        if (supportConfig.get())
-        {
-            for (BlockPos block : new ArrayList<>(placements))
-            {
-                if (block.getY() > targetBlockPos.getY())
-                {
+        if (supportConfig.get()) {
+            for (BlockPos block : new ArrayList<>(placements)) {
+                if (block.getY() > targetBlockPos.getY()) {
                     continue;
                 }
                 Direction direction = Managers.INTERACT.getInteractDirectionInternal(block, strictDirection.get());
-                if (direction == null)
-                {
+                if (direction == null) {
                     placements.add(block.down());
                 }
             }
         }
         placements.sort(Comparator.comparingInt(Vec3i::getY));
-        while (blocksPlaced < shiftTicksConfig.get())
-        {
-            if (blocksPlaced >= placements.size())
-            {
+        while (blocksPlaced < shiftTicksConfig.get()) {
+            if (blocksPlaced >= placements.size()) {
                 break;
             }
             BlockPos targetPos = placements.get(blocksPlaced);
@@ -239,71 +208,54 @@ public class GenyoAutoTrap extends PlacerModule {
             placeBlock(targetPos, slot);
         }
 
-        if (rotateConfig.get())
-        {
+        if (rotateConfig.get()) {
             Managers.ROTATION.setRotationSilentSync();
         }
     }
 
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event)
-    {
-        if (mc.player == null || mc.world == null)
-        {
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (mc.player == null || mc.world == null) {
             return;
         }
-        if (event.packet instanceof BundleS2CPacket packet)
-        {
-            for (Packet<?> packet1 : packet.getPackets())
-            {
+        if (event.packet instanceof BundleS2CPacket packet) {
+            for (Packet<?> packet1 : packet.getPackets()) {
                 handlePackets(packet1);
             }
-        }
-        else
-        {
+        } else {
             handlePackets(event.packet);
         }
     }
 
-    private void handlePackets(Packet<?> serverPacket)
-    {
-        if (serverPacket instanceof BlockUpdateS2CPacket packet)
-        {
+    private void handlePackets(Packet<?> serverPacket) {
+        if (serverPacket instanceof BlockUpdateS2CPacket packet) {
             final BlockState blockState = packet.getState();
             final BlockPos targetPos = packet.getPos();
-            if (surround.contains(targetPos))
-            {
-                if (blockState.isReplaceable() && mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent()))
-                {
+            if (surround.contains(targetPos)) {
+                if (blockState.isReplaceable() && mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, targetPos, ShapeContext.absent())) {
                     final int slot = getResistantBlockItem();
-                    if (slot == -1)
-                    {
+                    if (slot == -1) {
                         return;
                     }
                     placeBlock(targetPos, slot);
-                }
-                else if (BlastResistantBlocks.isBlastResistant(blockState))
-                {
+                } else if (BlastResistantBlocks.isBlastResistant(blockState)) {
                     packets.remove(targetPos);
                 }
             }
         }
     }
 
-    private void placeBlock(BlockPos pos, int slot)
-    {
+    private void placeBlock(BlockPos pos, int slot) {
         Managers.INTERACT.placeBlock(pos, slot, strictDirection.get(), false, true, (state, angles) ->
         {
-            if (rotateConfig.get() && state)
-            {
+            if (rotateConfig.get() && state) {
                 Managers.ROTATION.setRotationSilent(angles[0], angles[1]);
             }
         });
         packets.put(pos, System.currentTimeMillis());
     }
 
-    private PlayerEntity getTrapTarget()
-    {
+    private PlayerEntity getTrapTarget() {
         final List<Entity> entities = Lists.newArrayList(mc.world.getEntities());
         return (PlayerEntity) entities.stream()
             .filter(e -> e instanceof PlayerEntity player && e.isAlive() && mc.player != e && !Managers.SOCIAL.isFriend(player))
@@ -312,14 +264,11 @@ public class GenyoAutoTrap extends PlacerModule {
             .orElse(null);
     }
 
-    public void attackBlockingCrystals(List<BlockPos> posList)
-    {
-        for (BlockPos pos : posList)
-        {
+    public void attackBlockingCrystals(List<BlockPos> posList) {
+        for (BlockPos pos : posList) {
             Entity crystalEntity = mc.world.getOtherEntities(null, new Box(pos)).stream()
                 .filter(e -> e instanceof EndCrystalEntity).findFirst().orElse(null);
-            if (crystalEntity == null)
-            {
+            if (crystalEntity == null) {
                 continue;
             }
             Managers.NETWORK.sendPacket(PlayerInteractEntityC2SPacket.attack(crystalEntity, mc.player.isSneaking()));
@@ -328,49 +277,38 @@ public class GenyoAutoTrap extends PlacerModule {
         }
     }
 
-    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround)
-    {
+    public List<BlockPos> getPlacementsFromSurround(List<BlockPos> surround) {
         List<BlockPos> placements = new ArrayList<>();
-        for (BlockPos surroundPos : surround)
-        {
+        for (BlockPos surroundPos : surround) {
             Long placed = packets.get(surroundPos);
-            if (shiftDelayConfig.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelayConfig.get() * 50.0f)
-            {
+            if (shiftDelayConfig.get() > 0.0f && placed != null && System.currentTimeMillis() - placed < shiftDelayConfig.get() * 50.0f) {
                 continue;
             }
-            if (!mc.world.getBlockState(surroundPos).isReplaceable())
-            {
+            if (!mc.world.getBlockState(surroundPos).isReplaceable()) {
                 continue;
             }
             double dist = mc.player.squaredDistanceTo(surroundPos.toCenterPos());
-            if (dist > MathUtil.squared(placeRangeConfig.get()))
-            {
+            if (dist > MathUtil.squared(placeRangeConfig.get())) {
                 continue;
             }
 
-            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent()))
-            {
+            if (mc.world.canPlace(DEFAULT_OBSIDIAN_STATE, surroundPos, ShapeContext.absent())) {
                 placements.add(surroundPos);
             }
         }
         return placements;
     }
 
-    public List<BlockPos> getSurround(BlockPos playerPos, PlayerEntity player)
-    {
+    public List<BlockPos> getSurround(BlockPos playerPos, PlayerEntity player) {
         List<BlockPos> surroundBlocks = new ArrayList<>();
         List<BlockPos> playerBlocks = getPlayerBlocks(playerPos, player);
-        for (BlockPos pos : playerBlocks)
-        {
-            for (Direction dir : Direction.values())
-            {
-                if (!dir.getAxis().isHorizontal())
-                {
+        for (BlockPos pos : playerBlocks) {
+            for (Direction dir : Direction.values()) {
+                if (!dir.getAxis().isHorizontal()) {
                     continue;
                 }
                 BlockPos pos1 = pos.offset(dir);
-                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1))
-                {
+                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1)) {
                     continue;
                 }
 
@@ -378,45 +316,36 @@ public class GenyoAutoTrap extends PlacerModule {
                 surroundBlocks.add(pos1.up());
             }
         }
-        if (headConfig.get())
-        {
+        if (headConfig.get()) {
             boolean support = false;
             final List<BlockPos> headBlocks = new ArrayList<>();
-            for (BlockPos pos : playerBlocks)
-            {
+            for (BlockPos pos : playerBlocks) {
                 BlockPos headPos = pos.offset(Direction.UP, 2);
-                if (!mc.world.getBlockState(headPos).isReplaceable())
-                {
+                if (!mc.world.getBlockState(headPos).isReplaceable()) {
                     support = true;
                 }
                 headBlocks.add(headPos);
-                if (antiStepConfig.get())
-                {
+                if (antiStepConfig.get()) {
                     BlockPos antiStepPos = pos.offset(Direction.UP, 3);
                     headBlocks.add(antiStepPos);
                 }
             }
-            if (!Modules.get().isActive(AirPlace.class))
-            {
+            if (!Modules.get().isActive(AirPlace.class)) {
                 BlockPos supportingPos = null;
                 double min = Double.MAX_VALUE;
-                for (BlockPos pos : surroundBlocks)
-                {
+                for (BlockPos pos : surroundBlocks) {
                     BlockPos pos1 = pos.offset(Direction.UP, 2);
-                    if (!mc.world.getBlockState(pos1).isReplaceable())
-                    {
+                    if (!mc.world.getBlockState(pos1).isReplaceable()) {
                         support = true;
                         break;
                     }
                     double dist = mc.player.squaredDistanceTo(pos1.toCenterPos());
-                    if (dist < min)
-                    {
+                    if (dist < min) {
                         supportingPos = pos1;
                         min = dist;
                     }
                 }
-                if (supportingPos != null && !support)
-                {
+                if (supportingPos != null && !support) {
                     surroundBlocks.add(supportingPos);
                 }
             }
@@ -425,27 +354,20 @@ public class GenyoAutoTrap extends PlacerModule {
         return surroundBlocks;
     }
 
-    public List<BlockPos> getPlayerBlocks(BlockPos playerPos, PlayerEntity entity)
-    {
+    public List<BlockPos> getPlayerBlocks(BlockPos playerPos, PlayerEntity entity) {
         final List<BlockPos> playerBlocks = new ArrayList<>();
-        if (extendConfig.get())
-        {
+        if (extendConfig.get()) {
             playerBlocks.addAll(GPositionUtils.getAllInBox(entity.getBoundingBox(), playerPos));
-        }
-        else
-        {
+        } else {
             playerBlocks.add(playerPos);
         }
         return playerBlocks;
     }
 
     @EventHandler
-    public void onRender3D(Render3DEvent event)
-    {
-        if (renderConfig.get())
-        {
-            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
-            {
+    public void onRender3D(Render3DEvent event) {
+        if (renderConfig.get()) {
+            for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet()) {
                 set.getValue().setState(false);
                 int boxAlpha = (int) (40 * set.getValue().getFactor());
                 int lineAlpha = (int) (100 * set.getValue().getFactor());
@@ -456,13 +378,11 @@ public class GenyoAutoTrap extends PlacerModule {
                 event.renderer.box(set.getKey(), boxColor, lineColor, ShapeMode.Both, 0);
             }
 
-            if (placements.isEmpty())
-            {
+            if (placements.isEmpty()) {
                 return;
             }
 
-            for (BlockPos pos : placements)
-            {
+            for (BlockPos pos : placements) {
                 Animation animation = new Animation(true, fadeTimeConfig.get());
                 fadeList.put(pos, animation);
             }
@@ -472,8 +392,7 @@ public class GenyoAutoTrap extends PlacerModule {
             e.getValue().getFactor() == 0.0);
     }
 
-    public boolean isPlacing()
-    {
+    public boolean isPlacing() {
         return !placements.isEmpty();
     }
 

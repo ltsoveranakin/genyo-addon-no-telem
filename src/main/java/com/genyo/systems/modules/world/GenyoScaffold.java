@@ -3,8 +3,8 @@ package com.genyo.systems.modules.world;
 import com.genyo.Genyo;
 import com.genyo.events.network.PlayerTickEvent;
 import com.genyo.managers.Managers;
-import com.genyo.systems.modules.PlacerModule;
 import com.genyo.render.animation.Animation;
+import com.genyo.systems.modules.PlacerModule;
 import com.genyo.utils.math.GPositionUtils;
 import com.genyo.utils.player.MovementUtil;
 import com.genyo.utils.player.RotationUtil;
@@ -29,20 +29,13 @@ import java.util.List;
 import java.util.Map;
 
 public class GenyoScaffold extends PlacerModule {
-
-    public GenyoScaffold() {
-        super(Genyo.WORLD, "genyo-scaffold", "i shit the bed regularly");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Boolean> rotateConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate")
         .description("Allow to rotate")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> rotateHoldConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Rotate Hold")
         .description("Holds rotations to scaffold blocks")
@@ -50,21 +43,25 @@ public class GenyoScaffold extends PlacerModule {
         .visible(rotateConfig::get)
         .build()
     );
-
     private final Setting<Boolean> grimConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Grim")
         .description("Uses grim interactions")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> grimNewConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Grim V3")
         .description("Uses grim new interactions")
         .defaultValue(false)
         .build()
     );
-
+    private final Setting<Boolean> towerConfig = sgGeneral.add(new BoolSetting.Builder()
+        .name("Tower")
+        .description("Goes up faster when holding down space")
+        .defaultValue(true)
+        .visible(() -> !grimNewConfig.get())
+        .build()
+    );
     private final Setting<Selection> selectionConfig = sgGeneral.add(new EnumSetting.Builder<Selection>()
         .name("Selection")
         .description("The selection of blocks to use for scaffold")
@@ -92,29 +89,18 @@ public class GenyoScaffold extends PlacerModule {
         .defaultValue(false)
         .build()
     );
-
-    private final Setting<Boolean> towerConfig = sgGeneral.add(new BoolSetting.Builder()
-        .name("Tower")
-        .description("Goes up faster when holding down space")
-        .defaultValue(true)
-        .visible(() -> !grimNewConfig.get())
-        .build()
-    );
-
     private final Setting<BlockPicker> pickerConfig = sgGeneral.add(new EnumSetting.Builder<BlockPicker>()
         .name("Block Selection")
         .description("How to pick a block from the hotbar")
         .defaultValue(BlockPicker.NORMAL)
         .build()
     );
-
     private final Setting<Boolean> renderConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Render")
         .description("Renders where scaffold is placing blocks")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Integer> fadeTimeConfig = sgGeneral.add(new IntSetting.Builder()
         .name("Fade-Time")
         .description("Timer for the fade")
@@ -124,26 +110,26 @@ public class GenyoScaffold extends PlacerModule {
         .visible(() -> false)
         .build()
     );
-
     private final Setting<Boolean> stopMotionConfig = sgGeneral.add(new BoolSetting.Builder()
         .name("Stop Motion")
         .description("Stops player motion when placing blocks")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
         .name("Render Color")
         .description("asdsadsadsadsadsa")
         .defaultValue(new Color(236, 243, 122, 40))
         .build()
     );
-
     private final Map<BlockPos, Animation> fadeList = new HashMap<>();
     private BlockData blockData;
     private BlockData renderData;
     private float[] lastAngles;
     private int groundPosY;
+    public GenyoScaffold() {
+        super(Genyo.WORLD, "genyo-scaffold", "Block Fly");
+    }
 
     @Override
     public void onDeactivate() {
@@ -157,11 +143,9 @@ public class GenyoScaffold extends PlacerModule {
     }
 
     @EventHandler
-    public void onPlayerTick(PlayerTickEvent event)
-    {
+    public void onPlayerTick(PlayerTickEvent event) {
 
-        if (!multitask.get() && checkMultitask())
-        {
+        if (!multitask.get() && checkMultitask()) {
             blockData = null;
             renderData = null;
             return;
@@ -169,49 +153,33 @@ public class GenyoScaffold extends PlacerModule {
 
         BlockSlot blockSlot = getBlockSlot();
         int slot = blockSlot.slot();
-        if (slot == -1)
-        {
+        if (slot == -1) {
             blockData = null;
             renderData = null;
             return;
         }
         renderData = getBlockData(false);
         blockData = getBlockData(rotateHoldConfig.get());
-        if (blockData == null)
-        {
-            if (grimNewConfig.get() && rotateConfig.get())
-            {
+        if (blockData == null) {
+            if (grimNewConfig.get() && rotateConfig.get()) {
                 float yaw = mc.player.getYaw();
-                if (mc.options.forwardKey.isPressed() && !mc.options.backKey.isPressed())
-                {
-                    if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed())
-                    {
+                if (mc.options.forwardKey.isPressed() && !mc.options.backKey.isPressed()) {
+                    if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed()) {
                         yaw -= 45.0f;
-                    }
-                    else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed())
-                    {
+                    } else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed()) {
                         yaw += 45.0f;
                     }
                     // Forward movement - no change to yaw
-                }
-                else if (mc.options.backKey.isPressed() && !mc.options.forwardKey.isPressed())
-                {
+                } else if (mc.options.backKey.isPressed() && !mc.options.forwardKey.isPressed()) {
                     yaw += 180.0f;
-                    if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed())
-                    {
+                    if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed()) {
                         yaw += 45.0f;
-                    }
-                    else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed())
-                    {
+                    } else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed()) {
                         yaw -= 45.0f;
                     }
-                }
-                else if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed())
-                {
+                } else if (mc.options.leftKey.isPressed() && !mc.options.rightKey.isPressed()) {
                     yaw -= 90.0f;
-                }
-                else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed())
-                {
+                } else if (mc.options.rightKey.isPressed() && !mc.options.leftKey.isPressed()) {
                     yaw += 90.0f;
                 }
                 setRotation(MathHelper.wrapDegrees(yaw), 90.0f);
@@ -220,67 +188,51 @@ public class GenyoScaffold extends PlacerModule {
         }
 
         calcRotations(blockData);
-        if (blockData.getAngles() == null)
-        {
-            if (!isGrim() && rotateConfig.get() && lastAngles != null)
-            {
+        if (blockData.getAngles() == null) {
+            if (!isGrim() && rotateConfig.get() && lastAngles != null) {
                 setRotation(lastAngles[0], lastAngles[1]);
             }
             return;
         }
 
-        if (!isGrim() && Managers.INVENTORY.getServerSlot() != slot)
-        {
+        if (!isGrim() && Managers.INVENTORY.getServerSlot() != slot) {
             Managers.INVENTORY.setSlot(slot);
         }
 
         Vec3d prevMotion = mc.player.getVelocity();
-        if (stopMotionConfig.get())
-        {
+        if (stopMotionConfig.get()) {
             mc.player.setVelocity(0.0, 0.0, 0.0);
         }
 
         boolean result = Managers.INTERACT.placeBlock(blockData.getBlockPos(), slot, false, false, false, (state, angles) ->
         {
-            if (rotateConfig.get())
-            {
+            if (rotateConfig.get()) {
                 final float[] rotations = blockData.getAngles();
-                if (rotations == null)
-                {
+                if (rotations == null) {
                     return;
                 }
                 lastAngles = rotations;
-                if (state)
-                {
-                    if (grimConfig.get())
-                    {
+                if (state) {
+                    if (grimConfig.get()) {
                         Managers.ROTATION.setRotationSilent(rotations[0], rotations[1]);
-                    }
-                    else
-                    {
+                    } else {
                         setRotation(rotations[0], rotations[1]);
                     }
-                }
-                else if (grimConfig.get())
-                {
+                } else if (grimConfig.get()) {
                     Managers.ROTATION.setRotationSilentSync();
                 }
             }
         });
 
-        if (stopMotionConfig.get())
-        {
+        if (stopMotionConfig.get()) {
             mc.player.setVelocity(prevMotion);
         }
 
-        if (result)
-        {
-            if (!isGrim() && towerConfig.get() && mc.options.jumpKey.isPressed())
-            {
+        if (result) {
+            if (!isGrim() && towerConfig.get() && mc.options.jumpKey.isPressed()) {
                 final Vec3d velocity = mc.player.getVelocity();
                 final double velocityY = velocity.y;
-                if ((mc.player.isOnGround() || velocityY < 0.1) || velocityY <= 0.16477328182606651)
-                {
+                if ((mc.player.isOnGround() || velocityY < 0.1) || velocityY <= 0.16477328182606651) {
                     mc.player.setVelocity(velocity.x, 0.42f, velocity.z);
                 }
             }
@@ -289,10 +241,9 @@ public class GenyoScaffold extends PlacerModule {
 
     @EventHandler
     public void onRender3D(Render3DEvent event) {
-        if (!renderConfig.get() || fadeList.entrySet().isEmpty()) return;
+        if (!renderConfig.get() || fadeList.isEmpty()) return;
 
-        for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet())
-        {
+        for (Map.Entry<BlockPos, Animation> set : fadeList.entrySet()) {
             set.getValue().setState(false);
             int boxAlpha = (int) (40 * set.getValue().getFactor());
             int lineAlpha = (int) (100 * set.getValue().getFactor());
@@ -312,8 +263,7 @@ public class GenyoScaffold extends PlacerModule {
             e.getValue().getFactor() == 0.0);
     }
 
-    private void calcRotations(final BlockData blockData)
-    {
+    private void calcRotations(final BlockData blockData) {
         final BlockPos pos = blockData.getHitResult().getBlockPos();
         final Direction side = blockData.getHitResult().getSide();
         final Vec3d basicHitVec = pos.toCenterPos()
@@ -322,41 +272,31 @@ public class GenyoScaffold extends PlacerModule {
         blockData.setHitResult(new BlockHitResult(basicHitVec, side, pos, false));
     }
 
-    private BlockData getBlockData(boolean hold)
-    {
+    private BlockData getBlockData(boolean hold) {
         int posY = (int) Math.round(mc.player.getY()) - 1;
-        if (keepYConfig.get() && MovementUtil.isInputtingMovement())
-        {
-            if (mc.player.isOnGround() || groundPosY == -1)
-            {
+        if (keepYConfig.get() && MovementUtil.isInputtingMovement()) {
+            if (mc.player.isOnGround() || groundPosY == -1) {
                 groundPosY = (int) Math.floor(mc.player.getY()) - 1;
             }
             posY = groundPosY;
         }
         final BlockPos pos = GPositionUtils.getRoundedBlockPos(
             mc.player.getX(), posY, mc.player.getZ());
-        if (!hold && !mc.world.getBlockState(pos).isReplaceable())
-        {
+        if (!hold && !mc.world.getBlockState(pos).isReplaceable()) {
             return null;
         }
-        for (final Direction direction : Direction.values())
-        {
+        for (final Direction direction : Direction.values()) {
             final BlockPos neighbor = pos.offset(direction);
-            if (!mc.world.getBlockState(neighbor).isReplaceable())
-            {
+            if (!mc.world.getBlockState(neighbor).isReplaceable()) {
                 return BlockData.basic(neighbor, direction.getOpposite());
             }
         }
-        for (final Direction direction : Direction.values())
-        {
+        for (final Direction direction : Direction.values()) {
             final BlockPos neighbor = pos.offset(direction);
-            if (mc.world.getBlockState(neighbor).isReplaceable())
-            {
-                for (final Direction direction1 : Direction.values())
-                {
+            if (mc.world.getBlockState(neighbor).isReplaceable()) {
+                for (final Direction direction1 : Direction.values()) {
                     final BlockPos neighbor1 = neighbor.offset(direction1);
-                    if (!mc.world.getBlockState(neighbor1).isReplaceable())
-                    {
+                    if (!mc.world.getBlockState(neighbor1).isReplaceable()) {
                         return BlockData.basic(neighbor1, direction1.getOpposite());
                     }
                 }
@@ -365,29 +305,23 @@ public class GenyoScaffold extends PlacerModule {
         return null;
     }
 
-    private BlockSlot getBlockSlot()
-    {
+    private BlockSlot getBlockSlot() {
         final ItemStack serverStack = Managers.INVENTORY.getServerItem();
-        if (!serverStack.isEmpty() && serverStack.getItem() instanceof BlockItem blockItem && validScaffoldBlock(blockItem.getBlock()))
-        {
+        if (!serverStack.isEmpty() && serverStack.getItem() instanceof BlockItem blockItem && validScaffoldBlock(blockItem.getBlock())) {
             return new BlockSlot(blockItem.getBlock(), Managers.INVENTORY.getServerSlot());
         }
 
         Block block = null;
         int blockSlot = -1;
         int count = 0;
-        for (int i = 0; i < 9; ++i)
-        {
+        for (int i = 0; i < 9; ++i) {
             final ItemStack itemStack = mc.player.getInventory().getStack(i);
-            if (!itemStack.isEmpty() && itemStack.getItem() instanceof BlockItem blockItem && validScaffoldBlock(blockItem.getBlock()))
-            {
-                if (pickerConfig.get() == BlockPicker.NORMAL)
-                {
+            if (!itemStack.isEmpty() && itemStack.getItem() instanceof BlockItem blockItem && validScaffoldBlock(blockItem.getBlock())) {
+                if (pickerConfig.get() == BlockPicker.NORMAL) {
                     return new BlockSlot(blockItem.getBlock(), i);
                 }
 
-                if (blockSlot == -1 || itemStack.getCount() > count)
-                {
+                if (blockSlot == -1 || itemStack.getCount() > count) {
                     block = blockItem.getBlock();
                     blockSlot = i;
                     count = itemStack.getCount();
@@ -398,76 +332,64 @@ public class GenyoScaffold extends PlacerModule {
         return new BlockSlot(block, blockSlot);
     }
 
-    private boolean validScaffoldBlock(Block block)
-    {
-        return switch (selectionConfig.get())
-        {
+    private boolean validScaffoldBlock(Block block) {
+        return switch (selectionConfig.get()) {
             case WHITELIST -> whitelistConfig.get().contains(block);
             case BLACKLIST -> !blacklistConfig.get().contains(block);
             case ALL -> true;
         };
     }
 
-    private static class BlockData
-    {
-        private BlockHitResult hitResult;
-        private float[] angles;
-
-        public BlockData(final BlockHitResult hitResult, final float[] angles)
-        {
-            this.hitResult = hitResult;
-            this.angles = angles;
-        }
-
-        public BlockHitResult getHitResult()
-        {
-            return hitResult;
-        }
-
-        public BlockPos getBlockPos()
-        {
-            return hitResult.getBlockPos().offset(hitResult.getSide());
-        }
-
-        public void setHitResult(BlockHitResult hitResult)
-        {
-            this.hitResult = hitResult;
-        }
-
-        public float[] getAngles()
-        {
-            return angles;
-        }
-
-        public void setAngles(float[] angles)
-        {
-            this.angles = angles;
-        }
-
-        public static BlockData basic(final BlockPos pos, final Direction direction)
-        {
-            return new BlockData(new BlockHitResult(pos.toCenterPos(), direction, pos, false), null);
-        }
-    }
-
-    public boolean isGrim()
-    {
+    public boolean isGrim() {
         return grimConfig.get() || grimNewConfig.get();
     }
 
-    public enum Selection
-    {
+    public enum Selection {
         WHITELIST,
         BLACKLIST,
         ALL
     }
 
-    private enum BlockPicker
-    {
+    private enum BlockPicker {
         NORMAL,
         GREATEST
     }
 
-    private record BlockSlot(Block block, int slot) {}
+    private static class BlockData {
+        private BlockHitResult hitResult;
+        private float[] angles;
+
+        public BlockData(final BlockHitResult hitResult, final float[] angles) {
+            this.hitResult = hitResult;
+            this.angles = angles;
+        }
+
+        public static BlockData basic(final BlockPos pos, final Direction direction) {
+            return new BlockData(new BlockHitResult(pos.toCenterPos(), direction, pos, false), null);
+        }
+
+        public BlockHitResult getHitResult() {
+            return hitResult;
+        }
+
+        public void setHitResult(BlockHitResult hitResult) {
+            this.hitResult = hitResult;
+        }
+
+        public BlockPos getBlockPos() {
+            return hitResult.getBlockPos().offset(hitResult.getSide());
+        }
+
+        public float[] getAngles() {
+            return angles;
+        }
+
+        public void setAngles(float[] angles) {
+            this.angles = angles;
+        }
+    }
+
+    private record BlockSlot(Block block, int slot) {
+    }
 
 }

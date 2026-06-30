@@ -25,8 +25,7 @@ public class TickManager {
     private float clientTick = 1.0f;
 
     @EventHandler
-    public void onDisconnect(DisconnectEvent event)
-    {
+    public void onDisconnect(DisconnectEvent event) {
         ticks.clear();
     }
 
@@ -35,15 +34,12 @@ public class TickManager {
      * @see WorldTimeUpdateS2CPacket
      */
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event)
-    {
-        if (mc.player == null || mc.world == null)
-        {
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (mc.player == null || mc.world == null) {
             return;
         }
         // ticks/actual
-        if (event.packet instanceof WorldTimeUpdateS2CPacket)
-        {
+        if (event.packet instanceof WorldTimeUpdateS2CPacket) {
             float last = 20000.0f / (System.currentTimeMillis() - time);
             ticks.addFirst(last);
             time = System.currentTimeMillis();
@@ -53,8 +49,7 @@ public class TickManager {
     /**
      * @param ticks
      */
-    public void setClientTick(float ticks)
-    {
+    public void setClientTick(float ticks) {
         clientTick = ticks;
     }
 
@@ -62,10 +57,8 @@ public class TickManager {
      * @param event
      */
     @EventHandler
-    public void onTickCounter(TickCounterEvent event)
-    {
-        if (clientTick != 1.0f)
-        {
+    public void onTickCounter(TickCounterEvent event) {
+        if (clientTick != 1.0f) {
             event.cancel();
             event.ticks = clientTick;
         }
@@ -74,35 +67,25 @@ public class TickManager {
     /**
      * @return
      */
-    public Queue<Float> getTicks()
-    {
+    public Queue<Float> getTicks() {
         return ticks;
     }
-
-    // So many fucking issues with the EvictingQueue fuck stackoverflow
-    // Im just gonna try catch everything atp
 
     /**
      * @return
      */
-    public float getTpsAverage()
-    {
+    public float getTpsAverage() {
         float avg = 0.0f;
-        try
-        {
+        try {
             // fix ConcurrentModificationException
             ArrayList<Float> ticksCopy = Lists.newArrayList(ticks);
-            if (!ticksCopy.isEmpty())
-            {
-                for (float t : ticksCopy)
-                {
+            if (!ticksCopy.isEmpty()) {
+                for (float t : ticksCopy) {
                     avg += t;
                 }
                 avg /= Math.max(ticksCopy.size(), 1.0f);
             }
-        }
-        catch (NullPointerException e)
-        {
+        } catch (NullPointerException e) {
 
         }
         return Math.min(100.0f, avg); // Server may compensate
@@ -111,17 +94,12 @@ public class TickManager {
     /**
      * @return
      */
-    public float getTpsCurrent()
-    {
-        try
-        {
-            if (!ticks.isEmpty())
-            {
+    public float getTpsCurrent() {
+        try {
+            if (!ticks.isEmpty()) {
                 return Math.min(100.0f, ticks.getFirst());
             }
-        }
-        catch (NoSuchElementException ignored)
-        {
+        } catch (NoSuchElementException ignored) {
 
         }
         return 20.0f;
@@ -130,28 +108,21 @@ public class TickManager {
     /**
      * @return
      */
-    public float getTpsMin()
-    {
+    public float getTpsMin() {
         float min = 20.0f;
-        try
-        {
-            for (float t : ticks)
-            {
-                if (t < min)
-                {
+        try {
+            for (float t : ticks) {
+                if (t < min) {
                     min = t;
                 }
             }
-        }
-        catch (NullPointerException e)
-        {
+        } catch (NullPointerException e) {
 
         }
         return min;
     }
 
-    public boolean isTicksFilled()
-    {
+    public boolean isTicksFilled() {
         return ticks.size() >= 20;
     }
 
@@ -159,10 +130,8 @@ public class TickManager {
      * @param tps
      * @return
      */
-    public float getTickSync(TickSync tps)
-    {
-        return switch (tps)
-        {
+    public float getTickSync(TickSync tps) {
+        return switch (tps) {
             case AVERAGE -> getTpsAverage();
             case CURRENT -> getTpsCurrent();
             case MINIMAL -> getTpsMin();

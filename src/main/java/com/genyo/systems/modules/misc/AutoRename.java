@@ -4,8 +4,6 @@ import com.genyo.Genyo;
 import com.genyo.mixin.accessor.AccessorAnvilScreen;
 import com.genyo.mixin.accessor.AccessorAnvilScreenHandler;
 import com.genyo.systems.modules.GenyoModule;
-import com.genyo.utils.math.timer.TickTimer;
-import com.genyo.utils.math.timer.Timer;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -16,20 +14,14 @@ import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.screen.AnvilScreenHandler;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.sound.SoundEvents;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class AutoRename extends GenyoModule {
 
-    public AutoRename() {
-        super(Genyo.MISC, "auto-rename", "Can I talk my shit again?");
-    }
-
+    private static final int ANVIL_OFFSET = 3;
     private final Setting<List<Item>> itemList = settings.getDefaultGroup().add(new ItemListSetting.Builder()
         .name("items")
         .description("Items to automatically rename (or exclude from being renamed, if blacklist mode is enabled.)")
@@ -114,9 +106,13 @@ public class AutoRename extends GenyoModule {
 
     private int timer = 0;
     private boolean notified = false;
-    private static final int ANVIL_OFFSET = 3;
+    public AutoRename() {
+        super(Genyo.MISC, "auto-rename", "Auto renames items");
+    }
 
-    public boolean shouldMute() { return muteAnvils.get(); }
+    public boolean shouldMute() {
+        return muteAnvils.get();
+    }
 
     private boolean hasValidItems(AnvilScreenHandler handler) {
         if (mc.player == null) return false;
@@ -124,8 +120,7 @@ public class AutoRename extends GenyoModule {
             if (n == 2) continue;
             ItemStack stack = handler.getSlot(n).getStack();
             if ((blacklistMode.get() && !itemList.get().contains(stack.getItem()))
-                || (!blacklistMode.get() && itemList.get().contains(stack.getItem())))
-            {
+                || (!blacklistMode.get() && itemList.get().contains(stack.getItem()))) {
                 if (itemName.get().isBlank() && stack.contains(DataComponentTypes.CUSTOM_NAME)) return true;
                 else if (!stack.getName().getString().equals(itemName.get())) return true;
             }
@@ -137,20 +132,23 @@ public class AutoRename extends GenyoModule {
         if (mc.player == null) return;
         if (!notified) {
             sendError("Not enough experience!");
-            if (pingOnDone.get()) mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
+            if (pingOnDone.get())
+                mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
         }
 
         notified = true;
         if (closeOnDone.get()) mc.player.closeHandledScreen();
         if (disableOnDone.get()) this.toggle();
-        if (enableExpThrower.get() && !Modules.get().isActive(EXPThrower.class)) Modules.get().get(EXPThrower.class).toggle();
+        if (enableExpThrower.get() && !Modules.get().isActive(EXPThrower.class))
+            Modules.get().get(EXPThrower.class).toggle();
     }
 
     private void finished() {
         if (mc.player == null) return;
         if (!notified) {
             sendError("No more items to rename§a..!");
-            if (pingOnDone.get()) mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
+            if (pingOnDone.get())
+                mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pingVolume.get().floatValue(), 1.0f);
         }
 
         notified = true;
@@ -195,8 +193,7 @@ public class AutoRename extends GenyoModule {
                 else if (stack.getName().getString().equals(itemName.get())) continue;
                 else if (itemName.get().isBlank() && !stack.contains(DataComponentTypes.CUSTOM_NAME)) continue;
                 if ((blacklistMode.get() && !itemList.get().contains(stack.getItem()))
-                    || (!blacklistMode.get() && itemList.get().contains(stack.getItem())))
-                {
+                    || (!blacklistMode.get() && itemList.get().contains(stack.getItem()))) {
                     InvUtils.shiftClick().slotId(n);
                     ((AccessorAnvilScreen) anvilScreen).getNameField().setText(itemName.get());
                     ItemStack check = anvil.getSlot(AnvilScreenHandler.OUTPUT_ID).getStack();

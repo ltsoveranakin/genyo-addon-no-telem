@@ -19,21 +19,21 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GenyoSurround extends GenyoModule {
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
-
     private final Setting<Boolean> disableOnJump = sgGeneral.add(new BoolSetting.Builder()
         .name("disable-on-jump")
         .description("auto disable on jump waoooo")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Integer> placeDelay = sgGeneral.add(new IntSetting.Builder()
         .name("place-delay")
         .description("tick delay between placements")
@@ -41,7 +41,6 @@ public class GenyoSurround extends GenyoModule {
         .sliderRange(0, 20)
         .build()
     );
-
     private final Setting<Integer> blocksPerTick = sgGeneral.add(new IntSetting.Builder()
         .name("blocks-per-tick")
         .description("how many blocks to place per tick")
@@ -49,14 +48,12 @@ public class GenyoSurround extends GenyoModule {
         .sliderRange(1, 4)
         .build()
     );
-
     private final Setting<Boolean> renderEsp = sgRender.add(new BoolSetting.Builder()
         .name("render-box")
         .description("render a box around the placed blocks")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
         .name("line-color")
         .description("waooooooooooooo")
@@ -64,7 +61,6 @@ public class GenyoSurround extends GenyoModule {
         .defaultValue(new Color(255, 0, 0, 150))
         .build()
     );
-
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
         .name("side-color")
         .description("ewfkjmhewhfhewfjhewkjfhewfewhfjkewhfkew")
@@ -72,7 +68,6 @@ public class GenyoSurround extends GenyoModule {
         .defaultValue(new Color(255, 0, 0, 50))
         .build()
     );
-
     private final Setting<Integer> espDisplayTime = sgRender.add(new IntSetting.Builder()
         .name("esp-display-time")
         .description("render delay (in ticks) after placement")
@@ -81,7 +76,6 @@ public class GenyoSurround extends GenyoModule {
         .sliderRange(0, 200)
         .build()
     );
-
     private final Setting<Integer> espFadeTime = sgRender.add(new IntSetting.Builder()
         .name("esp-fade-time")
         .description("esp fade time in ticks")
@@ -90,13 +84,11 @@ public class GenyoSurround extends GenyoModule {
         .visible(renderEsp::get)
         .build()
     );
-
+    private final Map<BlockPos, Long> espBlocks = new ConcurrentHashMap<>();
     private int delayTicks = 0;
     private List<BlockPos> targetPositions = new ArrayList<>();
-    private final Map<BlockPos, Long> espBlocks = new ConcurrentHashMap<>();
-
     public GenyoSurround() {
-        super(Genyo.WORLD, "genyo-surround", "haaaaaaaaaaaaaa");
+        super(Genyo.WORLD, "genyo-surround", "surrounds your feet with obsidian");
     }
 
     public void onActivate() {
@@ -208,21 +200,16 @@ public class GenyoSurround extends GenyoModule {
     public List<BlockPos> getSurroundNoDown(PlayerEntity player, float range) {
         List<BlockPos> surroundBlocks = new ArrayList<>();
         List<BlockPos> playerBlocks = getPlayerBlocks(player);
-        for (BlockPos pos : playerBlocks)
-        {
-            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range)
-            {
+        for (BlockPos pos : playerBlocks) {
+            if (range > 0.0f && mc.player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > range * range) {
                 continue;
             }
-            for (Direction dir : Direction.values())
-            {
-                if (!dir.getAxis().isHorizontal())
-                {
+            for (Direction dir : Direction.values()) {
+                if (!dir.getAxis().isHorizontal()) {
                     continue;
                 }
                 BlockPos pos1 = pos.offset(dir);
-                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1))
-                {
+                if (surroundBlocks.contains(pos1) || playerBlocks.contains(pos1)) {
                     continue;
                 }
                 surroundBlocks.add(pos1);
@@ -231,8 +218,7 @@ public class GenyoSurround extends GenyoModule {
         return surroundBlocks;
     }
 
-    public List<BlockPos> getSurroundNoDown(PlayerEntity player)
-    {
+    public List<BlockPos> getSurroundNoDown(PlayerEntity player) {
         return getSurroundNoDown(player, 0.0f);
     }
 

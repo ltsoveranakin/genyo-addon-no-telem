@@ -17,22 +17,13 @@ import net.minecraft.util.math.Direction;
 import org.lwjgl.glfw.GLFW;
 
 public class GenyoGhostBlocks extends GenyoModule {
-
-    public GenyoGhostBlocks() {
-        super(Genyo.WORLD, "genyo-ghost-blocks", "maybe");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("Mode")
         .description("Method to do the magic.")
         .defaultValue(Mode.Shoreline)
         .build()
     );
-
-    //---------Shoreline----------//
-
     private final Setting<Boolean> place = sgGeneral.add(new BoolSetting.Builder()
         .name("Place")
         .description("Places blocks only after the server confirms")
@@ -41,6 +32,7 @@ public class GenyoGhostBlocks extends GenyoModule {
         .build()
     );
 
+    //---------Shoreline----------//
     private final Setting<Boolean> destroy = sgGeneral.add(new BoolSetting.Builder()
         .name("Destroy")
         .description("Destroys blocks only after the server confirms")
@@ -48,9 +40,6 @@ public class GenyoGhostBlocks extends GenyoModule {
         .visible(() -> mode.get() == Mode.Shoreline)
         .build()
     );
-
-    //---------AntiGhost----------//
-
     private final Setting<Integer> radius = sgGeneral.add(new IntSetting.Builder()
         .name("Radius")
         .description("Radius to check for ghost blocks.")
@@ -61,6 +50,7 @@ public class GenyoGhostBlocks extends GenyoModule {
         .build()
     );
 
+    //---------AntiGhost----------//
     private final Setting<Keybind> toggleKey = sgGeneral.add(new KeybindSetting.Builder()
         .name("Toggle Keybind")
         .description("asd")
@@ -69,6 +59,10 @@ public class GenyoGhostBlocks extends GenyoModule {
         .visible(() -> mode.get() == Mode.AntiGhost)
         .build()
     );
+
+    public GenyoGhostBlocks() {
+        super(Genyo.WORLD, "genyo-ghost-blocks", "maybe");
+    }
 
     private void antiGhost() {
         if (mode.get() != Mode.Shoreline) return;
