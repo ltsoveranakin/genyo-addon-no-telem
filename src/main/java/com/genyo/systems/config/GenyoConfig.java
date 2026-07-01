@@ -11,11 +11,6 @@ public class GenyoConfig extends System<GenyoConfig> {
     public final Settings settings = new Settings();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgSounds = settings.createGroup("Sounds");
-    private final SettingGroup sgVisual = settings.createGroup("Visual");
-
-    // General
-
     public final Setting<TextPosition> textPosition = sgGeneral.add(new EnumSetting.Builder<TextPosition>()
         .name("text-position")
         .description("Position of the Title Screen text")
@@ -23,68 +18,10 @@ public class GenyoConfig extends System<GenyoConfig> {
         .build()
     );
 
-    // Sounds
-
-    public final Setting<Integer> globalVolume = sgSounds.add(new IntSetting.Builder()
-        .name("global-volume")
-        .description("Adjust the global volume of Genyo sounds.")
-        .sliderRange(10, 100)
-        .min(10).defaultValue(100).max(100)
-        .build()
-    );
-
-    // In sgSounds group, add these three:
-
-    public final Setting<Boolean> guiSounds = sgSounds.add(new BoolSetting.Builder()
-        .name("gui-sounds")
-        .description("Play sounds when hovering and clicking in Meteor's GUI.")
-        .defaultValue(true)
-        .build()
-    );
-
-    public final Setting<Integer> hoverVolume = sgSounds.add(new IntSetting.Builder()
-        .name("hover-volume")
-        .description("Volume of the hover sound.")
-        .min(1).defaultValue(60).max(100)
-        .sliderRange(1, 100)
-        .visible(guiSounds::get)
-        .build()
-    );
-
-    public final Setting<Integer> clickVolume = sgSounds.add(new IntSetting.Builder()
-        .name("click-volume")
-        .description("Volume of left/right click sounds.")
-        .min(1).defaultValue(80).max(100)
-        .sliderRange(1, 100)
-        .visible(guiSounds::get)
-        .build()
-    );
-
-    public final Setting<Boolean> blackPerson = sgSounds.add(new BoolSetting.Builder()
-        .name("black-person")
-        .description("Detect when black person")
-        .defaultValue(true)
-        .build()
-    );
-
-    public final Setting<Boolean> typing = sgSounds.add(new BoolSetting.Builder()
-        .name("typing")
-        .description("Typing sound in chat")
-        .defaultValue(false)
-        .build()
-    );
-
-    public final Setting<Integer> typingVolume = sgSounds.add(new IntSetting.Builder()
-        .name("typing-volume")
-        .description("Adjust the volume of the typing sound")
-        .min(1).defaultValue(80).max(100)
-        .sliderRange(1, 100)
-        .visible(typing::get)
-        .build()
-    );
+    // General
+    private final SettingGroup sgVisual = settings.createGroup("Visual");
 
     // Visual
-
     public final Setting<Boolean> useGenyoSplashes = sgVisual.add(new BoolSetting.Builder()
         .name("use-genyo-splashes")
         .description("Use Genyo's custom splash texts in the title screen.")

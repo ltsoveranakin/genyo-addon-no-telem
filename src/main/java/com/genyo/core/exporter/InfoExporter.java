@@ -14,7 +14,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InfoExporter {
 
@@ -48,47 +51,6 @@ public class InfoExporter {
 
         // Huds
         huds.addAll(addHuds());
-    }
-
-    public void export() {
-        Genyo.LOG.info("Initializing exporter.");
-
-        // Empty checks
-        if (emptyCheck()) {
-            Genyo.LOG.error("Exporting infos failed, a list is empty.");
-            return;
-        }
-
-        Map<String, Object> output = new LinkedHashMap<>();
-
-        output.put("categories", categories);
-        output.put("modules", exportModules());
-        output.put("systems", exportSystems());
-
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
-        options.setPrettyFlow(true);
-
-        Yaml yaml = new Yaml(options);
-
-        String outputString = yaml.dump(output);
-
-        try (FileWriter writer = new FileWriter("genyo_info.yaml")) {
-            writer.write(outputString);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        Genyo.LOG.info("Successfully exported Genyo's infos!");
-    }
-
-    private boolean emptyCheck() {
-        if (categories.isEmpty()) return true;
-        if (modules.isEmpty()) return true;
-        if (systems.isEmpty()) return true;
-        if (huds.isEmpty()) return true;
-
-        return false;
     }
 
     private static List<Map<String, Object>> exportModules() {
@@ -133,21 +95,6 @@ public class InfoExporter {
         return export;
     }
 
-    /*private static List<Map<String, Object>> exportHuds() {
-        List<Map<String, Object>> export = new ArrayList<>();
-
-        for (ExHUD hud : huds) {
-            Map<String, Object> map = new LinkedHashMap<>();
-
-            map.put("name", hud.name());
-            map.put("description", hud.description());
-
-            export.add(map);
-        }
-
-        return export;
-    }*/
-
     private static List<ExModule> acquireModules(String category) {
         List<ExModule> acquired = new ArrayList<>();
 
@@ -168,13 +115,26 @@ public class InfoExporter {
         List<ExSystem> init = new ArrayList<>();
 
         ExSystem enemies = new ExSystem("Enemies", "Store a list of enemies that Genyo will use. Add and remove players, use Meteor's BetterTab to see them in Tab and other features.");
-        ExSystem sound = new ExSystem("Sound", "Custom sounds that make your gaming experience even better. 100% real information.");
 
         init.add(enemies);
-        init.add(sound);
 
         return init;
     }
+
+    /*private static List<Map<String, Object>> exportHuds() {
+        List<Map<String, Object>> export = new ArrayList<>();
+
+        for (ExHUD hud : huds) {
+            Map<String, Object> map = new LinkedHashMap<>();
+
+            map.put("name", hud.name());
+            map.put("description", hud.description());
+
+            export.add(map);
+        }
+
+        return export;
+    }*/
 
     private static List<ExHUD> addHuds() {
         List<ExHUD> init = new ArrayList<>();
@@ -214,6 +174,45 @@ public class InfoExporter {
         else if (category == "Visual") return Genyo.VISUAL;
         else if (category == "World") return Genyo.WORLD;
         else return null;
+    }
+
+    public void export() {
+        Genyo.LOG.info("Initializing exporter.");
+
+        // Empty checks
+        if (emptyCheck()) {
+            Genyo.LOG.error("Exporting infos failed, a list is empty.");
+            return;
+        }
+
+        Map<String, Object> output = new LinkedHashMap<>();
+
+        output.put("categories", categories);
+        output.put("modules", exportModules());
+        output.put("systems", exportSystems());
+
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
+        options.setPrettyFlow(true);
+
+        Yaml yaml = new Yaml(options);
+
+        String outputString = yaml.dump(output);
+
+        try (FileWriter writer = new FileWriter("genyo_info.yaml")) {
+            writer.write(outputString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Genyo.LOG.info("Successfully exported Genyo's infos!");
+    }
+
+    private boolean emptyCheck() {
+        if (categories.isEmpty()) return true;
+        if (modules.isEmpty()) return true;
+        if (systems.isEmpty()) return true;
+        return huds.isEmpty();
     }
 
 }

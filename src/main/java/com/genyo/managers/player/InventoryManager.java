@@ -41,12 +41,10 @@ public class InventoryManager {
     private int slot;
 
     @EventHandler
-    public void onPacketSend(final PacketEvent.Send event)
-    {
+    public void onPacketSend(final PacketEvent.Send event) {
         if (event.packet instanceof UpdateSelectedSlotC2SPacket packet) {
             final int packetSlot = packet.getSelectedSlot();
-            if (!PlayerInventory.isValidHotbarIndex(packetSlot) || slot == packetSlot)
-            {
+            if (!PlayerInventory.isValidHotbarIndex(packetSlot) || slot == packetSlot) {
                 event.setCancelled(true);
                 return;
             }
@@ -55,21 +53,16 @@ public class InventoryManager {
     }
 
     @EventHandler
-    public void onPacketReceive(final PacketEvent.Receive event)
-    {
-        if (event.packet instanceof UpdateSelectedSlotS2CPacket packet)
-        {
-            slot = packet.slot();
+    public void onPacketReceive(final PacketEvent.Receive event) {
+        if (event.packet instanceof UpdateSelectedSlotS2CPacket(int slot1)) {
+            slot = slot1;
         }
 
-        // retarded packets from grim we can ignore
-        if (event.packet instanceof BundleS2CPacket packet)
-        {
+        // packets from grim we can ignore
+        if (event.packet instanceof BundleS2CPacket packet) {
             List<Packet<?>> allowedBundle = new ArrayList<>();
-            for (Packet<?> packet1 : packet.getPackets())
-            {
-                if (packet1 instanceof ScreenHandlerSlotUpdateS2CPacket)
-                {
+            for (Packet<?> packet1 : packet.getPackets()) {
+                if (packet1 instanceof ScreenHandlerSlotUpdateS2CPacket) {
                     continue;
                 }
                 allowedBundle.add(packet1);
@@ -77,29 +70,23 @@ public class InventoryManager {
             ((AccessorBundlePacket) packet).setIterable(allowedBundle);
         }
 
-        if (event.packet instanceof ScreenHandlerSlotUpdateS2CPacket packet)
-        {
+        if (event.packet instanceof ScreenHandlerSlotUpdateS2CPacket packet) {
             int slot = packet.getSlot() - 36;
-            if (slot < 0 || slot > 8)
-            {
+            if (slot < 0 || slot > 8) {
                 return;
             }
 
-            if (packet.getStack().isEmpty())
-            {
+            if (packet.getStack().isEmpty()) {
                 return;
             }
 
-            for (PreSwapData data : swapData)
-            {
-                if (data.getSlot() != slot && data.getStarting() != slot)
-                {
+            for (PreSwapData data : swapData) {
+                if (data.getSlot() != slot && data.getStarting() != slot) {
                     continue;
                 }
 
                 ItemStack preStack = data.getPreHolding(slot);
-                if (!isEqual(preStack, packet.getStack()))
-                {
+                if (!isEqual(preStack, packet.getStack())) {
                     event.cancel();
                     break;
                 }
@@ -108,27 +95,22 @@ public class InventoryManager {
     }
 
     @EventHandler
-    public void onItemDesync(ItemDesyncEvent event)
-    {
-        if (isDesynced())
-        {
+    public void onItemDesync(ItemDesyncEvent event) {
+        if (isDesynced()) {
             event.cancel();
             event.setStack(getServerItem());
         }
     }
 
     @EventHandler
-    public void onDeath(EntityDeathEvent event)
-    {
-        if (event.entity == mc.player)
-        {
+    public void onDeath(EntityDeathEvent event) {
+        if (event.entity == mc.player) {
             syncToClient();
         }
     }
 
     @EventHandler
-    public void onTick(TickEvent.Pre event)
-    {
+    public void onTick(TickEvent.Pre event) {
         swapData.removeIf(PreSwapData::isPassedClearTime);
     }
 
@@ -139,15 +121,12 @@ public class InventoryManager {
      * @apiNote Method will not do anything if the slot provided is already the server slot
      * @see InventoryManager#setSlotForced(int)
      */
-    public void setSlot(final int barSlot)
-    {
-        if (slot != barSlot && PlayerInventory.isValidHotbarIndex(barSlot))
-        {
+    public void setSlot(final int barSlot) {
+        if (slot != barSlot && PlayerInventory.isValidHotbarIndex(barSlot)) {
             setSlotForced(barSlot);
 
             final ItemStack[] hotbarCopy = new ItemStack[9];
-            for (int i = 0; i < 9; i++)
-            {
+            for (int i = 0; i < 9; i++) {
                 hotbarCopy[i] = mc.player.getInventory().getStack(i);
             }
             swapData.add(new PreSwapData(hotbarCopy, slot, barSlot));
@@ -159,30 +138,10 @@ public class InventoryManager {
      *
      * @param barSlot the player hotbar slot 0-8
      */
-    public void setSlotAlt(final int barSlot)
-    {
-        if (PlayerInventory.isValidHotbarIndex(barSlot))
-        {
+    public void setSlotAlt(final int barSlot) {
+        if (PlayerInventory.isValidHotbarIndex(barSlot)) {
             mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
                 barSlot + 36, slot, SlotActionType.SWAP, mc.player);
-        }
-    }
-
-    /**
-     * Sets the server & client slot
-     *
-     * @param barSlot the player hotbar slot 0-8
-     * @apiNote Method will not do anything if the slot provided is already the server slot
-     * @see InventoryManager#setSlotForced(int)
-     * @see InventoryManager#setSlot(int)
-     */
-    public void setClientSlot(final int barSlot)
-    {
-        if (mc.player.getInventory().getSelectedSlot() != barSlot
-            && PlayerInventory.isValidHotbarIndex(barSlot))
-        {
-            mc.player.getInventory().setSelectedSlot(barSlot);
-            setSlotForced(barSlot);
         }
     }
 
@@ -191,66 +150,54 @@ public class InventoryManager {
      *
      * @param barSlot the player hotbar slot 0-8
      */
-    public void setSlotForced(final int barSlot)
-    {
+    public void setSlotForced(final int barSlot) {
         Managers.NETWORK.sendPacket(new UpdateSelectedSlotC2SPacket(barSlot));
     }
 
     /**
      * Syncs the server slot to the client slot
      */
-    public void syncToClient()
-    {
-        if (isDesynced())
-        {
+    public void syncToClient() {
+        if (isDesynced()) {
             setSlotForced(mc.player.getInventory().getSelectedSlot());
 
-            for (PreSwapData swapData : swapData)
-            {
+            for (PreSwapData swapData : swapData) {
                 swapData.beginClear();
             }
         }
     }
 
-    public boolean isDesynced()
-    {
+    public boolean isDesynced() {
         return mc.player.getInventory().getSelectedSlot() != slot;
     }
 
     //
-    public void closeScreen()
-    {
+    public void closeScreen() {
         Managers.NETWORK.sendPacket(new CloseHandledScreenC2SPacket(mc.player.currentScreenHandler.syncId));
     }
 
     /**
      * @param slot
      */
-    public int pickupSlot(final int slot)
-    {
+    public int pickupSlot(final int slot) {
         return click(slot, 0, SlotActionType.PICKUP);
     }
 
-    public void quickMove(final int slot)
-    {
+    public void quickMove(final int slot) {
         click(slot, 0, SlotActionType.QUICK_MOVE);
     }
 
     /**
      * @param slot
      */
-    public void throwSlot(final int slot)
-    {
+    public void throwSlot(final int slot) {
         click(slot, 0, SlotActionType.THROW);
     }
 
-    public int findEmptySlot()
-    {
-        for (int i = 9; i < 36; i++)
-        {
+    public int findEmptySlot() {
+        for (int i = 9; i < 36; i++) {
             ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isEmpty())
-            {
+            if (stack.isEmpty()) {
                 return i;
             }
         }
@@ -330,35 +277,45 @@ public class InventoryManager {
     /**
      * @return
      */
-    public int getServerSlot()
-    {
+    public int getServerSlot() {
         return slot;
     }
 
-    public int getClientSlot()
-    {
+    public int getClientSlot() {
         return mc.player.getInventory().getSelectedSlot();
+    }
+
+    /**
+     * Sets the server & client slot
+     *
+     * @param barSlot the player hotbar slot 0-8
+     * @apiNote Method will not do anything if the slot provided is already the server slot
+     * @see InventoryManager#setSlotForced(int)
+     * @see InventoryManager#setSlot(int)
+     */
+    public void setClientSlot(final int barSlot) {
+        if (mc.player.getInventory().getSelectedSlot() != barSlot
+            && PlayerInventory.isValidHotbarIndex(barSlot)) {
+            mc.player.getInventory().setSelectedSlot(barSlot);
+            setSlotForced(barSlot);
+        }
     }
 
     /**
      * @return
      */
-    public ItemStack getServerItem()
-    {
-        if (mc.player != null && getServerSlot() != -1)
-        {
+    public ItemStack getServerItem() {
+        if (mc.player != null && getServerSlot() != -1) {
             return mc.player.getInventory().getStack(getServerSlot());
         }
         return null;
     }
 
-    private boolean isEqual(ItemStack stack1, ItemStack stack2)
-    {
+    private boolean isEqual(ItemStack stack1, ItemStack stack2) {
         return stack1.getItem().equals(stack2.getItem()) && stack1.getName().equals(stack2.getName());
     }
 
-    public static class PreSwapData
-    {
+    public static class PreSwapData {
         private final ItemStack[] preHotbar;
 
         private final int starting;
@@ -366,36 +323,30 @@ public class InventoryManager {
 
         private Timer clearTime;
 
-        public PreSwapData(ItemStack[] preHotbar, int start, int swapTo)
-        {
+        public PreSwapData(ItemStack[] preHotbar, int start, int swapTo) {
             this.preHotbar = preHotbar;
             this.starting = start;
             this.swapTo = swapTo;
         }
 
-        public void beginClear()
-        {
+        public void beginClear() {
             clearTime = new CacheTimer();
             clearTime.reset();
         }
 
-        public boolean isPassedClearTime()
-        {
+        public boolean isPassedClearTime() {
             return clearTime != null && clearTime.passed(300);
         }
 
-        public ItemStack getPreHolding(int i)
-        {
+        public ItemStack getPreHolding(int i) {
             return preHotbar[i];
         }
 
-        public int getStarting()
-        {
+        public int getStarting() {
             return starting;
         }
 
-        public int getSlot()
-        {
+        public int getSlot() {
             return swapTo;
         }
     }

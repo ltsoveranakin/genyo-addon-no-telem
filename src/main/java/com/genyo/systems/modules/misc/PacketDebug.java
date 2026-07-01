@@ -14,26 +14,18 @@ import java.util.Set;
 
 public class PacketDebug extends GenyoModule {
 
-    public PacketDebug() {
-        super(Genyo.MISC, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
-    }
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Set<Class<? extends Packet<?>>>> blacklist = sgGeneral.add(new PacketListSetting.Builder()
         .name("Blacklisted Packets")
-        .description("black >:(")
         .filter(aClass -> PacketUtils.getC2SPackets().contains(aClass))
         .build()
     );
-
     private final Setting<Boolean> toChat = sgGeneral.add(new BoolSetting.Builder()
         .name("Send in Chat")
         .description("sends the logs to chat (only client side)")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Integer> threshold = sgGeneral.add(new IntSetting.Builder()
         .name("Threshold")
         .description("Minimum amount to reach for packets to be logged in a single tick")
@@ -42,7 +34,6 @@ public class PacketDebug extends GenyoModule {
         .max(30)
         .build()
     );
-
     private final Setting<Integer> logTicks = sgGeneral.add(new IntSetting.Builder()
         .name("Tick Amount")
         .description("how many ticks to wait to log all the packets")
@@ -52,10 +43,12 @@ public class PacketDebug extends GenyoModule {
         .visible(() -> threshold.get() > 0)
         .build()
     );
-
     private int currentAmount;
     private int tickTimer;
-    private Set<String> queue = new HashSet<>();
+    private final Set<String> queue = new HashSet<>();
+    public PacketDebug() {
+        super(Genyo.MISC, "packet-debug", "yweoikfjwekfjhewkfjwehfkjefhwehjkfhwehfkew.");
+    }
 
     @Override
     public void onActivate() {
